@@ -20,14 +20,18 @@ module Upwords
 
     def run
       while @running do
-        print "\n"
-        @board.show
-        print "\n#{current_player.name}'s turn\n"
-        print "Available letters: #{current_player.show_rack}\n"
-        print "Play a letter...\n"
-        letter = gets.chomp
-        current_player.play_letter(letter, 0, 0)
-        next_turn
+        begin 
+          print "\n"
+          @board.show
+          print "\n#{current_player.name}'s turn\n"
+          print "Available letters: #{current_player.show_rack}\n"
+          print "Play a letter...\n"
+          letter = gets.chomp
+          current_player.play_letter(letter, 0, 0)
+          next_turn
+        rescue StandardError => exception
+          print exception.message
+        end
       end
     end
 

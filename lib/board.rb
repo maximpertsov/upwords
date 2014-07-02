@@ -7,6 +7,7 @@ module Upwords
     def initialize
       @grid = Array.new(num_rows) {Array.new(num_columns) { Array.new(max_height)}}
       @letter_bank = LetterBank.new
+      @selected_space = [0, 0]
     end
 
     def num_columns
@@ -22,8 +23,8 @@ module Upwords
       5
     end
 
-    def max_players
-      2
+    def selected_space=(row, col)
+      @selected_space = [row % num_rows, col % num_columns]
     end
 
     # get number of letters stacked in a board space
@@ -32,6 +33,8 @@ module Upwords
     end
 
     # place letter on board space
+    ## UPDATE to take position from @selected_space instead of taking
+    ## row and col parameters
     def play_letter(letter, row, col)
       height = stack_height(row, col)
       if height >= max_height 
@@ -51,15 +54,22 @@ module Upwords
       end
     end
 
+    def show_space(row, col)
+      cursor = " "
+      if row == @selected_space[0] && col == @selected_space[1]
+        cursor = "*"
+      end
+      print "[#{top_letter(row, col)}, #{stack_height(row, col)}#{cursor}] "
+    end
+
     # print grid of top letter on each stack and stack height
     def show
       @grid.each_with_index do |row, i| 
         print "\n"
-        row.each_index do |j| 
-          print "[#{top_letter(i, j)}, #{stack_height(i, j)}] "
-        end
+        row.each_index{|j| show_space(i, j)}
       end
       print "\n"
     end
+  
   end
 end
