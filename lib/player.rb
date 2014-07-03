@@ -14,10 +14,10 @@ module Upwords
       @rack.rack
     end
 
-    def play_letter(letter, row, col)
+    def play_letter(letter)
       selected_letter = @rack.take_from(letter)
       begin
-        @board.play_letter(selected_letter, row, col)
+        @board.play_letter(selected_letter)
       rescue IllegalMove => exception
         print exception.message
         @rack.return_to(selected_letter)
@@ -26,6 +26,10 @@ module Upwords
 
     def swap_letter(letter)
       @rack.swap(letter)
+    end
+
+    def refill_rack
+      @rack.refill
     end
     
   end

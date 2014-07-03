@@ -35,7 +35,8 @@ module Upwords
     # place letter on board space
     ## UPDATE to take position from @selected_space instead of taking
     ## row and col parameters
-    def play_letter(letter, row, col)
+    def play_letter(letter)
+      row, col = @selected_space[0], @selected_space[1]
       height = stack_height(row, col)
       if height >= max_height 
         raise IllegalMove, "You cannot stack any more letters on this space"
@@ -48,7 +49,7 @@ module Upwords
     def top_letter(row, col)
       current_height = stack_height(row, col)
       if current_height == 0
-        nil
+        " "
       else
         @grid[row][col][current_height - 1]
       end
@@ -59,16 +60,23 @@ module Upwords
       if row == @selected_space[0] && col == @selected_space[1]
         cursor = "*"
       end
-      print "[#{top_letter(row, col)}, #{stack_height(row, col)}#{cursor}] "
+      current_letter = top_letter(row, col)
+      if current_letter != "Qu"
+        current_letter += " "
+      end
+      print " #{current_letter}#{cursor}|"
     end
 
     # print grid of top letter on each stack and stack height
     def show
       @grid.each_with_index do |row, i| 
-        print "\n"
+        print "\n+"
+        print ("-" * 4 + "+") * num_columns
+        print "\n|"
         row.each_index{|j| show_space(i, j)}
       end
-      print "\n"
+      print "\n+"
+      print ("-" * 4 + "+") * num_columns
     end
   
   end

@@ -27,7 +27,8 @@ module Upwords
           print "Available letters: #{current_player.show_rack}\n"
           print "Play a letter...\n"
           letter = gets.chomp
-          current_player.play_letter(letter, 0, 0)
+          current_player.play_letter(letter)
+          current_player.refill_rack
           next_turn
         rescue IllegalMove => exception
           print exception.message
