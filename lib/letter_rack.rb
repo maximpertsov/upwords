@@ -49,5 +49,11 @@ module Upwords
       @rack << @bank.draw
     end
 
+    def show
+      printed_rack = ""
+      @rack.each{|letter| printed_rack += letter + " "}
+      printed_rack
+    end
+
   end
 end

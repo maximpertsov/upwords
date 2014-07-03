@@ -1,3 +1,5 @@
+require 'io/console'
+
 module Upwords
   class Game
 
@@ -10,8 +12,9 @@ module Upwords
       # add players
       @players.each do |p|
         print "What is Player #{player_count + 1}'s name?\n"
-        p_name = gets.chomp
-        add_player(p_name)
+        player_name = gets.chomp
+        add_player(player_name)
+        print "\n"
       end
 
       @turn = 0
@@ -24,9 +27,10 @@ module Upwords
           print "\n"
           @board.show_in_console
           print "\n#{current_player.name}'s turn\n"
-          print "Available letters: #{current_player.show_rack}\n"
-          print "Play a letter...\n"
+          print "Play a letter: #{current_player.show_rack}\n"
+          print "Other actions: (1)Swap (2)Skip (3)Submit (4)Cursor\n"
           letter = gets.chomp
+          # letter = STDIN.getch ## get input without letter without pressing enter
           current_player.play_letter(letter)
           current_player.refill_rack
           next_turn

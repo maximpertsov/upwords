@@ -11,7 +11,7 @@ module Upwords
     end
 
     def show_rack
-      @rack.rack
+      @rack.show
     end
 
     def play_letter(letter)
