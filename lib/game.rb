@@ -29,7 +29,7 @@ module Upwords
           letter = gets.chomp
           current_player.play_letter(letter, 0, 0)
           next_turn
-        rescue StandardError => exception
+        rescue IllegalMove => exception
           print exception.message
         end
       end

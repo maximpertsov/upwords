@@ -15,10 +15,12 @@ module Upwords
     end
 
     def play_letter(letter, row, col)
-      if !@rack.has_letter?(letter)
-        raise IllegalMove, "You don't have this letter"
-      else 
-        @board.play_letter(letter, row, col)
+      selected_letter = @rack.take_from(letter)
+      begin
+        @board.play_letter(selected_letter, row, col)
+      rescue IllegalMove => exception
+        print exception.message
+        @rack.return_to(selected_letter)
       end
     end
 
@@ -26,10 +28,5 @@ module Upwords
       @rack.swap(letter)
     end
     
-    ## Move to Game class
-    def submit_move
-      # Prompts player if they wish to submit their move
-      # This method will be at the end of each move method
-    end
   end
 end
