@@ -22,7 +22,7 @@ module Upwords
       while @running do
         begin 
           print "\n"
-          @board.show
+          @board.show_in_console
           print "\n#{current_player.name}'s turn\n"
           print "Available letters: #{current_player.show_rack}\n"
           print "Play a letter...\n"

@@ -49,35 +49,50 @@ module Upwords
     def top_letter(row, col)
       current_height = stack_height(row, col)
       if current_height == 0
-        " "
+        nil
       else
         @grid[row][col][current_height - 1]
       end
     end
 
-    def show_space(row, col)
+    # ------------------------
+    # PRINT TO CONSOLE METHODS
+    # ------------------------
+    # ideally, this app will eventually have a proper gui, 
+    # and these methods will no longer be necessary
+
+    def letter_to_console(row, col)
       cursor = " "
       if row == @selected_space[0] && col == @selected_space[1]
         cursor = "*"
       end
-      current_letter = top_letter(row, col)
-      if current_letter != "Qu"
-        current_letter += " "
+      print_letter = top_letter(row, col)
+      if print_letter.nil?
+        print_letter = "  "
+      elsif print_letter != "Qu"
+        print_letter += " "
       end
-      print " #{current_letter}#{cursor}|"
+      print " #{print_letter}#{cursor}|"
+    end
+    
+    def stack_height_to_console(row, col)
+      print_height = stack_height(row, col)
+      if print_height == 0
+        print_height = "-"
+      end
+      print "---#{print_height}+"
     end
 
     # print grid of top letter on each stack and stack height
-    def show
+    def show_in_console
+      print "\n+" + "----+" * num_columns
       @grid.each_with_index do |row, i| 
-        print "\n+"
-        print ("-" * 4 + "+") * num_columns
         print "\n|"
-        row.each_index{|j| show_space(i, j)}
+        row.each_index{|j| letter_to_console(i, j)}
+        print "\n+"
+        row.each_index{|j| stack_height_to_console(i, j)}
       end
-      print "\n+"
-      print ("-" * 4 + "+") * num_columns
     end
-  
+    
   end
 end
