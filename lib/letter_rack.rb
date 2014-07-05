@@ -20,7 +20,11 @@ module Upwords
     
     def take_from(letter)
       #convert letter to title case (qu or QU -> Qu)
-      letter.gsub!(/\w+/){|word| word.capitalize}
+      if letter.capitalize == 'Q'
+        letter = 'Qu'
+      else
+        letter.capitalize!
+      end
       if !has_letter?(letter)
         raise IllegalMove, "You don't have this letter"
       else

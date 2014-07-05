@@ -11,22 +11,26 @@ module Upwords
       'a' => [ 0,-1], #left 
       'd' => [ 0, 1]  #right
     } 
+    Controls.default = [0,0]
 
     def initialize
       @board = Board.new
       @players = Array.new(max_players)
-
-      # add players
-      @players.each do |p|
-        print "What is Player #{player_count + 1}'s name?\n"
-        player_name = gets.chomp
-        add_player(player_name)
-        print "\n"
-      end
-
       @turn = 0
       @running = true
       @cursor_mode = true
+
+      # add players
+      # @players.each do |p|
+      #   print "What is Player #{player_count + 1}'s name?\n"
+      #   player_name = gets.chomp
+      #   add_player(player_name)
+      #   print "\n"
+      # end
+
+      ### for testing only - above code for live version
+      add_player("Max")    
+      add_player("Jordan")
     end
 
     def run
@@ -36,18 +40,30 @@ module Upwords
           
           while @cursor_mode do
             inp = STDIN.getch
-            move_cursor(Controls[inp])
+            if inp == toggle_mode_key
+              toggle_cursor_mode
+            else
+              move_cursor(Controls[inp])
+            end
+            hud_to_console
+          end
+
+          while !@cursor_mode
+            inp = STDIN.getch
+            if inp == toggle_mode_key
+              toggle_cursor_mode
+            else
+              letter = inp
+              current_player.play_letter(letter)
+              current_player.refill_rack
+            end
             hud_to_console
           end
           
-          letter = gets.chomp
-          # letter = STDIN.getch ## get input without letter without pressing enter
-          current_player.play_letter(letter)
-          current_player.refill_rack
-          next_turn
         rescue IllegalMove => exception
           print exception.message
         end
+
       end
     end
 
@@ -72,7 +88,7 @@ module Upwords
     end
 
     def add_player(name = nil)
-      if player_count == max_players # can I assert than player_count should never be > max_players
+      if player_count == max_players # can I assert than player_count should never be > max_players?
         raise StandardError, "No more players can join"
       else
         # if no name is entered, name will be "Player#"
@@ -84,8 +100,20 @@ module Upwords
     def hud_to_console
       @board.show_in_console
       print "#{current_player.name}'s letters: #{current_player.show_rack}\n"
-      print "Use (WASD keys) to move around\n"
-      print "Other actions: (1)Play Letter (2)Submit (3)Swap (4)Skip\n"
+      if @cursor_mode
+        print "*CURSOR MODE* Use (WASD keys) to move around\n"
+      elsif
+        print "*INPUT MODE* Play a letter...\n"
+      end
+      print "Other actions: (1)Switch Modes (2)Submit (3)Swap (4)Skip\n"
+    end
+    
+    def toggle_mode_key
+      '1'
+    end
+
+    def toggle_cursor_mode
+      @cursor_mode = !@cursor_mode
     end
 
   end
