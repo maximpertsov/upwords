@@ -15,12 +15,14 @@ module Upwords
 
     def initialize
       @board = Board.new
+      @graphics = Graphics.new(@board)
       @players = Array.new(max_players)
       @turn = 0
       @running = true
       @cursor_mode = true
 
       # add players
+      
       # @players.each do |p|
       #   print "What is Player #{player_count + 1}'s name?\n"
       #   player_name = gets.chomp
@@ -31,6 +33,10 @@ module Upwords
       ### for testing only - above code for live version
       add_player("Max")    
       add_player("Jordan")
+    end
+
+    def run_test
+      @graphics.draw_board
     end
 
     def run
@@ -84,7 +90,7 @@ module Upwords
     end
 
     def move_cursor(direction)
-      @board.update_cursor_location(direction[0], direction[1])
+      @board.move_cursor(direction[0], direction[1])
     end
 
     def add_player(name = nil)
@@ -98,7 +104,7 @@ module Upwords
     end
     
     def hud_to_console
-      @board.show_in_console
+      @graphics.draw_board#@board.show_in_console
       print "#{current_player.name}'s letters: #{current_player.show_rack}\n"
       if @cursor_mode
         print "*CURSOR MODE* Use (WASD keys) to move around\n"
