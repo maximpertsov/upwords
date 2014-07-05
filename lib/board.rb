@@ -7,7 +7,7 @@ module Upwords
     def initialize
       @grid = Array.new(num_rows) {Array.new(num_columns) { Array.new(max_height)}}
       @letter_bank = LetterBank.new
-      @selected_space = [0, 0]
+      @cursor_location = [0, 0]
     end
 
     def num_columns
@@ -23,8 +23,9 @@ module Upwords
       5
     end
 
-    def selected_space=(row, col)
-      @selected_space = [row % num_rows, col % num_columns]
+    def update_cursor_location(row, col)
+      @cursor_location = [(@cursor_location[0] + row) % num_rows, 
+                          (@cursor_location[1] + col) % num_columns]
     end
 
     # get number of letters stacked in a board space
@@ -33,10 +34,10 @@ module Upwords
     end
 
     # place letter on board space
-    ## UPDATE to take position from @selected_space instead of taking
+    ## UPDATE to take position from @cursor_location instead of taking
     ## row and col parameters
     def play_letter(letter)
-      row, col = @selected_space[0], @selected_space[1]
+      row, col = @cursor_location[0], @cursor_location[1]
       height = stack_height(row, col)
       if height >= max_height 
         raise IllegalMove, "You cannot stack any more letters on this space"
@@ -63,7 +64,7 @@ module Upwords
 
     def letter_to_console(row, col)
       cursor = " "
-      if row == @selected_space[0] && col == @selected_space[1]
+      if row == @cursor_location[0] && col == @cursor_location[1]
         cursor = "*"
       end
       print_letter = top_letter(row, col)
@@ -85,13 +86,14 @@ module Upwords
 
     # print grid of top letter on each stack and stack height
     def show_in_console
-      print "\n+" + "----+" * num_columns
+      print "\n\n\n+" + "----+" * num_columns
       @grid.each_with_index do |row, i| 
         print "\n|"
         row.each_index{|j| letter_to_console(i, j)}
         print "\n+"
         row.each_index{|j| stack_height_to_console(i, j)}
       end
+      print "\n"
     end
     
   end

@@ -5,6 +5,13 @@ module Upwords
 
     attr_reader :players
 
+    Controls = {
+      'w' => [-1, 0], #up
+      's' => [ 1, 0], #down
+      'a' => [ 0,-1], #left 
+      'd' => [ 0, 1]  #right
+    } 
+
     def initialize
       @board = Board.new
       @players = Array.new(max_players)
@@ -19,16 +26,20 @@ module Upwords
 
       @turn = 0
       @running = true
+      @cursor_mode = true
     end
 
     def run
       while @running do
         begin 
-          print "\n"
-          @board.show_in_console
-          print "\n#{current_player.name}'s turn\n"
-          print "Play a letter: #{current_player.show_rack}\n"
-          print "Other actions: (1)Swap (2)Skip (3)Submit (4)Cursor\n"
+          hud_to_console
+          
+          while @cursor_mode do
+            inp = STDIN.getch
+            move_cursor(Controls[inp])
+            hud_to_console
+          end
+          
           letter = gets.chomp
           # letter = STDIN.getch ## get input without letter without pressing enter
           current_player.play_letter(letter)
@@ -56,6 +67,10 @@ module Upwords
       player_count = @players.compact.size
     end
 
+    def move_cursor(direction)
+      @board.update_cursor_location(direction[0], direction[1])
+    end
+
     def add_player(name = nil)
       if player_count == max_players # can I assert than player_count should never be > max_players
         raise StandardError, "No more players can join"
@@ -65,5 +80,13 @@ module Upwords
         @players[player_count] = Player.new(@board, name)
       end
     end
+    
+    def hud_to_console
+      @board.show_in_console
+      print "#{current_player.name}'s letters: #{current_player.show_rack}\n"
+      print "Use (WASD keys) to move around\n"
+      print "Other actions: (1)Play Letter (2)Submit (3)Swap (4)Skip\n"
+    end
+
   end
 end
