@@ -5,7 +5,7 @@ module Upwords
     attr_reader :grid, :letter_bank, :cursor_location
 
     def initialize
-      @grid = Array.new(num_rows) {Array.new(num_columns) { Array.new(max_height)}}
+      @grid = Array.new(num_rows) {Array.new(num_columns) {Array.new}}
       @letter_bank = LetterBank.new
       @cursor_location = [0, 0]
     end
@@ -30,7 +30,7 @@ module Upwords
 
     # get number of letters stacked in a board space
     def stack_height(row, col)
-      @grid[row][col].compact.size
+      @grid[row][col].size
     end
 
     # place letter on board space
@@ -38,22 +38,16 @@ module Upwords
     ## row and col parameters
     def play_letter(letter)
       row, col = @cursor_location[0], @cursor_location[1]
-      height = stack_height(row, col)
-      if height >= max_height 
-        raise IllegalMove, "You cannot stack any more letters on this space"
+      if stack_height(row, col) < max_height 
+        @grid[row][col] << letter
       else
-        @grid[row][col][height] = letter
+        raise IllegalMove, "You cannot stack any more letters on this space"
       end  
     end
 
-    # get top letter in board space
+    # show top letter in board space
     def top_letter(row, col)
-      height = stack_height(row, col)
-      if height == 0
-        nil
-      else
-        @grid[row][col][height - 1]
-      end
+      @grid[row][col][-1]
     end
 
   end
