@@ -104,7 +104,7 @@ module Upwords
     end
     
     def hud_to_console
-      @graphics.draw_board#@board.show_in_console
+      @graphics.draw_board
       print "#{current_player.name}'s letters: #{current_player.show_rack}\n"
       if @cursor_mode
         print "*CURSOR MODE* Use (WASD keys) to move around\n"
