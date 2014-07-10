@@ -28,42 +28,41 @@ module Upwords
       @cursor_mode = true
     end
 
-    def run_test
-      @graphics.draw_board
-    end
-
     def run
       while @running do
         hud_to_console
-        
         begin 
           while @cursor_mode do
-            inp = STDIN.getch
-            if inp == toggle_mode_key
-              toggle_cursor_mode
-            else
-              move_cursor(DIRECTION_KEYMAP[inp])
-            end
-            hud_to_console
+            cursor_loop
           end
-
           while !@cursor_mode
-            inp = STDIN.getch
-            if inp == toggle_mode_key
-              toggle_cursor_mode
-            else
-              letter = inp
-              current_player.play_letter(letter)
-              current_player.refill_rack
-            end
-            hud_to_console
+            input_loop
           end
-          
         rescue IllegalMove => exception
           print exception.message
         end
-
       end
+    end
+
+    def cursor_loop
+      inp = STDIN.getch
+      if inp == toggle_mode_key
+        toggle_cursor_mode
+      else
+        move_cursor(DIRECTION_KEYMAP[inp])
+      end
+      hud_to_console
+    end
+
+    def input_loop
+      inp = STDIN.getch
+      if inp == toggle_mode_key
+        toggle_cursor_mode
+      else
+        letter = inp
+        current_player.play_letter(letter)
+      end
+      hud_to_console
     end
 
     def next_turn
