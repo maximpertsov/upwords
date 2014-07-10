@@ -19,9 +19,9 @@ module Upwords
       @players = Array.new
 
       ### for testing only - uncomment 'add_players' for production version
-      # add_players
-      add_player("Max")    
-      add_player("Jordan")
+      add_players
+      #add_player("Max")    
+      #add_player("Jordan")
 
       @turn = 0
       @running = true
@@ -82,12 +82,10 @@ module Upwords
     end
 
     def add_player(name = nil)
-      if player_count == max_players 
-        ### can I assert than player_count should never be > max_players?
+      if player_count == max_players # TODO: Should I assert that count is never > max?
         raise StandardError, "No more players can join"
       else
-        # if no name is entered, name will be "Player#"
-        if name.nil?
+        if name.nil? or name.size < 1
           name += "Player #{player_count + 1}" 
         end
         @players << Player.new(@board, name)
