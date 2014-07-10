@@ -2,7 +2,7 @@ module Upwords
   class LetterBank
 
     # Letters available in 10 x 10 version of Upwords
-    All_Letters = (["E"]*8 +
+    ALL_LETTERS = (["E"]*8 +
                    ["A", "I", "O"]*7 +
                    ["S"]*6 +
                    ["D", "L", "M", "N", "R", "T", "U"]*5 +
@@ -12,7 +12,7 @@ module Upwords
                    ["J", "Qu", "V", "X", "Z"]*1)
 
     def initialize
-      @bank = All_Letters.dup
+      @bank = ALL_LETTERS.dup
     end
 
     # number of letters remaining in letter bank
