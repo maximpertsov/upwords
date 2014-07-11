@@ -6,10 +6,10 @@ module Upwords
     attr_reader :players
 
     DIRECTION_KEYMAP= {
-      'w' => [-1, 0], #up
-      's' => [ 1, 0], #down
-      'a' => [ 0,-1], #left 
-      'd' => [ 0, 1]  #right
+      'w' => [-1, 0], # up
+      's' => [ 1, 0], # down
+      'a' => [ 0,-1], # left 
+      'd' => [ 0, 1]  # right
     } 
     DIRECTION_KEYMAP.default = [0,0]
 
@@ -19,25 +19,23 @@ module Upwords
       @players = Array.new
 
       ### for testing only - uncomment 'add_players' for production version
-      add_players
-      #add_player("Max")    
-      #add_player("Jordan")
+      # add_players
+      add_player("Max")    
+      add_player("Jordan")
 
       @turn = 0
       @running = true
       @cursor_mode = true
+      @submitted = false
     end
 
     def run
       while @running do
         hud_to_console
-        begin 
-          while @cursor_mode do
-            cursor_loop
-          end
-          while !@cursor_mode
-            input_loop
-          end
+        begin
+          cursor_loop
+          input_loop
+          next_turn
         rescue IllegalMove => exception
           print exception.message
         end
@@ -45,28 +43,31 @@ module Upwords
     end
 
     def cursor_loop
-      inp = STDIN.getch
-      if inp == toggle_mode_key
-        toggle_cursor_mode
-      else
-        move_cursor(DIRECTION_KEYMAP[inp])
+      while @cursor_mode and !@submitted do 
+        inp = STDIN.getch
+        if !read_key_input(inp)
+          move_cursor(DIRECTION_KEYMAP[inp])
+        end
+        hud_to_console
       end
-      hud_to_console
     end
 
     def input_loop
-      inp = STDIN.getch
-      if inp == toggle_mode_key
-        toggle_cursor_mode
-      else
-        letter = inp
-        current_player.play_letter(letter)
+      while !@cursor_mode and !@submitted do
+        inp = STDIN.getch
+        if !read_key_input(inp)
+          letter = inp
+          current_player.play_letter(letter)
+        end
+        hud_to_console
       end
-      hud_to_console
     end
-
+    
     def next_turn
-      @turn = (@turn + 1) % player_count
+      if @submitted then
+        @turn = (@turn + 1) % player_count
+        @submitted = false
+      end
     end
 
     def current_player
@@ -111,6 +112,26 @@ module Upwords
 
     def toggle_cursor_mode
       @cursor_mode = !@cursor_mode
+    end
+
+    def submit
+      @submitted = true
+    end
+    
+    def submit_key
+      '2'  
+    end
+
+    def read_key_input(inp)
+      is_action = false
+      if inp == toggle_mode_key
+        toggle_cursor_mode
+        is_action = true
+      elsif inp == submit_key
+        submit
+        is_action = true
+      end
+      is_action
     end
     
     def hud_to_console
