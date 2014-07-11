@@ -18,7 +18,7 @@ module Upwords
       @graphics = Graphics.new(@board)
       @players = Array.new
 
-      ### for testing only - uncomment 'add_players' for production version
+      # for testing only - uncomment 'add_players' for production version
       # add_players
       add_player("Max")    
       add_player("Jordan")
@@ -115,7 +115,11 @@ module Upwords
     end
 
     def submit
-      @submitted = true
+      print "Confirm submission? (y/n) "
+      inp = gets.chomp
+      if inp == 'y' or inp == 'Y'
+        @submitted = true
+      end
     end
     
     def submit_key
