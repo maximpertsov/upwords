@@ -37,7 +37,7 @@ module Upwords
     # print grid of top letter on each stack and stack height
     def draw_board
       print "\n\n\n+" + "----+" * @board.num_columns
-      @board.letter_grid.each_with_index do |row, i| 
+      @board.grid.each_with_index do |row, i| 
         print "\n|"
         row.each_index{|j| draw_space(i, j)}
         print "\n+"
