@@ -23,6 +23,7 @@ module Upwords
       5
     end
 
+    # TODO: Move this to game class (or somewhere other than the board class)
     def move_cursor(row, col)
       @cursor_location = [(@cursor_location[0] + row) % num_rows, (@cursor_location[1] + col) % num_columns]
     end

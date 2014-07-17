@@ -20,8 +20,6 @@ module Upwords
       @running = true
       @cursor_mode = true
       @submitted = false
- 
-      raise self.inspect
     end
 
     # =========================================
@@ -41,7 +39,7 @@ module Upwords
     end
 
     def add_player(name = nil)
-      if player_count == max_players # TODO: Should I assert that count is never > max?
+      if player_count >= max_players
         raise StandardError, "No more players can join"
       else
         if name.nil? or name.size < 1
@@ -59,14 +57,6 @@ module Upwords
         print "\n"
       end
     end
-
-    # def submit_moves
-    #   @pending_moves.each do |move|
-    #     # TODO: Add checks for illegal moves
-    #     @submit_grid[move[0], move[1]] = true
-    #     @pending_moves = Array.new
-    #   end
-    # end
 
     def display
       @graphics.draw_board
@@ -87,7 +77,6 @@ module Upwords
       while @running do
         display
         begin
-          cursor_loop
           input_loop
           next_turn
         rescue IllegalMove => exception
@@ -96,22 +85,17 @@ module Upwords
       end
     end
 
-    def cursor_loop
-      while @cursor_mode and !@submitted do 
-        inp = STDIN.getch
-        if !read_key_input(inp)
-          move_cursor(DIRECTION_KEYMAP[inp])
-        end
-        display
-      end
-    end
-
     def input_loop
-      while !@cursor_mode and !@submitted do
+      while !@submitted do
         inp = STDIN.getch
-        if !read_key_input(inp)
-          letter = inp
-          current_player.play_letter(letter)
+        if key_is_action?(inp)
+          instance_eval(&ACTION_KEYMAP[inp])     
+        else
+          if @cursor_mode
+            move_cursor(DIRECTION_KEYMAP[inp])
+          else
+            current_player.play_letter(inp)
+          end
         end
         display
       end
@@ -119,6 +103,7 @@ module Upwords
     
     def next_turn
       if @submitted
+        current_player.refill_rack
         @turn = (@turn + 1) % player_count
         @submitted = false
       end
@@ -128,13 +113,8 @@ module Upwords
     # Methods Related to Key Inputs
     # =========================================
 
-    def read_key_input(inp)
-      is_action = false
-      if ACTION_KEYMAP.keys.include?(inp)
-        ACTION_KEYMAP[inp].call
-        is_action = true
-      end
-      is_action
+    def key_is_action?(inp)
+      ACTION_KEYMAP.keys.include?(inp)
     end
 
     # =========================================
@@ -145,11 +125,11 @@ module Upwords
       @board.move_cursor(direction[0], direction[1])
     end
 
-    def self.toggle_cursor_mode
+    def toggle_cursor_mode
       @cursor_mode = !@cursor_mode
     end
 
-    def self.submit
+    def submit
       print "Confirm submission? (y/n) "
       inp = gets.chomp
       if inp == 'y' or inp == 'Y'
@@ -160,14 +140,6 @@ module Upwords
     # =========================================
     # Key Configurations
     # =========================================
-    
-    def toggle_mode_key
-      '1'
-    end
-
-    def submit_key
-      '2'  
-    end
     
     DIRECTION_KEYMAP = {
       'w' => [-1, 0], # up
