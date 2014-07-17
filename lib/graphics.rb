@@ -16,9 +16,8 @@ module Upwords
       letter
     end
 
-    def draw_space(row, col)
-      cursor_loc = @board.cursor_location
-      if [row, col] == [cursor_loc[0], cursor_loc[1]]
+    def draw_space(row, col, cursor_posn)
+      if cursor_posn == [row, col]  
         print "[#{format_letter(row, col)}]|"
       else
         print " #{format_letter(row, col)} |"
@@ -35,11 +34,11 @@ module Upwords
     end
 
     # print grid of top letter on each stack and stack height
-    def draw_board
+    def draw_board(cursor_posn)
       print "\n\n\n+" + "----+" * @board.num_columns
       @board.grid.each_with_index do |row, i| 
         print "\n|"
-        row.each_index{|j| draw_space(i, j)}
+        row.each_index{|j| draw_space(i, j, cursor_posn)}
         print "\n+"
         row.each_index{|j| draw_divider(i, j)}
       end

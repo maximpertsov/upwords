@@ -59,7 +59,7 @@ module Upwords
     end
 
     def display
-      @graphics.draw_board
+      @graphics.draw_board(current_player.cursor_posn)
       print "#{current_player.name}'s letters: #{current_player.show_rack}\n"
       if @cursor_mode
         print "*CURSOR MODE* Use (WASD keys) to move around\n"
@@ -92,7 +92,7 @@ module Upwords
           instance_eval(&ACTION_KEYMAP[inp])     
         else
           if @cursor_mode
-            move_cursor(DIRECTION_KEYMAP[inp])
+            current_player.move_cursor(DIRECTION_KEYMAP[inp])
           else
             current_player.play_letter(inp)
           end
@@ -121,10 +121,6 @@ module Upwords
     # Game Procedures Bound to some Key Input
     # =========================================
     
-    def move_cursor(direction)
-      @board.move_cursor(direction[0], direction[1])
-    end
-
     def toggle_cursor_mode
       @cursor_mode = !@cursor_mode
     end

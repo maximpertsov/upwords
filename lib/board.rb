@@ -2,12 +2,11 @@ module Upwords
   # 10 x 10 board
   class Board 
 
-    attr_reader :grid, :letter_bank, :cursor_location
+    attr_reader :grid, :letter_bank
 
     def initialize
       @grid = Array.new(num_rows) {Array.new(num_columns) {Array.new}}
       @letter_bank = LetterBank.new
-      @cursor_location = [0, 0]
     end
 
     def num_columns
@@ -23,17 +22,11 @@ module Upwords
       5
     end
 
-    # TODO: Move this to game class (or somewhere other than the board class)
-    def move_cursor(row, col)
-      @cursor_location = [(@cursor_location[0] + row) % num_rows, (@cursor_location[1] + col) % num_columns]
-    end
-
     def stack_height(row, col)
       @grid[row][col].size
     end
 
-    def play_letter(letter)
-      row, col = @cursor_location[0], @cursor_location[1]
+    def play_letter(letter, row, col)
       if stack_height(row, col) < max_height 
         @grid[row][col] << letter
       else
@@ -41,8 +34,7 @@ module Upwords
       end  
     end
 
-    def remove_top_letter
-      row, col = @cursor_location[0], @cursor_location[1]
+    def remove_top_letter(row, col)
       @grid[row][col].pop
     end
 
