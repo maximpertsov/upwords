@@ -7,17 +7,21 @@ module Upwords
 
     def initialize
       @board = Board.new
+      # @submit_grid = Array.new(num_rows) {Array.new(num_columns) {true}}
+      # @pending_moves = Array.new
       @graphics = Graphics.new(@board)
       @players = Array.new
 
-      # add_players # LIVE CODE
-      add_player("Max") # TEST CODE
-      add_player("Jordan") # TEST CODE
+      add_players # LIVE CODE
+      # add_player("Max") # TEST CODE
+      # add_player("Jordan") # TEST CODE
 
       @turn = 0
       @running = true
       @cursor_mode = true
       @submitted = false
+ 
+      raise self.inspect
     end
 
     # =========================================
@@ -56,6 +60,14 @@ module Upwords
       end
     end
 
+    # def submit_moves
+    #   @pending_moves.each do |move|
+    #     # TODO: Add checks for illegal moves
+    #     @submit_grid[move[0], move[1]] = true
+    #     @pending_moves = Array.new
+    #   end
+    # end
+
     def display
       @graphics.draw_board
       print "#{current_player.name}'s letters: #{current_player.show_rack}\n"
@@ -68,7 +80,7 @@ module Upwords
     end
 
     # =========================================
-    # Game Loops & Non-Key Procedures
+    # Game Loops & Non-Input Procedures
     # =========================================
 
     def run
@@ -106,23 +118,20 @@ module Upwords
     end
     
     def next_turn
-      if @submitted then
+      if @submitted
         @turn = (@turn + 1) % player_count
         @submitted = false
       end
     end
 
     # =========================================
-    # Methods Related to Key Inputs Below
+    # Methods Related to Key Inputs
     # =========================================
 
     def read_key_input(inp)
       is_action = false
-      if inp == toggle_mode_key
-        toggle_cursor_mode
-        is_action = true
-      elsif inp == submit_key
-        submit
+      if ACTION_KEYMAP.keys.include?(inp)
+        ACTION_KEYMAP[inp].call
         is_action = true
       end
       is_action
@@ -136,11 +145,11 @@ module Upwords
       @board.move_cursor(direction[0], direction[1])
     end
 
-    def toggle_cursor_mode
+    def self.toggle_cursor_mode
       @cursor_mode = !@cursor_mode
     end
 
-    def submit
+    def self.submit
       print "Confirm submission? (y/n) "
       inp = gets.chomp
       if inp == 'y' or inp == 'Y'
@@ -160,13 +169,18 @@ module Upwords
       '2'  
     end
     
-    DIRECTION_KEYMAP= {
+    DIRECTION_KEYMAP = {
       'w' => [-1, 0], # up
       's' => [ 1, 0], # down
       'a' => [ 0,-1], # left 
       'd' => [ 0, 1]  # right
     } 
     DIRECTION_KEYMAP.default = [0,0]
-    
+
+    ACTION_KEYMAP = {
+      '1' => proc { toggle_cursor_mode },
+      '2' => proc { submit }
+    }
+
   end
 end

@@ -24,18 +24,13 @@ module Upwords
     end
 
     def move_cursor(row, col)
-      @cursor_location = [(@cursor_location[0] + row) % num_rows, 
-                          (@cursor_location[1] + col) % num_columns]
+      @cursor_location = [(@cursor_location[0] + row) % num_rows, (@cursor_location[1] + col) % num_columns]
     end
 
-    # get number of letters stacked in a board space
     def stack_height(row, col)
       @grid[row][col].size
     end
 
-    # place letter on board space
-    ## UPDATE to take position from @cursor_location instead of taking
-    ## row and col parameters
     def play_letter(letter)
       row, col = @cursor_location[0], @cursor_location[1]
       if stack_height(row, col) < max_height 
@@ -43,6 +38,11 @@ module Upwords
       else
         raise IllegalMove, "You cannot stack any more letters on this space"
       end  
+    end
+
+    def remove_top_letter
+      row, col = @cursor_location[0], @cursor_location[1]
+      @grid[row][col].pop
     end
 
     # show top letter in board space
