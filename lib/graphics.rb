@@ -1,8 +1,9 @@
 module Upwords
   class Graphics
 
-    def initialize(board)
+    def initialize(board, players)
       @board = board
+      @players = players
     end
 
     def format_letter(row, col)
@@ -34,11 +35,11 @@ module Upwords
     end
 
     # print grid of top letter on each stack and stack height
-    def draw_board(cursor_posn)
+    def draw_board(player_idx)
       print "\n\n\n+" + "----+" * @board.num_columns
       @board.grid.each_with_index do |row, i| 
         print "\n|"
-        row.each_index{|j| draw_space(i, j, cursor_posn)}
+        row.each_index{|j| draw_space(i, j, @players[player_idx].cursor_posn)}
         print "\n+"
         row.each_index{|j| draw_divider(i, j)}
       end
