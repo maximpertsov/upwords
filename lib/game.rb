@@ -9,8 +9,9 @@ module Upwords
       @board = Board.new
       # @submit_grid = Array.new(num_rows) {Array.new(num_columns) {true}}
       # @pending_moves = Array.new
-      @graphics = Graphics.new(@board)
       @players = Array.new
+      
+      @graphics = Graphics.new(@board, @players)
 
       add_players # LIVE CODE
       # add_player("Max") # TEST CODE
@@ -59,7 +60,7 @@ module Upwords
     end
 
     def display
-      @graphics.draw_board(current_player.cursor_posn)
+      @graphics.draw_board(@turn)
       print "#{current_player.name}'s letters: #{current_player.show_rack}\n"
       if @cursor_mode
         print "*CURSOR MODE* Use (WASD keys) to move around\n"
