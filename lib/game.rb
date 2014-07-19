@@ -63,7 +63,6 @@ module Upwords
       print "#{current_player.name}'s letters: #{current_player.show_rack}\n"
       print "Use SHIFT + WASD keys to move cursor\n"
       print "Other actions: (1)Undo Moves (2)Submit (3)Swap (4)Skip\n"
-      print current_player.pending_moves
     end
 
     # =========================================
@@ -130,8 +129,12 @@ module Upwords
       print "Confirm submission? (y/n) "
       inp = gets.chomp
       if inp == 'y' or inp == 'Y'
-        current_player.submit_moves
-        @submitted = true
+        if current_player.submitted_moves?
+          current_player.submit_moves
+          @submitted = true
+        else
+          print "You haven't played any letters!\n"
+        end
       end
     end
 
