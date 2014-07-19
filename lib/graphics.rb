@@ -1,9 +1,14 @@
 module Upwords
   class Graphics
 
-    def initialize(board, players)
+    def initialize(board, players, message = nil)
       @board = board
       @players = players
+      @message = message
+    end
+
+    def message=(new_message)
+      @message = new_message
     end
 
     def format_letter(row, col)
@@ -15,6 +20,16 @@ module Upwords
         letter += " "
       end
       letter
+    end
+
+    def draw_player_name(player_idx)
+      current_player = @players[player_idx]
+      print "   #{current_player.name}'s turn"
+    end
+
+    def draw_letter_rack(player_idx)
+      current_player = @players[player_idx]
+      print "   #{current_player.show_rack}"
     end
 
     def draw_space(row, col, cursor_posn)
@@ -40,11 +55,21 @@ module Upwords
       @board.grid.each_with_index do |row, i| 
         print "\n|"
         row.each_index{|j| draw_space(i, j, @players[player_idx].cursor_posn)}
+        if i == PLAYER_NAME_LINE
+          draw_player_name(player_idx)
+        elsif i == LETTER_RACK_LINE
+          draw_letter_rack(player_idx)
+        end
         print "\n+"
         row.each_index{|j| draw_divider(i, j)}
       end
       print "\n"
+      print @message
     end
+
+    # Define lines where game info appear
+    PLAYER_NAME_LINE = 2
+    LETTER_RACK_LINE = 3
     
   end
 end

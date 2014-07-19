@@ -1,14 +1,14 @@
 module Upwords
   class Player
 
-    attr_reader :name, :score, :cursor_posn, :pending_moves
+    attr_reader :name, :score, :cursor_posn
 
     def initialize(board, player_name)
       @name = player_name
       @board = board
       @rack = LetterRack.new(board.letter_bank)
       @score = 0
-      @cursor_posn = [0, 0]
+      @cursor_posn = [@board.num_rows / 3, @board.num_columns / 3]
       @pending_moves = Array.new
     end
 
@@ -55,10 +55,6 @@ module Upwords
 
     def submit_moves
       @pending_moves.clear
-    end
-
-    def show_pending_moves
-      @pending_moves
     end
     
   end

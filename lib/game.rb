@@ -7,9 +7,8 @@ module Upwords
 
     def initialize
       @board = Board.new
-      # @submit_grid = Array.new(num_rows) {Array.new(num_columns) {true}}
-      # @pending_moves = Array.new
       @players = Array.new
+      @turn = 0
       
       @graphics = Graphics.new(@board, @players)
 
@@ -17,7 +16,6 @@ module Upwords
       add_player("Max") # TEST CODE
       add_player("Jordan") # TEST CODE
 
-      @turn = 0
       @running = true
       @submitted = false
     end
@@ -60,7 +58,6 @@ module Upwords
 
     def display
       @graphics.draw_board(@turn)
-      print "#{current_player.name}'s letters: #{current_player.show_rack}\n"
       print "Use SHIFT + WASD keys to move cursor\n"
       print "Other actions: (1)Undo Moves (2)Submit (3)Swap (4)Skip\n"
     end
@@ -133,7 +130,7 @@ module Upwords
           current_player.submit_moves
           @submitted = true
         else
-          print "You haven't played any letters!\n"
+          @graphics.message = "You haven't played any letters!\n"
         end
       end
     end
