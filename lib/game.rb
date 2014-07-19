@@ -13,13 +13,12 @@ module Upwords
       
       @graphics = Graphics.new(@board, @players)
 
-      add_players # LIVE CODE
-      # add_player("Max") # TEST CODE
-      # add_player("Jordan") # TEST CODE
+      # add_players # LIVE CODE
+      add_player("Max") # TEST CODE
+      add_player("Jordan") # TEST CODE
 
       @turn = 0
       @running = true
-      @cursor_mode = true
       @submitted = false
     end
 
@@ -62,11 +61,7 @@ module Upwords
     def display
       @graphics.draw_board(@turn)
       print "#{current_player.name}'s letters: #{current_player.show_rack}\n"
-      if @cursor_mode
-        print "*CURSOR MODE* Use (WASD keys) to move around\n"
-      elsif
-        print "*INPUT MODE* Play a letter...\n"
-      end
+      print "Use SHIFT + WASD keys to move cursor\n"
       print "Other actions: (1)Switch Modes (2)Submit (3)Swap (4)Skip\n"
     end
 
@@ -92,7 +87,7 @@ module Upwords
         if key_is_action?(inp)
           instance_eval(&ACTION_KEYMAP[inp])     
         else
-          if @cursor_mode
+          if key_is_direction?(inp)
             current_player.move_cursor(DIRECTION_KEYMAP[inp])
           else
             current_player.play_letter(inp)
@@ -118,13 +113,13 @@ module Upwords
       ACTION_KEYMAP.keys.include?(inp)
     end
 
+    def key_is_direction?(inp)
+      DIRECTION_KEYMAP.keys.include?(inp)
+    end
+
     # =========================================
     # Game Procedures Bound to some Key Input
     # =========================================
-    
-    def toggle_cursor_mode
-      @cursor_mode = !@cursor_mode
-    end
 
     def submit
       print "Confirm submission? (y/n) "
@@ -139,15 +134,14 @@ module Upwords
     # =========================================
     
     DIRECTION_KEYMAP = {
-      'w' => [-1, 0], # up
-      's' => [ 1, 0], # down
-      'a' => [ 0,-1], # left 
-      'd' => [ 0, 1]  # right
+      'W' => [-1, 0], # up
+      'S' => [ 1, 0], # down
+      'A' => [ 0,-1], # left 
+      'D' => [ 0, 1]  # right
     } 
     DIRECTION_KEYMAP.default = [0,0]
 
     ACTION_KEYMAP = {
-      '1' => proc { toggle_cursor_mode },
       '2' => proc { submit }
     }
 
