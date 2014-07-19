@@ -62,7 +62,8 @@ module Upwords
       @graphics.draw_board(@turn)
       print "#{current_player.name}'s letters: #{current_player.show_rack}\n"
       print "Use SHIFT + WASD keys to move cursor\n"
-      print "Other actions: (1)Switch Modes (2)Submit (3)Swap (4)Skip\n"
+      print "Other actions: (1)Undo Moves (2)Submit (3)Swap (4)Skip\n"
+      print current_player.pending_moves
     end
 
     # =========================================
@@ -121,10 +122,15 @@ module Upwords
     # Game Procedures Bound to some Key Input
     # =========================================
 
-    def submit
+    def undo_moves
+      current_player.undo_moves
+    end
+
+    def submit_moves
       print "Confirm submission? (y/n) "
       inp = gets.chomp
       if inp == 'y' or inp == 'Y'
+        current_player.submit_moves
         @submitted = true
       end
     end
@@ -142,7 +148,8 @@ module Upwords
     DIRECTION_KEYMAP.default = [0,0]
 
     ACTION_KEYMAP = {
-      '2' => proc { submit }
+      '1' => proc { undo_moves },
+      '2' => proc { submit_moves }
     }
 
   end
