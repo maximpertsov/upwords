@@ -10,7 +10,7 @@ module Upwords
       @players = Array.new
       @turn = 0
       
-      @graphics = Graphics.new(@board, @players)
+      @graphics = Graphics.new(self, @board)
 
       # add_players # LIVE CODE
       add_player("Max") # TEST CODE

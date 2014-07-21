@@ -1,9 +1,9 @@
 module Upwords
   class Graphics
 
-    def initialize(board, players, message = nil)
+    def initialize(game, board, message = nil)
+      @game = game
       @board = board
-      @players = players
       @message = message
     end
 
@@ -22,14 +22,12 @@ module Upwords
       letter
     end
 
-    def draw_player_name(player_idx)
-      current_player = @players[player_idx]
-      print "   #{current_player.name}'s turn"
+    def draw_player_name
+      print "   #{@game.current_player.name}'s turn"
     end
 
-    def draw_letter_rack(player_idx)
-      current_player = @players[player_idx]
-      print "   #{current_player.show_rack}"
+    def draw_letter_rack
+      print "   #{@game.current_player.show_rack}"
     end
 
     def draw_space(row, col, cursor_posn)
@@ -54,11 +52,11 @@ module Upwords
       print "\n\n\n+" + "----+" * @board.num_columns
       @board.grid.each_with_index do |row, i| 
         print "\n|"
-        row.each_index{|j| draw_space(i, j, @players[player_idx].cursor_posn)}
+        row.each_index{|j| draw_space(i, j, @game.current_player.cursor_posn)}
         if i == PLAYER_NAME_LINE
-          draw_player_name(player_idx)
+          draw_player_name
         elsif i == LETTER_RACK_LINE
-          draw_letter_rack(player_idx)
+          draw_letter_rack
         end
         print "\n+"
         row.each_index{|j| draw_divider(i, j)}
