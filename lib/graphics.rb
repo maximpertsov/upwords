@@ -48,7 +48,7 @@ module Upwords
     end
 
     # print grid of top letter on each stack and stack height
-    def draw_board(player_idx)
+    def draw_board
       print "\n\n\n+" + "----+" * @board.num_columns
       @board.grid.each_with_index do |row, i| 
         print "\n|"

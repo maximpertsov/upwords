@@ -49,7 +49,7 @@ module Upwords
       end
     end
 
-    def submitted_moves?
+    def has_pending_moves?
       @pending_moves.size > 0
     end
 
