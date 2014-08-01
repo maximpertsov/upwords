@@ -9,7 +9,7 @@ module Upwords
       @rack = LetterRack.new(board.letter_bank)
       @score = 0
       @cursor_posn = [@board.num_rows / 3, @board.num_columns / 3]
-      @pending_moves = Array.new
+      @pending_moves = Moves.new(@board)
     end
 
     def show_rack
@@ -27,7 +27,7 @@ module Upwords
       selected_letter = @rack.take_from(letter)
       begin
         @board.play_letter(selected_letter, @cursor_posn[0], @cursor_posn[1])
-        @pending_moves << Array.new(@cursor_posn)
+        @pending_moves.add(@cursor_posn)
       rescue IllegalMove => exception
         print exception.message
         @rack.return_to(selected_letter)
@@ -43,14 +43,13 @@ module Upwords
     end
 
     def undo_moves
-      while @pending_moves.size > 0 do
-        undo_posn = @pending_moves.pop
-        @rack.return_to(@board.remove_top_letter(undo_posn[0], undo_posn[1]))
+      while has_pending_moves? do
+        @rack.return_to(@pending_moves.undo_last)
       end
     end
 
     def has_pending_moves?
-      @pending_moves.size > 0
+      !@pending_moves.empty?
     end
 
     def submit_moves

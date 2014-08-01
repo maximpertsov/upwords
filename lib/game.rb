@@ -153,13 +153,11 @@ module Upwords
     end
 
     def submit_moves
-      if confirm_action?("submission")
-        if current_player.has_pending_moves?
-          current_player.submit_moves
-          @submitted = true
-        else
-          @graphics.message = "You haven't played any letters!\n"
-        end
+      if !current_player.has_pending_moves?
+        @graphics.message = "You haven't played any letters!\n"
+      elsif confirm_action?("submission")
+        current_player.submit_moves
+        @submitted = true
       end
     end
 
