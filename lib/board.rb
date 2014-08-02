@@ -8,12 +8,12 @@ module Upwords
       @grid = Array.new(num_rows) {Array.new(num_columns) {Array.new}}
       @letter_bank = LetterBank.new
     end
-
-    def num_columns
+    
+    def num_rows
       10
     end
-
-    def num_rows
+    
+    def num_columns
       10
     end
 

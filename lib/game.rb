@@ -102,26 +102,6 @@ module Upwords
       end
     end
 
-    def all_moves_legal?
-      # Checks if pending move meets the following conditions:
-      
-      # 1. All letters are connected (Be careful that no words wrap around edges of board...)
-
-      # 2. All are letters along only one axis
-
-      # 3a. IF NO LETTERS ARE ON THE BOARD YET: At least one letter is in the middle 4 x 4 section of the board
-      # 3b. IF LETTERS ARE ON THE BOARD: At least one letter is orthogonally touching a letter that is already on the board
-      
-      # 4. Move is not a simple pluralization (e.g. Cat -> Cats is NOT a legal move)
-
-      # 5. Move does not entirely cover up a word that is already on the board (i.e. you can change part of a previously-played
-      #    word, but the whole thing. E.g. Cats -> Cots is legal, but Cats -> Spam is not)
-
-      # 6. Move is a standard English word (no slang and no abbreviations) (HINT: No need to check for words longer than 10
-      #    characters long)
-
-    end
-
     # =========================================
     # Methods Related to Key Inputs
     # =========================================
