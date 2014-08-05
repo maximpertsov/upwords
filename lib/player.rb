@@ -29,9 +29,12 @@ module Upwords
         @board.play_letter(selected_letter, @cursor_posn[0], @cursor_posn[1])
         @pending_moves.add(@cursor_posn)
       rescue IllegalMove => exception
-        print exception.message
         @rack.return_to(selected_letter)
       end
+    end
+
+    def word_so_far
+      @pending_moves.get_word
     end
 
     def swap_letter(letter)

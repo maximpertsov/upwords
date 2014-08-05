@@ -61,8 +61,7 @@ module Upwords
         print "\n+"
         row.each_index{|j| draw_divider(i, j)}
       end
-      print "\n"
-      print @message
+      print "\n#{@message}\n" 
     end
 
     # Define lines where game info appear

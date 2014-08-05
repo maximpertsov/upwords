@@ -26,7 +26,7 @@ module Upwords
         letter.capitalize!
       end
       if !has_letter?(letter)
-        raise IllegalMove, "You don't have this letter"
+        raise IllegalMove, "You don't have this letter!"
       else
         @rack.delete_at(@rack.index(letter))
       end

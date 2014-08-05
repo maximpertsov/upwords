@@ -62,6 +62,10 @@ module Upwords
       print "Other actions: (1)Undo Moves (2)Submit (3)Swap (4)Skip\n"
     end
 
+    def update_message msg
+      @graphics.message = msg
+    end
+
     # =========================================
     # Game Loops & Non-Input Procedures
     # =========================================
@@ -73,7 +77,7 @@ module Upwords
           input_loop
           next_turn
         rescue IllegalMove => exception
-          print exception.message
+          update_message exception.message
         end
       end
     end
@@ -81,6 +85,7 @@ module Upwords
     def input_loop
       while !@submitted do
         inp = STDIN.getch
+        update_message ""
         if key_is_action?(inp)
           instance_eval(&ACTION_KEYMAP[inp])     
         else
@@ -88,6 +93,7 @@ module Upwords
             current_player.move_cursor(DIRECTION_KEYMAP[inp])
           else
             current_player.play_letter(inp)
+            update_message "Word so far: #{current_player.word_so_far}"
           end
         end
         display
@@ -126,16 +132,16 @@ module Upwords
 
     def undo_moves
       if !current_player.has_pending_moves?
-        @graphics.message = "No moves to undo!\n"
-      elsif confirm_action?("undo") 
+        raise IllegalMove, "No moves to undo!"
+      elsif confirm_action? "undo"
         current_player.undo_moves 
       end
     end
 
     def submit_moves
       if !current_player.has_pending_moves?
-        @graphics.message = "You haven't played any letters!\n"
-      elsif confirm_action?("submission")
+        raise IllegalMove, "You haven't played any letters!"
+      elsif confirm_action? "submission"
         current_player.submit_moves
         @submitted = true
       end
