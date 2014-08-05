@@ -7,7 +7,7 @@ module Upwords
     def initialize
       @grid = Array.new(num_rows) {Array.new(num_columns) {Array.new}}
       @letter_bank = LetterBank.new
-      # @active_words = Array.new
+      @words = Array.new
     end
     
     def num_rows
@@ -55,6 +55,14 @@ module Upwords
     # show top letter in board space
     def top_letter(row, col)
       @grid[row][col][-1]
+    end
+
+    def all_words
+      @words.collect{|word| word.text}     
+    end
+
+    def all_visible_words
+      @words.select{|word| word.visible?}.collect{|word| word.text}
     end
 
     def nonempty_positions
