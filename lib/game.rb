@@ -83,7 +83,7 @@ module Upwords
     end
 
     def input_loop
-      while !@submitted do
+      while !@submitted && @running do
         inp = STDIN.getch
         update_message ""
         if key_is_action?(inp)
@@ -147,6 +147,10 @@ module Upwords
       end
     end
 
+    def toggle_pause
+      @running = !@running
+    end
+
     # =========================================
     # Key Configurations
     # =========================================
@@ -161,7 +165,8 @@ module Upwords
 
     ACTION_KEYMAP = {
       '1' => proc { undo_moves },
-      '2' => proc { submit_moves }
+      '2' => proc { submit_moves },
+      'P' => proc { toggle_pause }
     }
 
   end

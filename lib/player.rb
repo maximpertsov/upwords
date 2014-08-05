@@ -8,7 +8,7 @@ module Upwords
       @board = board
       @rack = LetterRack.new(board.letter_bank)
       @score = 0
-      @cursor_posn = [@board.num_rows / 3, @board.num_columns / 3]
+      @cursor_posn = @board.middle_square[0]
       @pending_moves = Moves.new(@board)
     end
 
@@ -26,10 +26,15 @@ module Upwords
     def play_letter(letter)
       selected_letter = @rack.take_from(letter)
       begin
-        @board.play_letter(selected_letter, @cursor_posn[0], @cursor_posn[1])
-        @pending_moves.add(@cursor_posn)
+        if @pending_moves.include? @cursor_posn 
+          raise IllegalMove, "You can't stack on a space more than once in a single turn!"
+        else
+          @board.play_letter(selected_letter, @cursor_posn[0], @cursor_posn[1])
+          @pending_moves.add(@cursor_posn)
+        end
       rescue IllegalMove => exception
         @rack.return_to(selected_letter)
+        raise IllegalMove, exception.message
       end
     end
 
