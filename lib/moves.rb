@@ -37,30 +37,29 @@ module Upwords
     end
 
     def legal?
-
       # Are letters along only one axis?
       if !(horizontal? || vertical?)
-        raise IllegalMove "Letters must be along same row or same column!"
+        raise IllegalMove, "Letters must be along same row or same column!"
       # Are all letters connected?
       elsif !connected?
         raise IllegalMove, "Letters must be connected!"
+      # Is at least one letter is in the middle 4 x 4 section of the board?
+      elsif !letter_in_middle_square?
+        raise IllegalMove, "For the first move, you must play at least one letter in the middle 4x4 square!"
+      # Is at least one letter orthogonally touching a letter that is already on the board?
+      elsif !connected_to_existing?
+        raise IllegalMove, "At least one letter must be touching a previously played letter!"
 
-        # TODO: Add the following legal move condition checks:
-        
-        # Is at least one letter is in the middle 4 x 4 section of the board?
+        # Move is not a simple pluralization? (e.g. Cat -> Cats is NOT a legal move)
 
-        # Is at least one letter orthogonally touching a letter that is already on the board?
+        # Move does not entirely cover up a word that is already on the board (i.e. you can change part of a previously-played
+        # word, but the whole thing. E.g. Cats -> Cots is legal, but Cats -> Spam is not)
 
+        # Move is a standard English word (no slang and no abbreviations) (HINT: No need to check for words longer than 10
+        # characters long)
         
       end
-      
-      # 4. Move is not a simple pluralization (e.g. Cat -> Cats is NOT a legal move)
-
-      # 5. Move does not entirely cover up a word that is already on the board (i.e. you can change part of a previously-played
-      #    word, but the whole thing. E.g. Cats -> Cots is legal, but Cats -> Spam is not)
-
-      # 6. Move is a standard English word (no slang and no abbreviations) (HINT: No need to check for words longer than 10
-      #    characters long)
+      true
     end
     
     # =========================================
@@ -73,7 +72,7 @@ module Upwords
     def connected?
       check_result = true
       sorted_moves = @pending_moves.sort
-      for idx in 1...sorted_moved.size
+      for idx in 1...sorted_moves.size
         unless orthogonal?(sorted_moves[idx-1], sorted_moves[idx])
           check_result = false
           break
@@ -97,8 +96,8 @@ module Upwords
     
     def along_one_dimension?(dim)
       check_result = true
-      @pending_moves.each do |move|
-        unless @pending_moves[move][dim] == @pending_moves[0][dim]
+      @pending_moves.each_index do |idx|
+        unless @pending_moves[idx][dim] == @pending_moves[0][dim]
           check_result = false
           break
         end 
@@ -108,14 +107,34 @@ module Upwords
 
     def letter_in_middle_square?
       in_mid_square = false
-      stack_height = @board.stack_height
       @board.middle_square.each do |posn|
-        if stack_height(posn[0], posn[1]) > 0
+        if @board.stack_height(posn[0], posn[1]) > 0
           in_mid_square = true
           break
         end
       end
       in_mid_square
+    end
+
+    def connected_to_existing?
+      check_result = false
+      nonempty_posns = @board.nonempty_positions - @pending_moves
+      if nonempty_posns.empty?
+        check_result = true
+      else
+        @pending_moves.each do |move|
+          nonempty_posns.each do |npos|
+            if orthogonal?(move, npos)
+              check_result = true
+              break
+            end
+          end
+          if check_result
+            break
+          end
+        end
+      end
+      check_result
     end
 
   end

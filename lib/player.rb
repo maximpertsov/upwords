@@ -61,7 +61,9 @@ module Upwords
     end
 
     def submit_moves
-      @pending_moves.clear
+      if @pending_moves.legal?
+        @pending_moves.clear
+      end
     end
     
   end

@@ -5,16 +5,22 @@ module Upwords
 
     attr_reader :players
 
-    def initialize
+    def initialize(player1 = nil, player2 = nil)
       @board = Board.new
       @players = Array.new
-      @turn = 0
-      
-      @graphics = Graphics.new(self, @board)
 
-      # add_players # LIVE CODE
-      add_player("Max") # TEST CODE
-      add_player("Jordan") # TEST CODE
+      # TODO: Remove the If block after testing is complete
+      # Client should not be able to supply players to game
+      # directly...
+      if (player1.nil? || player2.nil?)
+        add_players
+      else
+        add_player(player1)
+        add_player(player2)
+      end
+      
+      @turn = 0
+      @graphics = Graphics.new(self, @board)
 
       @running = true
       @submitted = false
@@ -121,7 +127,7 @@ module Upwords
     end
 
     def confirm_action?(action_text)
-      print "Confirm #{action_text}? (y/n) "
+      print "Are you sure you want to #{action_text}? (y/n) "
       inp = gets.chomp
       inp == 'y' || inp == 'Y'
     end
@@ -147,8 +153,10 @@ module Upwords
       end
     end
 
-    def toggle_pause
-      @running = !@running
+    def exit_game
+      if confirm_action? "exit the game"
+        @running = false
+      end
     end
 
     # =========================================
@@ -166,7 +174,7 @@ module Upwords
     ACTION_KEYMAP = {
       '1' => proc { undo_moves },
       '2' => proc { submit_moves },
-      'P' => proc { toggle_pause }
+      'Q' => proc { exit_game }
     }
 
   end
