@@ -9,13 +9,17 @@ module Upwords
       @letter_bank = LetterBank.new
       @words = Array.new
     end
-    
-    def num_rows
+
+    def side_length
       10
     end
     
+    def num_rows
+      side_length
+    end
+    
     def num_columns
-      10
+      side_length
     end
 
     # Defines a 4x4 square in the middle of the board (in the case of the 10 x 10 board)
@@ -65,6 +69,10 @@ module Upwords
       @words.select{|word| word.visible?}.collect{|word| word.text}
     end
 
+    def add_words(words)
+      @words += words
+    end
+
     def nonempty_positions
       posns = []
       @grid.each_with_index do |row, idx|
@@ -76,6 +84,17 @@ module Upwords
       end
       posns
     end
+
+=begin Graveyard
+
+    # def orthogonal_spaces(row, col)
+    #   range = (0...side_length)
+    #   orth_spaces = ((-1..1).collect{|i| [i + row, col]} + (-1..1).collect{|j| [row, j + col]})
+    #   # Remove spaces that are beyond edges of board
+    #   orth_spaces.uniq.select{|space| (range.cover? space[0]) && (range.cover? space[1])}
+    # end
+
+=end
 
   end
 end
