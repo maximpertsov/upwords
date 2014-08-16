@@ -73,28 +73,10 @@ module Upwords
       @words += words
     end
 
-    def nonempty_positions
-      posns = []
-      @grid.each_with_index do |row, idx|
-        row.each_index do |jdx| 
-          if stack_height(idx, jdx) > 0 
-            posns << [idx, jdx]
-          end
-        end
-      end
-      posns
+    def nonempty_spaces
+      all_posns = (0...num_rows).to_a.product (0...num_columns).to_a
+      all_posns.select{|row, col| stack_height(row, col) > 0}
     end
-
-=begin Graveyard
-
-    # def orthogonal_spaces(row, col)
-    #   range = (0...side_length)
-    #   orth_spaces = ((-1..1).collect{|i| [i + row, col]} + (-1..1).collect{|j| [row, j + col]})
-    #   # Remove spaces that are beyond edges of board
-    #   orth_spaces.uniq.select{|space| (range.cover? space[0]) && (range.cover? space[1])}
-    # end
-
-=end
 
   end
 end
