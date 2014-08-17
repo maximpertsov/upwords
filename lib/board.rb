@@ -61,6 +61,10 @@ module Upwords
       @grid[row][col][-1]
     end
 
+    def words_on_row(row)
+      (0...num_cols).map{|col| top_letter(row, col)}  
+    end
+
     def all_words
       @words.collect{|word| word.text}     
     end
