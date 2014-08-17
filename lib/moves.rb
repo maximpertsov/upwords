@@ -4,7 +4,10 @@ module Upwords
     def initialize(board)
       @board = board
       @pending_moves = Array.new
-      @@played_moves = @board.nonempty_spaces
+      update_played_moves
+      update_played_words
+      # @@played_moves = @board.nonempty_spaces
+      # @@played_words = @board.words_on_rows + @board.words_on_columns
       # @pending_new_words = Array.new
       # @pending_old_words = Array.new
     end
@@ -30,8 +33,12 @@ module Upwords
       @pending_moves.clear
     end
 
-    def to_played_moves
+    def update_played_moves
       @@played_moves = @board.nonempty_spaces
+    end
+    
+    def update_played_words
+      @@played_words = @board.words_on_rows + @board.words_on_columns
     end
 
     def get_word
@@ -40,6 +47,10 @@ module Upwords
     end
 
     def legal?
+      print "Words along rows:\n#{@board.words_on_rows}\n"
+      print "Words along columns:\n#{@board.words_on_columns}\n"
+      print "Played moves:\n#{@@played_moves}\n"
+      print "Played words:\n#{@@played_words}\n"
       # Are letters all along one axis?
       if !straight_line?
         raise IllegalMove, "Letters must be along same row or same column!"
@@ -102,7 +113,7 @@ module Upwords
         skipped_rows.product spanned_columns
       end
     end
-    
+
     def straight_line?
       horizontal? || vertical?
     end

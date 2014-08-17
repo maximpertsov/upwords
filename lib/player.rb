@@ -63,7 +63,8 @@ module Upwords
     def submit_moves
       if @pending_moves.legal?
         @pending_moves.clear
-        @pending_moves.to_played_moves
+        @pending_moves.update_played_moves
+        @pending_moves.update_played_words
       end
     end
     

@@ -62,11 +62,19 @@ module Upwords
     end
 
     def words_on_row(row)
-      (0...num_cols).map{|col| top_letter(row, col)}  
+      letters_to_words (0...num_columns).map{|col| top_letter(row, col)}
     end
 
-    def all_words
-      @words.collect{|word| word.text}     
+    def words_on_rows
+      (0...num_rows).flat_map{|row| words_on_row row}.reject{|words| words.empty?}
+    end
+
+    def words_on_column(col)
+      letters_to_words (0...num_rows).map{|row| top_letter(row, col)}  
+    end
+
+    def words_on_columns
+      (0...num_columns).flat_map{|col| words_on_column col}.reject{|words| words.empty?}
     end
 
     def all_visible_words
@@ -80,6 +88,12 @@ module Upwords
     def nonempty_spaces
       all_posns = (0...num_rows).to_a.product (0...num_columns).to_a
       all_posns.select{|row, col| stack_height(row, col) > 0}
+    end
+
+    private
+
+    def letters_to_words(letters, min_word_length = 2)
+      letters.map{|word| word.nil? ? " " : word}.join.split.reject{|word| word.size < min_word_length}
     end
 
   end
