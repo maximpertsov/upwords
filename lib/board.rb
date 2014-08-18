@@ -7,7 +7,6 @@ module Upwords
     def initialize
       @grid = Array.new(num_rows) {Array.new(num_columns) {Array.new}}
       @letter_bank = LetterBank.new
-      @words = Array.new
     end
 
     def side_length
@@ -61,6 +60,16 @@ module Upwords
       @grid[row][col][-1]
     end
 
+    def space_value(row, col)
+      if stack_height(row, col) == 1
+        2
+      elsif stack_height(row, col) >= 1
+        1
+      else
+        0
+      end
+    end
+
     def words_on_row(row)
       letters_to_words (0...num_columns).map{|col| top_letter(row, col)}
     end
@@ -75,14 +84,6 @@ module Upwords
 
     def words_on_columns
       (0...num_columns).flat_map{|col| words_on_column col}.reject{|words| words.empty?}
-    end
-
-    def all_visible_words
-      @words.select{|word| word.visible?}.collect{|word| word.text}
-    end
-
-    def add_words(words)
-      @words += words
     end
 
     def nonempty_spaces

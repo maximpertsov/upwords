@@ -38,8 +38,8 @@ module Upwords
       end
     end
 
-    def word_so_far
-      @pending_moves.get_word
+    def pending_words
+      @pending_moves.pending_words
     end
 
     def swap_letter(letter)
@@ -63,6 +63,7 @@ module Upwords
     def submit_moves
       if @pending_moves.legal?
         @pending_moves.clear
+        refill_rack
         @pending_moves.update_played_moves
         @pending_moves.update_played_words
       end

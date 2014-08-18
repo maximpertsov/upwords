@@ -27,7 +27,7 @@ module Upwords
     end
 
     # =========================================
-    # Helper Methods
+    # Player Methods
     # =========================================
 
     def current_player
@@ -46,8 +46,8 @@ module Upwords
       if player_count >= max_players
         raise StandardError, "No more players can join"
       else
-        if name.nil? or name.size < 1
-          name += "Player #{player_count + 1}" 
+        if name.nil? || name.size < 1
+          name = "Player #{player_count + 1}" 
         end
         @players << Player.new(@board, name)
       end
@@ -56,12 +56,15 @@ module Upwords
     def add_players
       while player_count < max_players do
         print "What is Player #{player_count + 1}'s name?\n"
-        player_name = gets.chomp
-        add_player(player_name)
+        add_player(gets.chomp)
         print "\n"
       end
     end
 
+    # =========================================
+    # Graphics Methods
+    # =========================================
+    
     def display
       @graphics.draw_board
       print "Use SHIFT + WASD keys to move cursor\n"
@@ -94,13 +97,11 @@ module Upwords
         update_message ""
         if key_is_action?(inp)
           instance_eval(&ACTION_KEYMAP[inp])     
+        elsif key_is_direction?(inp)
+          current_player.move_cursor(DIRECTION_KEYMAP[inp])
         else
-          if key_is_direction?(inp)
-            current_player.move_cursor(DIRECTION_KEYMAP[inp])
-          else
-            current_player.play_letter(inp)
-            update_message "Word so far: #{current_player.word_so_far}"
-          end
+          current_player.play_letter(inp)
+          update_message "Pending words: #{current_player.pending_words}"
         end
         display
       end
@@ -108,7 +109,6 @@ module Upwords
     
     def next_turn
       if @submitted
-        current_player.refill_rack
         @turn = (@turn + 1) % player_count
         @submitted = false
       end
@@ -128,7 +128,7 @@ module Upwords
 
     def confirm_action?(action_text)
       print "Are you sure you want to #{action_text}? (y/n) "
-      inp = gets.chomp
+      inp = STDIN.getch
       inp == 'y' || inp == 'Y'
     end
 

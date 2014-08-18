@@ -6,10 +6,6 @@ module Upwords
       @pending_moves = Array.new
       update_played_moves
       update_played_words
-      # @@played_moves = @board.nonempty_spaces
-      # @@played_words = @board.words_on_rows + @board.words_on_columns
-      # @pending_new_words = Array.new
-      # @pending_old_words = Array.new
     end
 
     def empty?
@@ -41,34 +37,29 @@ module Upwords
       @@played_words = @board.words_on_rows + @board.words_on_columns
     end
 
-    def get_word
-      sorted_moves = @pending_moves.sort
-      sorted_moves.map {|move| @board.top_letter(move[0], move[1])}.join
+    def pending_words
+      ((@board.words_on_rows + @board.words_on_columns) - @@played_words).join ","
     end
 
     def legal?
-      print "Words along rows:\n#{@board.words_on_rows}\n"
-      print "Words along columns:\n#{@board.words_on_columns}\n"
-      print "Played moves:\n#{@@played_moves}\n"
-      print "Played words:\n#{@@played_words}\n"
       # Are letters all along one axis?
       if !straight_line?
-        raise IllegalMove, "Letters must be along same row or same column!"
+        raise IllegalMove, "The letters in your move must be along a single row or column!"
       # Are letters on board connected to each other?  
       elsif !connected_move?
-        raise IllegalMove, "Letters must be connected!"
+        raise IllegalMove, "The letters in your move must be connected!"
       # Is at least one letter is in the middle 4 x 4 section of the board?
       elsif !letter_in_middle_square?
-        raise IllegalMove, "For the first move, you must play at least one letter in the middle 4x4 square!"
+        raise IllegalMove, "You must play at least one letter in the middle 4x4 square!"
       # Is at least one letter intersecting or orthogonally touching a previously played letter? 
       elsif !connected_to_played?
-        raise IllegalMove, "At least one letter must be touching a previously played letter!"        
+        raise IllegalMove, "At least one letter in your move must be touching a previously played word!"        
       # TODO: Add the following legal move checks:
       # - Move is not a simple pluralization? (e.g. Cat -> Cats is NOT a legal move)
       # - Move does not entirely cover up a word that is already on the board (i.e. you can change part of a previously-played
       #   word, but the whole thing. E.g. Cats -> Cots is legal, but Cats -> Spam is not)
       # - Move is a standard English word (no slang and no abbreviations) (HINT: No need to check for words longer than 10
-      #   characters long)
+      #   characters long): Possible solution -> https://rubygems.org/gems/mw_dictionary_api
       end
       true
     end
