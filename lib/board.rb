@@ -60,30 +60,22 @@ module Upwords
       @grid[row][col][-1]
     end
 
-    def space_value(row, col)
-      if stack_height(row, col) == 1
-        2
-      elsif stack_height(row, col) >= 1
-        1
-      else
-        0
-      end
-    end
-
     def words_on_row(row)
-      letters_to_words (0...num_columns).map{|col| top_letter(row, col)}
+      word_posns = group_by_words (0...num_columns).map{|col| [row, col]}
+      word_posns.map{|posns| Word.new(self, posns)}
     end
 
     def words_on_rows
-      (0...num_rows).flat_map{|row| words_on_row row}.reject{|words| words.empty?}
+      (0...num_rows).flat_map{|row| words_on_row row}
     end
 
     def words_on_column(col)
-      letters_to_words (0...num_rows).map{|row| top_letter(row, col)}  
+      word_posns = group_by_words (0...num_rows).map{|row| [row, col]}
+      word_posns.map{|posns| Word.new(self, posns)}
     end
 
     def words_on_columns
-      (0...num_columns).flat_map{|col| words_on_column col}.reject{|words| words.empty?}
+      (0...num_columns).flat_map{|col| words_on_column col}
     end
 
     def nonempty_spaces
@@ -93,8 +85,14 @@ module Upwords
 
     private
 
-    def letters_to_words(letters, min_word_length = 2)
-      letters.map{|word| word.nil? ? " " : word}.join.split.reject{|word| word.size < min_word_length}
+    def letters_to_words(letters, min_word_len = 2)
+      letters.map{|letter| letter.nil? ? " " : letter}.join.split.reject{|word| word.size < min_word_length}
+    end
+
+    def group_by_words(posns, min_word_len = 2)
+      posns.chunk{|row, col| stack_height(row, col) > 0}.inject([]) do |chunks, chunk|
+        (chunk[0] && chunk[1].size >= min_word_len) ? (chunks << chunk[1]) : chunks
+      end
     end
 
   end

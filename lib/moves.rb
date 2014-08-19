@@ -34,11 +34,22 @@ module Upwords
     end
     
     def update_played_words
-      @@played_words = @board.words_on_rows + @board.words_on_columns
+      @@played_words = (@board.words_on_rows + @board.words_on_columns).map{|word| word.to_str}
     end
 
     def pending_words
-      ((@board.words_on_rows + @board.words_on_columns) - @@played_words).join ","
+      all_words = @board.words_on_rows + @board.words_on_columns
+      new_words = (@board.words_on_rows + @board.words_on_columns).map{|word| word.to_str} - @@played_words
+      all_words.select{|word| (new_words.include? word.to_str)}
+    end
+
+    def pending_result
+      output = (pending_words.map{|word| "#{word} (#{word.score})"}.join ", ") 
+      output + " | Total: #{pending_score}" if output.size > 0
+    end
+
+    def pending_score
+      pending_words.map{|word| word.score}.inject(:+).to_i
     end
 
     def legal?

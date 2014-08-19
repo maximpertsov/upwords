@@ -101,7 +101,7 @@ module Upwords
           current_player.move_cursor(DIRECTION_KEYMAP[inp])
         else
           current_player.play_letter(inp)
-          update_message "Pending words: #{current_player.pending_words}"
+          update_message "Pending words: #{current_player.show_pending_moves}"
         end
         display
       end

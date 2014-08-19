@@ -26,6 +26,10 @@ module Upwords
       print "   #{@game.current_player.name}'s turn"
     end
 
+    def draw_score
+      print "   Current score: #{@game.current_player.score}"
+    end
+
     def draw_letter_rack
       print "   #{@game.current_player.show_rack}"
     end
@@ -57,6 +61,8 @@ module Upwords
           draw_player_name
         elsif i == LETTER_RACK_LINE
           draw_letter_rack
+        elsif i == SCORE_LINE
+          draw_score
         end
         print "\n+"
         row.each_index{|j| draw_divider(i, j)}
@@ -67,6 +73,7 @@ module Upwords
     # Define lines where game info appear
     PLAYER_NAME_LINE = 2
     LETTER_RACK_LINE = 3
+    SCORE_LINE = 4
     
   end
 end
