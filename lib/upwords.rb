@@ -1,6 +1,7 @@
 require_relative 'board'
 require_relative 'letter_bank'
 require_relative 'letter_rack'
+require_relative 'dictionary' # finish implementing
 require_relative 'moves'
 require_relative 'word'
 require_relative 'player'

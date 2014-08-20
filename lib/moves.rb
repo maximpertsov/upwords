@@ -4,8 +4,7 @@ module Upwords
     def initialize(board)
       @board = board
       @pending_moves = Array.new
-      update_played_moves
-      update_played_words
+      update_moves
     end
 
     def empty?
@@ -29,12 +28,9 @@ module Upwords
       @pending_moves.clear
     end
 
-    def update_played_moves
-      @@played_moves = @board.nonempty_spaces
-    end
-    
-    def update_played_words
-      @@played_words = (@board.words_on_rows + @board.words_on_columns).map{|word| word.to_str}
+    def update_moves
+      update_played_moves
+      update_played_words
     end
 
     def pending_words
@@ -142,6 +138,14 @@ module Upwords
 
     def connected_to_played?
       @@played_moves.empty? || @@played_moves.size > (@@played_moves - (orthogonal_spaces + @pending_moves)).size
+    end
+
+    def update_played_moves
+      @@played_moves = @board.nonempty_spaces
+    end
+    
+    def update_played_words
+      @@played_words = (@board.words_on_rows + @board.words_on_columns).map{|word| word.to_str}
     end
 
   end

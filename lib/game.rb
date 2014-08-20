@@ -67,7 +67,7 @@ module Upwords
     def display
       @graphics.draw_board
       print "Use SHIFT + WASD keys to move cursor\n"
-      print "Other actions: (1)Undo Moves (2)Submit (3)Swap (4)Skip\n"
+      print "Other actions: (1)Undo Moves (2)Submit (3)Swap (4)Skip (5)Quit\n"
     end
 
     def update_message msg
@@ -154,10 +154,18 @@ module Upwords
 
     # TODO: Test this method...
     def swap_letter
-      print "Pick a letter to swap..."
-      letter = gets.chomp
-      current_player.swap_letter(letter)
-      @submitted = true
+      print "Pick a letter to swap... "
+      letter = STDIN.getch
+      if confirm_action? "Swap '#{letter}' for another?"
+        current_player.swap_letter(letter)
+        @submitted = true
+      end
+    end
+
+    def skip_turn
+      if confirm_action? "Are you sure you want to skip your turn?"
+        @submitted = true
+      end
     end
 
     def exit_game
@@ -182,7 +190,8 @@ module Upwords
       '1' => proc { undo_moves },
       '2' => proc { submit_moves },
       '3' => proc { swap_letter },
-      'Q' => proc { exit_game }
+      '4' => proc { skip_turn },
+      '5' => proc { exit_game }
     }
 
   end

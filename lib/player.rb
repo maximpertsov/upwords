@@ -66,8 +66,7 @@ module Upwords
         @score += @pending_moves.pending_score
         @pending_moves.clear
         refill_rack
-        @pending_moves.update_played_moves
-        @pending_moves.update_played_words
+        @pending_moves.update_moves
       end
     end
     

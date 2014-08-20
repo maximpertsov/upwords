@@ -27,7 +27,10 @@ module Upwords
     end
 
     def draw_score
-      print "   Current score: #{@game.current_player.score}"
+      players = @game.players
+      score_display = players.map{|p| "#{p.name}: #{p.score} "}.join "| "
+      print "   #{score_display}"
+      #print "   Current score: #{@game.current_player.score}"
     end
 
     def draw_letter_rack
@@ -74,6 +77,6 @@ module Upwords
     PLAYER_NAME_LINE = 2
     LETTER_RACK_LINE = 3
     SCORE_LINE = 4
-    
+
   end
 end
