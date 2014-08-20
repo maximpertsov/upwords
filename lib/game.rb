@@ -7,7 +7,7 @@ module Upwords
 
     def initialize(player1 = nil, player2 = nil)
       @board = Board.new
-      @players = Array.new
+      @graphics = Graphics.new(self, @board)
 
       # TODO: Remove the If block after testing is complete
       # Client should not be able to supply players to game
@@ -20,8 +20,6 @@ module Upwords
       end
       
       @turn = 0
-      @graphics = Graphics.new(self, @board)
-
       @running = true
       @submitted = false
     end
@@ -54,6 +52,7 @@ module Upwords
     end
 
     def add_players
+      @players = Array.new
       while player_count < max_players do
         print "What is Player #{player_count + 1}'s name?\n"
         add_player(gets.chomp)
@@ -126,8 +125,8 @@ module Upwords
       DIRECTION_KEYMAP.keys.include?(inp)
     end
 
-    def confirm_action?(action_text)
-      print "Are you sure you want to #{action_text}? (y/n) "
+    def confirm_action?(question_text)
+      print "#{question_text} (y/n) " # TODO: Make this update_message instead of print
       inp = STDIN.getch
       inp == 'y' || inp == 'Y'
     end
@@ -139,7 +138,7 @@ module Upwords
     def undo_moves
       if !current_player.has_pending_moves?
         raise IllegalMove, "No moves to undo!"
-      elsif confirm_action? "undo"
+      elsif confirm_action? "Are you sure you want to undo?"
         current_player.undo_moves 
       end
     end
@@ -147,14 +146,22 @@ module Upwords
     def submit_moves
       if !current_player.has_pending_moves?
         raise IllegalMove, "You haven't played any letters!"
-      elsif confirm_action? "submission"
+      elsif confirm_action? "Are you sure you want to submit?"
         current_player.submit_moves
         @submitted = true
       end
     end
 
+    # TODO: Test this method...
+    def swap_letter
+      print "Pick a letter to swap..."
+      letter = gets.chomp
+      current_player.swap_letter(letter)
+      @submitted = true
+    end
+
     def exit_game
-      if confirm_action? "exit the game"
+      if confirm_action? "Are you sure you want to exit the game?"
         @running = false
       end
     end
@@ -174,6 +181,7 @@ module Upwords
     ACTION_KEYMAP = {
       '1' => proc { undo_moves },
       '2' => proc { submit_moves },
+      '3' => proc { swap_letter },
       'Q' => proc { exit_game }
     }
 

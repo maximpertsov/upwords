@@ -19,12 +19,7 @@ module Upwords
     end
     
     def take_from(letter)
-      #convert letter to title case (qu or QU -> Qu)
-      if letter.capitalize == 'Q'
-        letter = 'Qu'
-      else
-        letter.capitalize!
-      end
+      letter = proper_case(letter)
       if !has_letter?(letter)
         raise IllegalMove, "You don't have this letter!"
       else
@@ -57,6 +52,17 @@ module Upwords
       printed_rack = ""
       @rack.each{|letter| printed_rack += letter + " "}
       printed_rack
+    end
+
+    private
+
+    def proper_case(letter)
+      #convert letter to title case (qu or QU -> Qu)
+      if letter.capitalize == 'Q'
+        'Qu'
+      else
+        letter.capitalize
+      end
     end
 
   end

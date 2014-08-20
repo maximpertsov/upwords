@@ -43,6 +43,7 @@ module Upwords
     end
 
     def swap_letter(letter)
+      undo_moves
       @rack.swap(letter)
     end
 
