@@ -20,7 +20,7 @@ module Upwords
       @text.to_str
     end
 
-    private 
+    private
     
     def calc_score
       stack_heights = @posns.map{|row, col| @board.stack_height(row, col)}

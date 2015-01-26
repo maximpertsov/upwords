@@ -8,7 +8,7 @@ module Upwords
     def initialize(player1 = nil, player2 = nil)
       @board = Board.new
       @graphics = Graphics.new(self, @board)
-
+      @dictionary = Dictionary.new("data/ospd.txt")
       # TODO: Remove the If block after testing is complete
       # Client should not be able to supply players to game
       # directly...
@@ -47,7 +47,7 @@ module Upwords
         if name.nil? || name.size < 1
           name = "Player #{player_count + 1}" 
         end
-        @players << Player.new(@board, name)
+        @players << Player.new(@board, name, @dictionary)
       end
     end
 

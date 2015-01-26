@@ -1,9 +1,10 @@
 module Upwords
   class Moves # How to make this a subclass of arrays?
 
-    def initialize(board)
+    def initialize(board, dictionary)
       @board = board
       @pending_moves = Array.new
+      @dictionary = dictionary
       update_moves
     end
 
@@ -60,14 +61,17 @@ module Upwords
         raise IllegalMove, "You must play at least one letter in the middle 4x4 square!"
       # Is at least one letter intersecting or orthogonally touching a previously played letter? 
       elsif !connected_to_played?
-        raise IllegalMove, "At least one letter in your move must be touching a previously played word!"        
+        raise IllegalMove, "At least one letter in your move must be touching a previously played word!"
+      elsif !(pending_words.all? {|word| @dictionary.legal_word? word.to_s.upcase})
+        illegal_words = pending_words.reject{|word|}.map{|word| word.to_s}
+        error_msg = illegal_words.join(", ") + " are not legal words!"
+        raise IllegalMove, error_msg
+      end
       # TODO: Add the following legal move checks:
       # - Move is not a simple pluralization? (e.g. Cat -> Cats is NOT a legal move)
       # - Move does not entirely cover up a word that is already on the board (i.e. you can change part of a previously-played
       #   word, but the whole thing. E.g. Cats -> Cots is legal, but Cats -> Spam is not)
       # - Move is a standard English word (no slang and no abbreviations) (HINT: No need to check for words longer than 10
-      #   characters long): Possible solution -> https://rubygems.org/gems/mw_dictionary_api
-      end
       true
     end
     

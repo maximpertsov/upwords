@@ -1,18 +1,16 @@
+require 'set'
+
 module Upwords
   class Dictionary
   
     def initialize(filepath)
-      # TODO: make 'a' a word list file that gets read in
-      a = %w(a b c)
-      @dict = a.reduce({}) do |memo, line|
-        memo[line] = true
-        memo
-      end
+      @legal_words = Set.new
+      IO.foreach(filepath) {|line| @legal_words << line.chomp.upcase}
     end
 
-    def word_found? word
-      !!@dict[word]
+    def legal_word? word
+      @legal_words.member? word
     end
-  
+    
   end
 end
