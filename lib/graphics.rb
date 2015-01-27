@@ -1,3 +1,5 @@
+require 'colored'
+
 module Upwords
   class Graphics
 
@@ -5,6 +7,7 @@ module Upwords
       @game = game
       @board = board
       @message = message
+      @moves = @game.moves
     end
 
     def message=(new_message)
@@ -19,7 +22,12 @@ module Upwords
       elsif letter != "Qu"
         letter += " "
       end
-      letter
+      # draw pending letters in red
+      if @moves.pending_moves.include? [row, col]
+        letter.red
+      else
+        letter
+      end
     end
 
     def draw_player_name

@@ -3,14 +3,15 @@ module Upwords
 
     attr_reader :name, :score, :cursor_posn
 
-    def initialize(board, player_name, dictionary)
+    def initialize(game, player_name)
+      @game = game
       @name = player_name
-      @board = board
-      @dictionary = dictionary
-      @rack = LetterRack.new(board.letter_bank)
+      @board = @game.board
+      @dictionary = @game.dictionary
+      @rack = LetterRack.new(@board.letter_bank)
       @score = 0
       @cursor_posn = @board.middle_square[0]
-      @pending_moves = Moves.new(@board, @dictionary)
+      @pending_moves = @game.moves #Moves.new(@board, @dictionary)
     end
 
     def show_rack

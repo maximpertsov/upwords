@@ -3,12 +3,13 @@ require 'io/console'
 module Upwords
   class Game
 
-    attr_reader :players
+    attr_reader :board, :dictionary, :moves, :players
 
     def initialize(player1 = nil, player2 = nil)
       @board = Board.new
-      @graphics = Graphics.new(self, @board)
       @dictionary = Dictionary.new("data/ospd.txt")
+      @moves = Moves.new(self)
+      @graphics = Graphics.new(self, @board)
       # TODO: Remove the If block after testing is complete
       # Client should not be able to supply players to game
       # directly...
@@ -47,7 +48,7 @@ module Upwords
         if name.nil? || name.size < 1
           name = "Player #{player_count + 1}" 
         end
-        @players << Player.new(@board, name, @dictionary)
+        @players << Player.new(self, name)
       end
     end
 
