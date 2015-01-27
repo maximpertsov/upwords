@@ -23,8 +23,8 @@ module Upwords
         letter += " "
       end
       # draw pending letters in red
-      if @moves.pending_moves.include? [row, col]
-        letter.red
+      if @moves.include? [row, col]
+        letter.yellow
       else
         letter
       end
@@ -38,16 +38,17 @@ module Upwords
       players = @game.players
       score_display = players.map{|p| "#{p.name}: #{p.score} "}.join "| "
       print "   #{score_display}"
-      #print "   Current score: #{@game.current_player.score}"
     end
-
+    
     def draw_letter_rack
       print "   #{@game.current_player.show_rack}"
     end
 
     def draw_space(row, col, cursor_posn)
+      # print cursor position in white
+      cur_left, cur_right = ["[", "]"].map{|s| s.white}
       if cursor_posn == [row, col]  
-        print "[#{format_letter(row, col)}]|"
+        print " #{format_letter(row, col).white_on_blue} |"
       else
         print " #{format_letter(row, col)} |"
       end
@@ -56,8 +57,13 @@ module Upwords
     # This will also display the stack height for now
     def draw_divider(row, col)
       height = @board.stack_height(row, col)
-      if height == 0
+      case height
+      when 0
         height = "-"
+      when @board.max_height
+        height = height.to_s.red
+      else
+        height = height.to_s.white
       end
       print "---#{height}+"
     end

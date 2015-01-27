@@ -1,8 +1,6 @@
 module Upwords
   class Moves # How to make this a subclass of arrays?
 
-    attr_reader :pending_moves
-
     def initialize(game)
       @game = game
       @board = @game.board
@@ -39,7 +37,7 @@ module Upwords
 
     def pending_words
       all_words = @board.words_on_rows + @board.words_on_columns
-      new_words = (@board.words_on_rows + @board.words_on_columns).map{|word| word.to_str} - @@played_words
+      new_words = (@board.words_on_rows + @board.words_on_columns).map{|word| word.to_str} - @played_words
       all_words.select{|word| (new_words.include? word.to_str)}
     end
 
@@ -132,7 +130,7 @@ module Upwords
     end
 
     def connected_move?
-      skipped_spaces.empty? || (skipped_spaces - @@played_moves).empty? 
+      skipped_spaces.empty? || (skipped_spaces - @played_moves).empty? 
     end
 
     def letter_in_middle_square?
@@ -144,15 +142,15 @@ module Upwords
     end
 
     def connected_to_played?
-      @@played_moves.empty? || @@played_moves.size > (@@played_moves - (orthogonal_spaces + @pending_moves)).size
+      @played_moves.empty? || @played_moves.size > (@played_moves - (orthogonal_spaces + @pending_moves)).size
     end
 
     def update_played_moves
-      @@played_moves = @board.nonempty_spaces
+      @played_moves = @board.nonempty_spaces
     end
     
     def update_played_words
-      @@played_words = (@board.words_on_rows + @board.words_on_columns).map{|word| word.to_str}
+      @played_words = (@board.words_on_rows + @board.words_on_columns).map{|word| word.to_str}
     end
 
   end

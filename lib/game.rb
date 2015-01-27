@@ -73,6 +73,11 @@ module Upwords
 
     def update_message msg
       @graphics.message = msg
+      display
+    end
+
+    def clear_message
+      update_message ""
     end
 
     # =========================================
@@ -94,7 +99,7 @@ module Upwords
     def input_loop
       while !@submitted && @running do
         inp = STDIN.getch
-        update_message ""
+        clear_message
         if key_is_action?(inp)
           instance_eval(&ACTION_KEYMAP[inp])     
         elsif key_is_direction?(inp)
@@ -109,6 +114,8 @@ module Upwords
     
     def next_turn
       if @submitted
+        # TODO: add subroutine to end game if letter bank is empty and either player has exhausted all their letters
+        # TODO: add subroutine to end game if both players skipped 3 consecutive turns (check rules to see exactly how this works...)
         @turn = (@turn + 1) % player_count
         @submitted = false
       end
@@ -127,8 +134,9 @@ module Upwords
     end
 
     def confirm_action?(question_text)
-      print "#{question_text} (y/n) " # TODO: Make this update_message instead of print
+      update_message "#{question_text} (y/n)"
       inp = STDIN.getch
+      clear_message
       inp == 'y' || inp == 'Y'
     end
 
@@ -155,7 +163,7 @@ module Upwords
 
     # TODO: Test this method...
     def swap_letter
-      print "Pick a letter to swap... "
+      update_message "Pick a letter to swap... "
       letter = STDIN.getch
       if confirm_action? "Swap '#{letter}' for another?"
         current_player.swap_letter(letter)
