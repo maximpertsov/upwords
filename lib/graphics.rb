@@ -3,15 +3,24 @@ require 'colored'
 module Upwords
   class Graphics
 
-    def initialize(game, board, message = nil)
+    # Define lines where game info appear
+    PLAYER_NAME_LINE = 2
+    LETTER_RACK_LINE = 3
+    SCORE_LINE = 4
+
+    def initialize(game, init_message = nil)
       @game = game
-      @board = board
-      @message = message
+      @board = @game.board
       @moves = @game.moves
+      message = init_message
     end
 
     def message=(new_message)
-      @message = new_message
+      if new_message.nil?
+        @message = ""
+      else
+        @message = new_message.white
+      end
     end
 
     def format_letter(row, col)
@@ -86,11 +95,6 @@ module Upwords
       end
       print "\n#{@message}\n" 
     end
-
-    # Define lines where game info appear
-    PLAYER_NAME_LINE = 2
-    LETTER_RACK_LINE = 3
-    SCORE_LINE = 4
 
   end
 end

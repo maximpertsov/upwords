@@ -65,7 +65,7 @@ module Upwords
     # Graphics Methods
     # =========================================
     
-    def display
+    def refresh_graphics
       @graphics.draw_board
       print "Use SHIFT + WASD keys to move cursor\n"
       print "Other actions: (1)Undo Moves (2)Submit (3)Swap (4)Skip (5)Quit\n"
@@ -73,7 +73,7 @@ module Upwords
 
     def update_message msg
       @graphics.message = msg
-      display
+      refresh_graphics
     end
 
     def clear_message
@@ -86,7 +86,7 @@ module Upwords
 
     def run
       while @running do
-        display
+        refresh_graphics
         begin
           input_loop
           next_turn
@@ -108,7 +108,7 @@ module Upwords
           current_player.play_letter(inp)
           update_message "Pending words: #{current_player.show_pending_moves}"
         end
-        display
+        refresh_graphics
       end
     end
     
@@ -173,6 +173,7 @@ module Upwords
 
     def skip_turn
       if confirm_action? "Are you sure you want to skip your turn?"
+        current_player.undo_moves
         @submitted = true
       end
     end

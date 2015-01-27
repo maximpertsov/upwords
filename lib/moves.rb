@@ -35,12 +35,27 @@ module Upwords
       update_played_words
     end
 
+    def update_played_moves
+      @played_moves = @board.nonempty_spaces
+    end
+    
+    def update_played_words
+      @played_words = (@board.words_on_rows + @board.words_on_columns).map{|word| word.to_str}
+    end
+
+    def all_words
+      @board.words_on_rows + @board.words_on_columns
+    end
+
     def pending_words
-      all_words = @board.words_on_rows + @board.words_on_columns
-      new_words = (@board.words_on_rows + @board.words_on_columns).map{|word| word.to_str} - @played_words
+      new_words = all_words.map{|word| word.to_str} - @played_words
       all_words.select{|word| (new_words.include? word.to_str)}
     end
 
+    def pending_illegal_words
+      pending_words.reject{|word| @dictionary.legal_word? word.to_s.upcase}
+    end
+    
     def pending_result
       output = (pending_words.map{|word| "#{word} (#{word.score})"}.join ", ") 
       output + " | Total: #{pending_score}" if output.size > 0
@@ -64,9 +79,14 @@ module Upwords
       elsif !connected_to_played?
         raise IllegalMove, "At least one letter in your move must be touching a previously played word!"
       # Are all resulting words in Official Scrabble Players Dictionary
-      elsif !(pending_words.all? {|word| @dictionary.legal_word? word.to_s.upcase})
-        illegal_words = pending_words.reject{|word|}.map{|word| word.to_s}
-        error_msg = illegal_words.join(", ") + " are not legal words!"
+      elsif !pending_illegal_words.empty?
+        error_msg = pending_illegal_words.join(", ")
+        case pending_illegal_words.size
+        when 1
+          error_msg += " is not a legal word!"
+        else
+          error_msg += " are not legal words!"
+        end
         raise IllegalMove, error_msg
       end
       # TODO: Add the following legal move checks:
@@ -143,14 +163,6 @@ module Upwords
 
     def connected_to_played?
       @played_moves.empty? || @played_moves.size > (@played_moves - (orthogonal_spaces + @pending_moves)).size
-    end
-
-    def update_played_moves
-      @played_moves = @board.nonempty_spaces
-    end
-    
-    def update_played_words
-      @played_words = (@board.words_on_rows + @board.words_on_columns).map{|word| word.to_str}
     end
 
   end
