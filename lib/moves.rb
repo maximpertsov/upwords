@@ -74,7 +74,7 @@ module Upwords
         raise IllegalMove, "The letters in your move must be connected!"
       # Is at least one letter is in the middle 4 x 4 section of the board?
       elsif !letter_in_middle_square?
-        raise IllegalMove, "You must play at least one letter in the middle 4x4 square!"
+        raise IllegalMove, "You must play at least one letter in the middle 2x2 square!"
       # Is at least one letter intersecting or orthogonally touching a previously played letter? 
       elsif !connected_to_played?
         raise IllegalMove, "At least one letter in your move must be touching a previously played word!"

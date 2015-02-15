@@ -1,4 +1,5 @@
 require 'io/console'
+#require 'curses'
 
 module Upwords
   class Game
@@ -9,7 +10,7 @@ module Upwords
       @board = Board.new
       @dictionary = Dictionary.new("data/ospd.txt")
       @moves = Moves.new(self)
-      @graphics = Graphics.new(self, @board)
+      @graphics = Graphics.new(self)
       # TODO: Remove the If block after testing is complete
       # Client should not be able to supply players to game
       # directly...

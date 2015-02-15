@@ -12,7 +12,7 @@ module Upwords
       @game = game
       @board = @game.board
       @moves = @game.moves
-      message = init_message
+      @message = init_message
     end
 
     def message=(new_message)
