@@ -1,12 +1,13 @@
 require 'io/console'
-#require 'curses'
+require 'curses'
 
 module Upwords
   class Game
 
     attr_reader :board, :dictionary, :moves, :players
 
-    def initialize(player1 = nil, player2 = nil)
+    def initialize(player1 = nil, player2 = nil, use_curses = false)
+      @use_curses = use_curses
       @board = Board.new
       @dictionary = Dictionary.new("data/ospd.txt")
       @moves = Moves.new(self)
@@ -25,7 +26,7 @@ module Upwords
       @running = true
       @submitted = false
     end
-
+    
     # =========================================
     # Player Methods
     # =========================================
@@ -82,17 +83,91 @@ module Upwords
     end
 
     # =========================================
+    # Curses
+    # =========================================
+
+    def open_window
+      Curses.init_screen
+      Curses.start_color
+      @win = Curses::Window.new(0,0,0,0)
+    end
+
+    def close_window
+      @win.close
+    end
+
+    def draw_grid(dim,sz_y,sz_x,y,x)
+      (0...dim).each do |j|
+        (0...dim).each do |i|
+          swin = draw_subwin(@win, sz_y, sz_x, y+j*(sz_y-1), x+i*(sz_x-1))
+          swin.box("|", "-")
+          # make corners '+' (plus-signs)
+          corners = [[0,0],[sz_y-1,0],[0,sz_x-1],[sz_y-1,sz_x-1]]
+          corners.each do |y,x|
+            swin.setpos(y,x)
+            swin.addch("+")
+          end
+        end
+      end
+      @win.setpos(y,x)
+    end
+
+    # TODO: make this a private method ?
+    def draw_subwin(win, sz_y,sz_x,y,x)
+      win.subwin(sz_y,sz_x,y,x)    
+    end
+
+    def winloop
+      @win.keypad(true)
+      Curses.noecho
+      @win.setpos(1,2)
+      @running = true
+      while @running do
+        key = @win.getch
+        case key
+        when Curses::KEY_LEFT
+          @win.setpos(@win.cury, @win.curx-5)
+        when Curses::KEY_RIGHT
+          @win.setpos(@win.cury, @win.curx+5)
+        when Curses::KEY_UP
+          @win.setpos(@win.cury-2, @win.curx)
+        when Curses::KEY_DOWN
+          @win.setpos(@win.cury+2, @win.curx)
+        when 27 # This corresponds to ESC or Alt+A
+          @running = false
+        else
+          if key =~ /[[:alpha:]]/
+            cap_letter = (key.capitalize == "Q" ? "Qu" : key.capitalize)
+            @win.addstr(cap_letter)
+            @win.setpos(@win.cury, @win.curx - cap_letter.size)
+          end
+        end
+        @win.refresh  
+      end
+    end
+
+    # =========================================
     # Game Loops & Non-Input Procedures
     # =========================================
 
     def run
-      while @running do
-        refresh_graphics
-        begin
-          input_loop
-          next_turn
-        rescue IllegalMove => exception
-          update_message exception.message
+      # new Curses window subroutine (STILL BEING IMPLEMENTED!)
+      if @use_curses
+        open_window
+        draw_grid(10,3,6,0,0)
+        winloop
+        close_window
+      # old basic console subroutine
+      else
+        ARGV.clear
+        while @running do
+          refresh_graphics
+          begin
+            input_loop
+            next_turn
+          rescue IllegalMove => exception
+            update_message exception.message
+          end
         end
       end
     end
