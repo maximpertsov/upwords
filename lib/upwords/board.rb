@@ -9,6 +9,23 @@ module Upwords
       @letter_bank = LetterBank.new
     end
 
+    # ---------------
+    # Testing methods
+    # ---------------
+    def inspect
+      "I'm an #{num_rows} X #{num_columns} board"
+    end
+
+    def to_s
+      inspect
+    end
+
+    def [](r, c)
+      top_letter(r,c)
+    end
+    # ---------------
+    # ---------------
+    
     def min_word_length
       2
     end

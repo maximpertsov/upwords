@@ -5,7 +5,8 @@ module Upwords
   
     def initialize(filepath)
       @legal_words = Set.new
-      IO.foreach(filepath) {|line| @legal_words << line.chomp.upcase}
+      File.foreach(filepath) {|line| @legal_words << line.chomp.upcase}
+      #IO.foreach(filepath) {|line| @legal_words << line.chomp.upcase}
     end
 
     def legal_word? word

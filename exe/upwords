@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 
-require_relative 'lib/upwords'
+require 'upwords'
 
 # new Curses window subroutine (STILL BEING IMPLEMENTED!)
 if ARGV.size > 0 && ARGV[0].upcase == "CURSES"

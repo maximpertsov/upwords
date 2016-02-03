@@ -1,12 +1,14 @@
-require_relative 'board'
-require_relative 'letter_bank'
-require_relative 'letter_rack'
-require_relative 'dictionary' # finish implementing
-require_relative 'moves'
-require_relative 'word'
-require_relative 'player'
-require_relative 'graphics'
-require_relative 'game'
+require 'upwords/version'
+require 'upwords/box'
+require 'upwords/board'
+require 'upwords/letter_bank'
+require 'upwords/letter_rack'
+require 'upwords/dictionary' # finish implementing
+require 'upwords/moves'
+require 'upwords/word'
+require 'upwords/player'
+require 'upwords/graphics'
+require 'upwords/game'
 
 module Upwords
   # Raised when player makes an illegal move
