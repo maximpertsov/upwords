@@ -1,14 +1,25 @@
 # N-dimensional array            
 module Upwords
   class Box
-    attr_reader :num_dimensions
+    include Enumerable
+    
+    attr_reader :dim, :lengths
     
     # Specify the length of each dimension you wish to initialize
-    def initialize(*dimension_lengths)
-      @dimension_lengths = validate_dimension_lengths(dimension_lengths)
-      @num_dimensions = dimension_lengths.size
-      @items = {}
-    end    
+    # Optionally, can specify a default proc to be executed when accessing un-used slots
+    def initialize(*dimension_lengths, &block) 
+      @lengths = validate_dimension_lengths(dimension_lengths)
+      @dim = dimension_lengths.size
+      @items = Hash.new(&block)
+    end
+
+    def inspect
+      "[#{dim}d | #{@items.inspect}]"
+    end
+
+    def to_s
+      "[#{dim}d | #{@items.to_s}]"
+    end
     
     def [](*key)
       @items[validate_key(key)]
@@ -18,8 +29,43 @@ module Upwords
       @items[validate_key(key)] = item
     end
 
+    def delete(*key)
+      @items.delete(validate_key(key))
+    end
+
     def length(dim)
-      @dimension_lengths[dim]
+      @lengths[dim]
+    end
+
+    def each(&block)
+      return enum_for(__method__) if block.nil?
+      indices.each do |key|
+        # Check for key so default_proc is not invoked
+        block.call(@items.key(key) ? self[*key] : nil)  
+      end
+    end
+
+    # TODO: How should this work if default_proc exists?
+    def map!(&block)
+      return enum_for(__method__) if block.nil?
+      indices.each do |key|
+        self[*key] = block.call(self[*key]) 
+      end
+    end
+
+    # TODO: Make this private
+    # Return all indices of box
+    def indices
+      first_dim = (0...length(0)).to_a
+      if dim == 1
+        first_dim
+      else
+        lengths[1...dim].reduce(first_dim) do |acc, k|
+          (acc.product (0...k).to_a)
+        end.flatten.each_slice(dim).map do |key|
+          key
+        end
+      end
     end
 
     private
@@ -36,10 +82,9 @@ module Upwords
     end
 
     def same_dimensions?(key)
-      key.length != num_dimensions
+      key.length != dim
     end
 
-    # TODO: fix me
     def find_out_of_bounds(key)
       key.each_with_index.find_index {|idx, dim| idx < 0 || idx >= length(dim)}
     end
@@ -47,7 +92,7 @@ module Upwords
     # Return key if it has the same number of dimensions as the box, and all indices are in bounds
     def validate_key(key)
       if same_dimensions?(key)
-        raise KeyError, "Key must have exactly #{self.num_dimensions} dimension(s)"
+        raise KeyError, "Key must have exactly #{self.dim} dimension(s)"
       else
         bad_idx = find_out_of_bounds(key)
         if !bad_idx.nil? 
