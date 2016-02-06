@@ -1,14 +1,7 @@
 require 'test_helper'
 
 class BoxTest < Minitest::Test
-  extend Minitest::Spec::DSL
   include Upwords
-
-  # def test_init(self):
-  #      box = Box(1,2,3)
-  #   assert hasattr(box, '__init__')
-  #   assert hasattr(box, '__len__')
-  #   assert hasattr(box, 'number_of_dimensions')
         
   def test_cannot_init_without_lengths
     assert_raises(ArgumentError) {Box.new}
@@ -29,71 +22,90 @@ class BoxTest < Minitest::Test
     end
   end
 
-  # ===========================================================
-  # TEST GETTING, SETTING, AND DELETING FOR 1-DIMENSIONAL BOXES
-  # ===========================================================
-  
-  # Create a 1-dimensional box with 5 slots
-  let(:box1d_empty) { Box.new(5) }
-
-  def test_can_get_indices_1d_box
-    b = box1d_empty
-    assert_equal b.indices, [0, 1, 2, 3, 4]
-  end
-
-  # Create a 1-dimensional box with 5 slots, all filled with the string "X"
-  let(:box1d_full) do
-    b = Box.new(5)
-    (0...b.length(0)).reduce(b) {|b, i| b[i] = "X"; b}
-  end
-  
-  def test_can_set_1d_box
-    b = box1d_empty
-    assert_silent do
-      b.indices.each {|i| b[i] = "X"}
-    end
-  end
-
-  # Make sure you cannot fill box slots that are out of bounds
-  # or that have an incorrect number of dimensions
-  def test_cannot_set_1d_box_out_of_bounds
-    b = box1d_empty
-    assert_raises(KeyError) {b[b.length(0)] = "I'm out of bounds"}
-    assert_raises(KeyError) {b[-1] = "I'm out of bounds"}
-  end
-  
-  def test_cannot_set_1d_box_with_wrong_key_dimensions
-    assert_raises(KeyError) {box1d_empty[1,2] = "I have the wrong dimensions"}
-  end
-  
-  def test_can_get_from_1d_box
-    b = box1d_full
-    b.indices.all? {|i| b[i] == "X"}
-  end
-
-  def test_set_1d_box_out_of_bounds
-    b = box1d_full
-    assert_raises(KeyError) {b[b.length(0)]}
-    assert_raises(KeyError) {b[-1]}
-  end
-
-  def test_cannot_set_1d_box_with_wrong_key_dimensions
-    assert_raises(KeyError) {box1d_full[1,2]}
-  end
-  
-  def test_can_delete_from_1d_box
-    b = box1d_full
+  class Box1DTest < Minitest::Test
+    include Upwords
     
-    assert_silent do
-      b.indices.each {|i| b.delete(i) if i.even?}
+    def setup
+      @box = Box.new(5)
+    end
+
+    def test_has_correct_dimension
+      assert_equal 1, @box.dim 
     end
     
-    b.indices.each do |i|
-      if i.even?
-        assert_nil b[i]
-      else
-        assert_equal b[i], "X"
+    def test_has_correct_dimension_lengths
+      assert_equal 5, @box.length(0)
+      assert_equal [5], @box.lengths
+    end
+
+    def test_can_iterate_through_keys
+      expected_keys = (0..4).to_a
+      @box.each_key.each_with_index do |key, i|
+        assert_equal expected_keys[i], key
       end
+    end
+
+    def test_can_iterate_through_items
+      expected_items = (0..4).map {|i| @box[i]}
+      @box.each_with_index do |item, i|
+        assert_equal expected_items[i], item
+      end
+    end
+
+    def test_can_return_items_in_array
+      assert_equal [nil, nil, nil, nil, nil], @box.to_a
+    end
+
+    def test_can_map_items_to_a_new_array
+      assert_equal ["A", "A", "A", "A", "A"], @box.map {|item| "A"}
+      assert_equal [0, 2, 4, 6, 8], @box.each_key.map {|key| 2 * key}
+    end
+
+    def test_can_set_and_get_at_index
+      @box[0] = "A"
+      @box[1] = "B"
+      @box[4] = "C"
+      @box[4] = "D" # Overwritten
+      
+      assert_equal ["A", "B", nil, nil, "D"], @box.to_a
+    end
+
+    def test_can_set_all_slots_with_map!
+      @box.map! {|x| "A"}
+      assert_equal ["A", "A", "A", "A", "A"], @box.to_a
+    end
+    
+    def test_can_delete_at_index
+      @box.map! {|x| "X"}
+      
+      @box.delete(0)
+      @box.delete(4)
+      
+      assert_equal [nil, "X", "X", "X", nil], @box.to_a
+    end
+    
+    def test_can_map_to_new_box
+      b = @box.mapbox {|x| "A"}
+      
+      assert_instance_of @box.class, b
+      assert_equal ["A", "A", "A", "A", "A"], b.to_a 
+      assert_equal [nil, nil, nil, nil, nil], @box.to_a
+    end
+    
+    def test_cannot_set_with_non_int_arguments
+      assert_raises(KeyError) {@box['a'] = "I'm not a valid key"}
+      assert_raises(KeyError) {@box[3.0] = "I'm not a valid key"}
+    end
+    
+    def test_cannot_set_out_of_bounds_index
+      assert_raises(KeyError) {@box[5] = "I'm out of bounds"}
+      assert_raises(KeyError) {@box[-1] = "I'm out of bounds"}
+    end
+    
+    def test_cannot_set_with_wrong_key_dimensions
+      assert_raises(KeyError) {@box[1,2] = "I have the wrong dimensions"}
+      assert_raises(KeyError) {@box[] = "I have the wrong dimensions"}
+      assert_raises(KeyError) {@box[1,2,2] = "I have the wrong dimensions"}
     end
   end
 
@@ -101,48 +113,48 @@ class BoxTest < Minitest::Test
   # TEST GETTING, SETTING, AND DELETING FOR 2-DIMENSIONAL BOXES
   # ===========================================================
 
-  # Create a 2-dimensional box with 3 and 4 slots
-  let(:box2d) { Box.new(3,4) }
+  # # Create a 2-dimensional box with 3 and 4 slots
+  # let(:box2d) { Box.new(3,4) }
    
-  def test_can_set_2d_box
-    # Create 2d box with dimension lengths 3 and 4
-    dim_lengths = [3, 4]
-    box2d = Box.new(*dim_lengths)
+  # def test_can_set_2d_box
+  #   # Create 2d box with dimension lengths 3 and 4
+  #   dim_lengths = [3, 4]
+  #   box2d = Box.new(*dim_lengths)
     
-    # Fill box with values
-    keys = box2d.indices #get_nd_box_keys(*dim_lengths)
-    assert_silent do
-      keys.each {|i,j| box2d[i,j] = "X"}
-    end
+  #   # Fill box with values
+  #   keys = box2d.indices #get_nd_box_keys(*dim_lengths)
+  #   assert_silent do
+  #     keys.each {|i,j| box2d[i,j] = "X"}
+  #   end
            
-    # Make sure you cannot fill box slots that are out of bounds
-    # or that have an incorrect number of dimensions
-    assert_raises(KeyError) {box2d[0, 4] = "I'm out of bounds"}
-    assert_raises(KeyError) {box2d[-1, 2] = "I'm out of bounds"}
-    assert_raises(KeyError) {box2d[1] = "I have the wrong dimensions"}
-  end
+  #   # Make sure you cannot fill box slots that are out of bounds
+  #   # or that have an incorrect number of dimensions
+  #   assert_raises(KeyError) {box2d[0, 4] = "I'm out of bounds"}
+  #   assert_raises(KeyError) {box2d[-1, 2] = "I'm out of bounds"}
+  #   assert_raises(KeyError) {box2d[1] = "I have the wrong dimensions"}
+  # end
   
-  def test_get_2d_box
-    x, y = 3, 4
-    box2d = Box.new(x, y)
+  # def test_get_2d_box
+  #   x, y = 3, 4
+  #   box2d = Box.new(x, y)
     
-    # Fill box with values
-    keys = box2d.indices # get_nd_box_keys(x, y)
-    assert_silent do
-      keys.each {|i,j| box2d[i,j] = "X"}
-    end
+  #   # Fill box with values
+  #   keys = box2d.indices # get_nd_box_keys(x, y)
+  #   assert_silent do
+  #     keys.each {|i,j| box2d[i,j] = "X"}
+  #   end
            
-    # Check that you can access every box slot that you set
-    assert keys.all? do |i,j|
-      box2d[i,j] == "X"
-    end
+  #   # Check that you can access every box slot that you set
+  #   assert keys.all? do |i,j|
+  #     box2d[i,j] == "X"
+  #   end
 
-    # Make sure you cannot access slots that are out of bounds
-    # or that have an incorrect number of dimensions
-    assert_raises(KeyError) {box2d[0, 4]}
-    assert_raises(KeyError) {box2d[2, -1]}
-    assert_raises(KeyError) {box2d[1]}
-  end
+  #   # Make sure you cannot access slots that are out of bounds
+  #   # or that have an incorrect number of dimensions
+  #   assert_raises(KeyError) {box2d[0, 4]}
+  #   assert_raises(KeyError) {box2d[2, -1]}
+  #   assert_raises(KeyError) {box2d[1]}
+  # end
   
     # def test_del_2d_box(self):
     #     x, y = 3, 4

@@ -37,25 +37,40 @@ module Upwords
       @lengths[dim]
     end
 
-    def each(&block)
+    # map to a new box
+    def mapbox(&block)
       return enum_for(__method__) if block.nil?
-      indices.each do |key|
-        # Check for key so default_proc is not invoked
-        block.call(@items.key(key) ? self[*key] : nil)  
+      new_box = Box.new(*lengths, &@items.default_proc)
+      keys.reduce(new_box) do |box, key|
+        box[*key] = block.call(self[*key])
+        box
       end
+    end
+    
+    def each(&block)
+      self.each_key do |key|
+        block.call(self[*key])
+      end
+    end
+
+    def each_key(&block)
+      return enum_for(__method__) if block.nil?
+      keys.each {|key| block.call(key)}
+      return self
     end
 
     # TODO: How should this work if default_proc exists?
     def map!(&block)
       return enum_for(__method__) if block.nil?
-      indices.each do |key|
+      keys.each do |key|
         self[*key] = block.call(self[*key]) 
       end
     end
 
-    # TODO: Make this private
-    # Return all indices of box
-    def indices
+    private
+
+    # Return all possible keys of box
+    def keys
       first_dim = (0...length(0)).to_a
       if dim == 1
         first_dim
@@ -67,8 +82,6 @@ module Upwords
         end
       end
     end
-
-    private
     
     # Return dimension_lengths if they are valid
     def validate_dimension_lengths(dimension_lengths)
@@ -80,27 +93,25 @@ module Upwords
         dimension_lengths
       end
     end
-
-    def same_dimensions?(key)
-      key.length != dim
-    end
-
-    def find_out_of_bounds(key)
-      key.each_with_index.find_index {|idx, dim| idx < 0 || idx >= length(dim)}
-    end
     
     # Return key if it has the same number of dimensions as the box, and all indices are in bounds
     def validate_key(key)
-      if same_dimensions?(key)
+      if !(key.all? {|idx| idx.is_a? Integer})
+        raise KeyError, "All key indices must be integers"
+      elsif (key.length != dim)
         raise KeyError, "Key must have exactly #{self.dim} dimension(s)"
       else
-        bad_idx = find_out_of_bounds(key)
+        bad_idx = find_first_out_of_bounds(key)
         if !bad_idx.nil? 
           raise KeyError, "Key index for dimension #{bad_idx} is out of bounds"
         else
           key
         end
       end
+    end
+
+    def find_first_out_of_bounds(key)
+      key.each_with_index.find_index {|idx, dim| idx < 0 || idx >= length(dim)}
     end
   end
 end
