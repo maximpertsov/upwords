@@ -76,13 +76,17 @@ module Upwords
       end
       print "---#{height}+"
     end
-
+    
     # print grid of top letter on each stack and stack height
     def draw_board
       print "\n\n\n+" + "----+" * @board.num_columns
-      @board.grid.each_with_index do |row, i| 
+      #@board.grid.each_with_index do |row, i| 
+      (0...@board.num_rows).each do |i|
         print "\n|"
-        row.each_index{|j| draw_space(i, j, @game.current_player.cursor_posn)}
+        # row.each_index{|j| draw_space(i, j, @game.current_player.cursor_posn)}
+        (0...@board.num_columns).each do |j|
+          draw_space(i, j, @game.current_player.cursor_posn)
+        end
         if i == PLAYER_NAME_LINE
           draw_player_name
         elsif i == LETTER_RACK_LINE
@@ -91,7 +95,8 @@ module Upwords
           draw_score
         end
         print "\n+"
-        row.each_index{|j| draw_divider(i, j)}
+        #row.each_index{|j| draw_divider(i, j)}
+        (0...@board.num_columns).each {|j| draw_divider(i, j)}
       end
       print "\n#{@message}\n" 
     end

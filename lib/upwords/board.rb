@@ -5,7 +5,7 @@ module Upwords
     attr_reader :grid, :letter_bank, :moves
 
     def initialize
-      @grid = Array.new(side_length) {Array.new(side_length) {Array.new}}
+      @grid = Box.new(10, 10) {|h,k| h[k] = []} #Array.new(side_length) {Array.new(side_length) {Array.new}}
       @letter_bank = LetterBank.new
     end
 
@@ -14,10 +14,6 @@ module Upwords
     # ---------------
     def inspect
       "I'm an #{num_rows} X #{num_columns} board"
-    end
-
-    def to_s
-      inspect
     end
 
     def [](r, c)
@@ -56,24 +52,24 @@ module Upwords
     end
 
     def stack_height(row, col)
-      @grid[row][col].size
+      @grid[row, col].size
     end
 
     def play_letter(letter, row, col)
       if stack_height(row, col) < max_height
-        @grid[row][col] << letter
+        @grid[row, col] << letter
       else
         raise IllegalMove, "You cannot stack any more letters on this space"
       end  
     end
 
     def remove_top_letter(row, col)
-      @grid[row][col].pop
+      @grid[row, col].pop
     end
 
     # show top letter in board space
     def top_letter(row, col)
-      @grid[row][col][-1]
+      @grid[row, col][-1]
     end
 
     def words_on_row(row)
@@ -118,6 +114,5 @@ module Upwords
         end
       end
     end
-
   end
 end

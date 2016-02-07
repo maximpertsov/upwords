@@ -2,6 +2,10 @@ require 'test_helper'
 
 class BoardTest < Minitest::Test
   include Upwords
+
+  def setup
+    @board = Board.new
+  end
   
   def test_create_empty_board
     b = Board.new
@@ -17,7 +21,7 @@ class BoardTest < Minitest::Test
     b.play_letter('x', 3, 5)
 
     my_word = [[1,3],[2,4],[3,5]].map {|r, c| b.top_letter(r, c)}.join('')
-    assert_equal my_word, 'max'
+    assert_equal 'max', my_word
   end
 
   def test_can_stack_letters
@@ -28,7 +32,7 @@ class BoardTest < Minitest::Test
     b.play_letter('x', 3, 5)
 
     my_word = [[1,3],[2,4],[3,5]].map {|r, c| b.top_letter(r, c)}.join('')
-    assert_equal my_word, 'mix'
+    assert_equal 'mix', my_word
   end
 
   def test_can_remove_letters
