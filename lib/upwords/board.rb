@@ -9,18 +9,13 @@ module Upwords
       @letter_bank = LetterBank.new
     end
 
-    # ---------------
-    # Testing methods
-    # ---------------
     def inspect
       "I'm an #{num_rows} X #{num_columns} board"
     end
 
-    def [](r, c)
-      top_letter(r,c)
-    end
-    # ---------------
-    # ---------------
+    # def empty?
+    #   @grid.empty? || @grid.each_key.all? {|row, col| stack_height(row, col) == 0}
+    # end
     
     def min_word_length
       2
@@ -36,11 +31,11 @@ module Upwords
     end
     
     def num_rows
-      side_length
+      10 #@grid.length(0)
     end
     
     def num_columns
-      side_length
+      10 #@grid.length(1)
     end
 
     # Defines a 2x2 square in the middle of the board (in the case of the 10 x 10 board)
@@ -91,8 +86,11 @@ module Upwords
     end
 
     def nonempty_spaces
-      all_posns = (0...side_length).to_a.product (0...side_length).to_a
-      all_posns.select{|row, col| stack_height(row, col) > 0}
+      # all_posns = (0...side_length).to_a.product (0...side_length).to_a
+      # all_posns.select{|row, col| stack_height(row, col) > 0}
+      @grid.each_key.select do |row, col|
+        stack_height(row, col) > 0
+      end
     end
 
     private

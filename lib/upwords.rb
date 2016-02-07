@@ -7,7 +7,6 @@ require 'upwords/dictionary' # finish implementing
 require 'upwords/moves'
 require 'upwords/word'
 require 'upwords/player'
-require 'upwords/curses_graphics'
 require 'upwords/graphics'
 require 'upwords/game'
 

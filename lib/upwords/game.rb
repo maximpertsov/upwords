@@ -1,4 +1,3 @@
-require 'io/console'
 require 'curses'
 
 module Upwords
@@ -6,16 +5,12 @@ module Upwords
 
     attr_reader :board, :dictionary, :moves, :players
 
-    def initialize(player1 = nil, player2 = nil, use_curses = false)
-      @use_curses = use_curses
+    def initialize(player1 = nil, player2 = nil)
       @board = Board.new
       @dictionary = Dictionary.new("data/ospd.txt")
       @moves = Moves.new(self)
-      if use_curses
-        @graphics = CursesGraphics.new(self)
-      else
-        @graphics = Graphics.new(self)
-      end
+      @graphics = Graphics.new(self)
+      
       # TODO: Remove the If block after testing is complete
       # Client should not be able to supply players to game
       # directly...
@@ -25,8 +20,15 @@ module Upwords
         add_player(player1)
         add_player(player2)
       end
+
+      # Init curses
+      Curses.noecho
+      Curses.curs_set(0)
+      Curses.init_screen
+      Curses.start_color
+      @win = Curses::Window.new(0,0,0,0)
+      @win.keypad(true)
       
-      @turn = 0
       @running = true
       @submitted = false
     end
@@ -36,7 +38,7 @@ module Upwords
     # =========================================
 
     def current_player
-      @players[@turn]
+      @players.first
     end
 
     def max_players
@@ -73,9 +75,11 @@ module Upwords
     # =========================================
     
     def refresh_graphics
-      @graphics.draw_board
-      print "Use SHIFT + WASD keys to move cursor\n"
-      print "Other actions: (1)Undo Moves (2)Submit (3)Swap (4)Skip (5)Quit\n"
+      if @running
+        @win.clear
+        @win << @graphics.to_s
+        @win.refresh
+      end
     end
 
     def update_message msg
@@ -84,36 +88,11 @@ module Upwords
     end
 
     def clear_message
-      update_message ""
+      update_message standard_message
     end
 
-    # =========================================
-    # Curses
-    # =========================================
-
-    def open_window
-      @graphics.open_window
-    end
-
-    def close_window
-      @graphics.close_window
-    end
-
-    def draw_grid(dim)
-      @graphics.draw_grid(dim)
-    end
-
-    # TODO: make this a private method ?
-    def draw_cell(sz_x, sz_y, x, y)
-      @graphics.draw_cell(sz_x, sz_y, x, y)
-    end
-
-    def draw_corners(cell, char, sz_x, sz_y)
-      @graphics.draw_corners(cell, char, sz_x, sz_y)
-    end
-
-    def winloop
-      @graphics.winloop
+    def standard_message
+      "Actions: (1)Undo Moves (2)Submit (3)Swap (4)Skip (5)Quit\n"
     end
     
     # =========================================
@@ -121,35 +100,27 @@ module Upwords
     # =========================================
 
     def run
-      # new Curses window subroutine (STILL BEING IMPLEMENTED!)
-      if @use_curses
-        open_window
-        draw_grid(@board.side_length)
-        winloop
-        close_window
-      # old basic console subroutine
-      else
-        while @running do
-          refresh_graphics
-          begin
-            input_loop
-            next_turn
-          rescue IllegalMove => exception
-            update_message exception.message
-          end
+      clear_message
+      while @running do
+        refresh_graphics
+        begin
+          input_loop
+          next_turn
+        rescue IllegalMove => exception
+          update_message exception.message
         end
       end
     end
 
     def input_loop
       while !@submitted && @running do
-        inp = STDIN.getch
+        inp = @win.getch #STDIN.getch
         clear_message
         if key_is_action?(inp)
           instance_eval(&ACTION_KEYMAP[inp])     
         elsif key_is_direction?(inp)
           current_player.move_cursor(DIRECTION_KEYMAP[inp])
-        else
+        elsif inp =~ /[[:alpha:]]/
           current_player.play_letter(inp)
           update_message "Pending words: #{current_player.show_pending_moves}"
         end
@@ -161,7 +132,7 @@ module Upwords
       if @submitted
         # TODO: add subroutine to end game if letter bank is empty and either player has exhausted all their letters
         # TODO: add subroutine to end game if both players skipped 3 consecutive turns (check rules to see exactly how this works...)
-        @turn = (@turn + 1) % player_count
+        @players.rotate!
         @submitted = false
       end
     end
@@ -209,7 +180,7 @@ module Upwords
     # TODO: Test this method...
     def swap_letter
       update_message "Pick a letter to swap... "
-      letter = STDIN.getch
+      letter = @win.getch #STDIN.getch
       if confirm_action? "Swap '#{letter}' for another?"
         current_player.swap_letter(letter)
         @submitted = true
@@ -226,6 +197,7 @@ module Upwords
     def exit_game
       if confirm_action? "Are you sure you want to exit the game?"
         @running = false
+        @win.close
       end
     end
 
@@ -234,12 +206,12 @@ module Upwords
     # =========================================
     
     DIRECTION_KEYMAP = {
-      'W' => [-1, 0], # up
-      'S' => [ 1, 0], # down
-      'A' => [ 0,-1], # left 
-      'D' => [ 0, 1]  # right
-      
-    } 
+      Curses::KEY_UP    => [-1, 0], # up
+      Curses::KEY_DOWN  => [ 1, 0], # down
+      Curses::KEY_LEFT  => [ 0,-1], # left 
+      Curses::KEY_RIGHT => [ 0, 1]  # right
+    }
+    
     DIRECTION_KEYMAP.default = [0,0]
 
     ACTION_KEYMAP = {
@@ -249,19 +221,6 @@ module Upwords
       '4' => proc { skip_turn },
       '5' => proc { exit_game }
     }
-
-    # =========================================
-    # Board Configurations
-    # =========================================
-
-    CURSOR_START_X = 2
-    CURSOR_START_Y = 1
-    SPACE_SIZE_X = 6
-    SPACE_SIZE_Y = 3
-
-    CORNER_CHR = "+"
-    HORIZONTAL_DIVIDER_CHR = "-"
-    VERTICAL_DIVIDER_CHR = "|"
 
   end
 end

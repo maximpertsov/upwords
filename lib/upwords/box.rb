@@ -20,6 +20,10 @@ module Upwords
     def to_s
       "[#{dim}d | #{@items.to_s}]"
     end
+
+    def empty?
+      @items.empty?
+    end
     
     def [](*key)
       @items[validate_key(key)]
