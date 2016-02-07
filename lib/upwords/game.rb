@@ -151,7 +151,7 @@ module Upwords
 
     def confirm_action?(question_text)
       update_message "#{question_text} (y/n)"
-      inp = STDIN.getch
+      inp = @win.getch #STDIN.getch
       clear_message
       inp == 'y' || inp == 'Y'
     end

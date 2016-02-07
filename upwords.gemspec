@@ -10,8 +10,8 @@ Gem::Specification.new do |spec|
   spec.email         = ["maxim.pertsov@gmail.com"]
 
   spec.summary       = "" # %q{TODO: Write a short summary, because Rubygems requires one.}
-  spec.description   = "" # %q{TODO: Write a longer description or delete this line.}
-  spec.homepage      = "" # "TODO: Put your gem's website or public repo URL here."
+  #spec.description   = "" # %q{TODO: Write a longer description or delete this line.}
+  spec.homepage      = "https://github.com/maximpertsov/upwords"
   spec.license       = "MIT"
 
   # Prevent pushing this gem to RubyGems.org by setting 'allowed_push_host', or
@@ -28,7 +28,7 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib", "data"]
 
   spec.add_dependency "curses", "~> 1.0"
-  spec.add_dependency "colored", "~> 1.2"
+  #spec.add_dependency "colored", "~> 1.2"
   
   spec.add_development_dependency "bundler", "~> 1.11"
   spec.add_development_dependency "rake", "~> 10.0"
