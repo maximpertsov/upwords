@@ -1,41 +1,36 @@
+require 'matrix'
+
 module Upwords
-  # 10 x 10 board
   class Board 
 
-    attr_reader :grid, :letter_bank, :moves
-
-    def initialize
-      @grid = Box.new(10, 10) {|h,k| h[k] = []} #Array.new(side_length) {Array.new(side_length) {Array.new}}
+    # attr_reader :grid,
+    attr_reader :letter_bank, :moves
+    
+    # creates a 10 x 10 board
+    def initialize(size=10)
+      @grid = Matrix.build(size) { [] }
       @letter_bank = LetterBank.new
     end
-
-    def inspect
-      "I'm an #{num_rows} X #{num_columns} board"
-    end
-
-    # def empty?
-    #   @grid.empty? || @grid.each_key.all? {|row, col| stack_height(row, col) == 0}
-    # end
     
+    # maximum letters than can be stacked in one space
     def min_word_length
       2
     end
 
-    def side_length
-      10
-    end
-
-    # maximum letters than can be stacked in one space
     def max_height
       5
     end
     
+    def side_length
+      @grid.row_size
+    end
+    
     def num_rows
-      10 #@grid.length(0)
+      @grid.row_size
     end
     
     def num_columns
-      10 #@grid.length(1)
+      @grid.column_size
     end
 
     # Defines a 2x2 square in the middle of the board (in the case of the 10 x 10 board)
@@ -68,49 +63,42 @@ module Upwords
     end
 
     def words_on_row(row)
-      word_posns = group_by_words (0...side_length).map{|col| [row, col]}
-      word_posns.map{|posns| Word.new(self, posns)}
+      collect_words (0...num_columns).map{|col| [row, col]}
     end
 
     def words_on_rows
-      (0...side_length).flat_map{|row| words_on_row row}
+      (0...num_rows).flat_map{|row| words_on_row row}
     end
 
     def words_on_column(col)
-      word_posns = group_by_words (0...side_length).map{|row| [row, col]}
-      word_posns.map{|posns| Word.new(self, posns)}
+      collect_words (0...num_rows).map{|row| [row, col]}
     end
 
     def words_on_columns
-      (0...side_length).flat_map{|col| words_on_column col}
+      (0...num_columns).flat_map{|col| words_on_column col}
     end
 
     def nonempty_spaces
-      # all_posns = (0...side_length).to_a.product (0...side_length).to_a
-      # all_posns.select{|row, col| stack_height(row, col) > 0}
-      @grid.each_key.select do |row, col|
-        stack_height(row, col) > 0
-      end
+      coordinates.select {|row, col| stack_height(row, col) > 0}
     end
 
     private
-
-    def letters_to_words(letters)
-      letters.map{|letter| letter.nil? ? " " : letter}.join.split.reject{|word| word.size < min_word_length}
-    end
 
     # Takes an array of positions and partitions them by empty spaces 
     # Ex. assume positions [[0,0], [0,1], [0,2], [0,3]] correspond to the top letters of ["a", "b", nil, "d"]
     #     then the result of inputing those positions into this method will be [[[0,0],[0,1]],[[0,3]]]
     # This method is used to find words along a row or column
-    def group_by_words(posns)
-      posns.chunk{|row, col| stack_height(row, col) > 0}.reduce([]) do |words, word|
-        if (word[0] && word[1].size >= min_word_length)
-          (words << word[1])
-        else
-          words
+    def collect_words(posns)
+      posns.chunk {|row, col| stack_height(row, col) > 0}.reduce([]) do |words, (is_word, letter_posns)|
+        if is_word && letter_posns.size >= min_word_length
+          words << Word.new(self, letter_posns)
         end
+        words
       end
+    end
+
+    def coordinates
+      @grid.each_with_index.map {|e, row, col| [row, col]}
     end
   end
 end

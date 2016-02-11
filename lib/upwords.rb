@@ -1,5 +1,4 @@
 require 'upwords/version'
-require 'upwords/box'
 require 'upwords/board'
 require 'upwords/letter_bank'
 require 'upwords/letter_rack'
