@@ -5,7 +5,7 @@ module Upwords
       @game = game
       @board = @game.board
       @dictionary = @game.dictionary
-      @pending_moves = Array.new
+      @pending_moves = []
       update_moves
     end
 

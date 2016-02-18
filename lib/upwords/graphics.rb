@@ -13,6 +13,7 @@ module Upwords
       @board = @game.board
       @moves = @game.moves
       @message = init_message
+      @rack_visibility = false
     end
 
     def to_s
@@ -25,6 +26,10 @@ module Upwords
       else
         @message = new_message #.white
       end
+    end
+
+    def toggle_rack_visibility
+      @rack_visibility = !@rack_visibility
     end
 
     private
@@ -56,7 +61,7 @@ module Upwords
     end
     
     def draw_letter_rack
-      "   #{@game.current_player.show_rack}"
+      "   #{@rack_visibility ? @game.current_player.show_rack : @game.current_player.show_hidden_rack} "
     end
 
     def draw_space(row, col, cursor_posn)

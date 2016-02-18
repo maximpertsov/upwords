@@ -7,8 +7,7 @@ module Upwords
       @game = game
       @name = player_name
       @board = @game.board
-      @dictionary = @game.dictionary
-      @rack = LetterRack.new(@board.letter_bank)
+      @rack = LetterRack.new(@game.letter_bank)
       @score = 0
       @cursor_posn = @board.middle_square[0]
       @pending_moves = @game.moves
@@ -16,6 +15,10 @@ module Upwords
 
     def show_rack
       @rack.show
+    end
+
+    def show_hidden_rack
+      '* ' * @rack.rack.size
     end
 
     def move_cursor(move_vector)

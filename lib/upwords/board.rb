@@ -1,15 +1,11 @@
 require 'matrix'
 
 module Upwords
-  class Board 
-
-    # attr_reader :grid,
-    attr_reader :letter_bank, :moves
+  class Board
     
     # creates a 10 x 10 board
     def initialize(size=10)
       @grid = Matrix.build(size) { [] }
-      @letter_bank = LetterBank.new
     end
     
     # maximum letters than can be stacked in one space
@@ -62,16 +58,8 @@ module Upwords
       @grid[row, col][-1]
     end
 
-    def words_on_row(row)
-      collect_words (0...num_columns).map{|col| [row, col]}
-    end
-
     def words_on_rows
       (0...num_rows).flat_map{|row| words_on_row row}
-    end
-
-    def words_on_column(col)
-      collect_words (0...num_rows).map{|row| [row, col]}
     end
 
     def words_on_columns
@@ -97,8 +85,16 @@ module Upwords
       end
     end
 
+    def words_on_row(row)
+      collect_words (0...num_columns).map{|col| [row, col]}
+    end
+
+    def words_on_column(col)
+      collect_words (0...num_rows).map{|row| [row, col]}
+    end
+    
     def coordinates
       @grid.each_with_index.map {|e, row, col| [row, col]}
-    end
+    end    
   end
 end

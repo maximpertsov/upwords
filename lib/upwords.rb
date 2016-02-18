@@ -1,5 +1,6 @@
 require 'upwords/version'
 require 'upwords/board'
+require 'upwords/move_unit'
 require 'upwords/letter_bank'
 require 'upwords/letter_rack'
 require 'upwords/dictionary' # finish implementing

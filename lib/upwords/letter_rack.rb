@@ -30,7 +30,7 @@ module Upwords
     # method assumes there is space on the rack for this letter
     ### WHAT IS THE BEST WAY TO ADDRESS THIS? (Assertion, Exception, etc?)
     def return_to(letter)
-      raise "This is wrong" unless @rack.compact.size < capacity ###
+      raise Exception, "This is wrong!" unless @rack.compact.size < capacity ###
       @rack << letter 
     end
 
