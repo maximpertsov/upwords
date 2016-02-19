@@ -1,6 +1,7 @@
 require 'upwords/version'
 require 'upwords/board'
 
+require 'upwords/unionfind'
 require 'upwords/move_unit'
 require 'upwords/move'
 
