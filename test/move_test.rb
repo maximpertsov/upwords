@@ -9,6 +9,7 @@ class MoveTest < Minitest::Test
     @mu_b13 = MoveUnit.new('b', 1, 3)
     @mu_c02 = MoveUnit.new('c', 0, 2)
     @mu_d12 = MoveUnit.new('d', 1, 2)
+    @mu_e88 = MoveUnit.new('e', 8, 8)
   end
 
   def test_empty?
@@ -24,6 +25,16 @@ class MoveTest < Minitest::Test
       @move.extend(mu)
       assert_equal(i+1, @move.size)
     end
+  end
+
+  def test_pop_letters
+    @move.extend(@mu_a12)
+    @move.extend(@mu_b13)
+    @move.extend(@mu_c02)
+    refute @move.empty?
+
+    assert_equal(['a', 'b', 'c'], @move.pop_letters)
+    assert @move.empty?
   end
   
   def test_extend
@@ -58,5 +69,19 @@ class MoveTest < Minitest::Test
 
     @move.extend(@mu_b13)
     refute @move.in_one_col?    
+  end
+
+  def test_connected?
+    @move.extend(@mu_c02)   
+    assert @move.connected?
+
+    @move.extend(@mu_b13)  
+    refute @move.connected?
+
+    @move.extend(@mu_a12)
+    assert @move.connected?
+
+    @move.extend(@mu_e88)
+    refute @move.connected?
   end
 end

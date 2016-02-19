@@ -11,9 +11,9 @@ class MoveUnitTest < Minitest::Test
     @mu_e88 = MoveUnit.new('e', 8, 8)
   end
 
-  def test_overlap
-    assert @mu_a12.overlap? @mu_d12
-    refute @mu_a12.overlap? @mu_b13
+  def test_overlaps?
+    assert @mu_a12.overlaps? @mu_d12
+    refute @mu_a12.overlaps? @mu_b13
   end
 
   def test_in_same_row?

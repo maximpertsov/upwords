@@ -16,7 +16,7 @@ module Upwords
       self.col == other_unit.col
     end
 
-    def overlap?(other_unit)
+    def overlaps?(other_unit)
       in_same_row?(other_unit) && in_same_col?(other_unit)
     end
 
