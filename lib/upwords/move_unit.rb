@@ -19,5 +19,15 @@ module Upwords
     def overlap?(other_unit)
       in_same_row?(other_unit) && in_same_col?(other_unit)
     end
+
+    def next_to?(other_unit)
+      if in_same_row?(other_unit)
+        (self.col - other_unit.col).abs == 1
+      elsif in_same_col?(other_unit)
+        (self.row - other_unit.row).abs == 1
+      else
+        false
+      end
+    end
   end
 end

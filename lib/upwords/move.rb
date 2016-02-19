@@ -1,21 +1,39 @@
 module Upwords
-  class MoveUnit
-    attr_reader :letter, :row, :col
+  class Move
+    def initialize
+      @move_units = []
+    end
+
+    def size
+      @move_units.size
+    end
+
+    def empty?
+      @move_units.empty?
+    end
+
+    def extend(new_unit)
+      if overlap?(new_unit)
+        raise IllegalMove, "You cannot stack on a space more than once in a single turn!"
+      else
+        @move_units << new_unit
+      end
+    end
     
-    def initialize(letter, row, col)
-      @letter = letter
-      @row = row
-      @col = col
-    end
-
     def overlap?(other_unit)
-      self.row == other_unit.row && self.col == other_unit.col
+      @move_units.any? {|mu| mu.overlap?(other_unit)}
     end
 
-    def in_same_row?(other_unit)
+    def in_one_row?
+      size < 2 || @move_units.each_cons(2).all? do |mu1, mu2|
+        mu1.in_same_row? mu2 
+      end
     end
-
-    def in_same_col?(other_unit)
+    
+    def in_one_col?
+      size < 2 || @move_units.each_cons(2).all? do |mu1, mu2|
+        mu1.in_same_col? mu2
+      end
     end
   end
 end
