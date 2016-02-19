@@ -140,7 +140,7 @@ module Upwords
     end
 
     def standard_message
-      "Actions: (1)Undo Moves (2)Submit (3)Swap (4)Skip (5)Quit\n"
+      "Actions: (1)Undo Moves (2)Submit (3)Swap (4)Skip (5)Quit\n#{' ' * 'Actions: '.size}(0)Show Letters"
     end
     
     # =========================================
@@ -167,7 +167,7 @@ module Upwords
 
     def input_loop
       while !@submitted && @running do
-        inp = @win.getch #STDIN.getch
+        inp = @win.getch
         clear_message
         if key_is_action?(inp)
           instance_eval(&ACTION_KEYMAP[inp])     
@@ -186,6 +186,7 @@ module Upwords
         # TODO: add subroutine to end game if letter bank is empty and either player has exhausted all their letters
         # TODO: add subroutine to end game if both players skipped 3 consecutive turns (check rules to see exactly how this works...)
         @players.rotate!
+        @graphics.hide_rack
         @submitted = false
       end
     end
@@ -258,11 +259,8 @@ module Upwords
       end
     end
 
-    def toggle_rack_visibility(need_confirm=true)
-      if confirm_action? "Change rack visibility?"
-        @graphics.toggle_rack_visibility
-      end
+    def toggle_rack_visibility #(need_confirm=true)
+      @graphics.toggle_rack_visibility
     end
-
   end
 end

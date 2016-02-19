@@ -2,7 +2,7 @@
 
 module Upwords
   class Graphics
-
+    
     # Define lines where game info appear
     PLAYER_NAME_LINE = 1
     LETTER_RACK_LINE = 2
@@ -26,6 +26,14 @@ module Upwords
       else
         @message = new_message #.white
       end
+    end
+
+    def show_rack #toggle_rack_visibility
+      @rack_visibility = true #!@rack_visibility
+    end
+
+    def hide_rack
+      @rack_visibility = false
     end
 
     def toggle_rack_visibility
