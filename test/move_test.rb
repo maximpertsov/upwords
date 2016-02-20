@@ -9,7 +9,7 @@ class MoveTest < Minitest::Test
     @mu_b13 = MoveUnit.new('b', 1, 3)
     @mu_c02 = MoveUnit.new('c', 0, 2)
     @mu_d12 = MoveUnit.new('d', 1, 2)
-    @mu_e88 = MoveUnit.new('e', 8, 8)
+    @mu_e18 = MoveUnit.new('e', 1, 8)
   end
 
   def test_empty?
@@ -25,6 +25,45 @@ class MoveTest < Minitest::Test
       @move.extend(mu)
       assert_equal(i+1, @move.size)
     end
+  end
+
+  def test_letters
+    assert_equal [], @move.letters
+
+    @move.extend(@mu_a12)
+    assert_equal ['a'], @move.letters
+
+    @move.extend(@mu_b13)
+    assert_equal ['a', 'b'], @move.letters
+
+    @move.extend(@mu_c02)
+    assert_equal ['a', 'b', 'c'], @move.letters
+  end
+
+  def test_positions
+    assert_equal [], @move.positions
+
+    @move.extend(@mu_a12)
+    assert_equal [[1,2]], @move.positions
+
+    @move.extend(@mu_b13)
+    assert_equal [[1,2], [1,3]], @move.positions
+
+    @move.extend(@mu_c02)
+    assert_equal [[1,2], [1,3], [0,2]], @move.positions
+  end
+  
+  def test_has_posn?
+    refute @move.has_posn?(1,2)
+    refute @move.has_posn?(1,3)
+    
+    @move.extend(@mu_a12)
+    assert @move.has_posn?(1,2)
+    refute @move.has_posn?(1,3)
+
+    @move.extend(@mu_b13)
+    assert @move.has_posn?(1,2)
+    assert @move.has_posn?(1,3)
   end
 
   def test_pop_letters
@@ -71,6 +110,17 @@ class MoveTest < Minitest::Test
     refute @move.in_one_col?    
   end
 
+  def test_gaps
+    @move.extend(@mu_a12)
+    assert_equal [], @move.gaps
+    
+    @move.extend(@mu_b13)
+    assert_equal [], @move.gaps
+
+    @move.extend(@mu_e18)
+    assert_equal [[1,4],[1,5],[1,6],[1,7]], @move.gaps
+  end
+
   def test_connected?
     @move.extend(@mu_c02)   
     assert @move.connected?
@@ -81,7 +131,7 @@ class MoveTest < Minitest::Test
     @move.extend(@mu_a12)
     assert @move.connected?
 
-    @move.extend(@mu_e88)
+    @move.extend(@mu_e18)
     refute @move.connected?
   end
 end

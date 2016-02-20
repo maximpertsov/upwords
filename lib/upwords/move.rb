@@ -13,6 +13,18 @@ module Upwords
       @move_units.empty? && @uf.empty?
     end
 
+    def letters
+      @move_units.map {|mu| mu.letter}
+    end
+
+    def positions
+      @move_units.map {|mu| [mu.row, mu.col]}
+    end
+
+    def has_posn?(row, col)
+      positions.include? [row, col]
+    end
+
     # clear move and return list of letters
     def pop_letters
       letters = @move_units.map {|mu| mu.letter}
@@ -42,6 +54,22 @@ module Upwords
 
     def connected?
       @uf.all_connected?
+    end
+
+    # return all empty spaces in the square defined by the
+    # lowest and highest rows, and left- and right-most columns
+    def gaps
+      rows, cols = [], []
+      @move_units.each do |mu|
+        rows << mu.row
+        cols << mu.col
+      end
+
+      Range.new(*rows.minmax).reduce([]) do |gaps, r|
+        gaps + Range.new(*cols.minmax).reject do |c|
+          self.has_posn?(r, c) 
+        end.map {|c| [r, c]}
+      end
     end
 
     private
