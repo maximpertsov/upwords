@@ -19,16 +19,12 @@ class UnionFindTest < Minitest::Test
     assert UnionFind.new({:a=>1,:b=>3}).is_a? UnionFind
   end
 
-  # def test_it_does_not_create_unionfind_from_a_number
-  #   begin
-  #     UnionFind.new(1)
-  #   rescue ArgumentError
-  #     assert true
-  #   else
-  #     assert false
-  #   end
-  # end
-
+  def test_it_creates_an_empty_unionfind_from_a_number
+    @uf = UnionFind.new(1)
+    assert @uf.empty?
+    assert_kind_of(UnionFind, @uf)
+  end
+  
   def test_that_all_nodes_are_initially_unconnected
     assert (0..99).each_cons(2).all? do |i,j|
       !@uf.connected?(i,j)
@@ -39,6 +35,20 @@ class UnionFindTest < Minitest::Test
   #   uf = UnionFind.new((0..99).to_a)
   #   assert_equal 0, uf[0]
   # end
+
+  def test_can_add_new_keys
+    assert_equal 100, @uf.add(100)
+    assert_equal 100, @uf.find_root(100)
+  end
+
+  def test_can_add_new_keys_alias
+    assert_equal 100, (@uf << 100)
+    assert_equal 100, @uf.find_root(100)
+  end
+
+  def test_cannot_add_existing_key
+    assert_raises(KeyError) {@uf.add(1)}
+  end
 
   def test_it_can_join_items
     @uf.join(0,1)

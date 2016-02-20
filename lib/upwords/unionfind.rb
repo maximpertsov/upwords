@@ -3,52 +3,58 @@ module Upwords
     def initialize(keys = [])
       # initialize as empty if 'keys' is not map-able
       keys = keys.respond_to?(:map) ? keys : []     
-
-      @keys = keys.map {|key| [key, true]}.to_h
-      @leaders = Hash[@keys.map{|k,v| [k,k]}]
-      @ranks = Hash[@keys.map{|k,v| [k,0]}]
+      @leaders = keys.map {|k| [k,k]}.to_h
+      @ranks = keys.map {|k| [k,0]}.to_h
     end
 
+    def inspect
+      @leaders.inspect
+    end
+    
+    def to_s
+      @leaders.to_s
+    end
+    
     def empty?
-      @keys.empty? && @leaders.empty? && @ranks.empty?
+      @leaders.empty? && @ranks.empty?
     end
 
     def add(new_key)
-      if !@keys.key?(new_key)
-        @leaders[new_key] = new_key
+      if @leaders.key?(new_key)
+        raise KeyError, "Key already exists!"
+      else
         @ranks[new_key] = 0
+        @leaders[new_key] = new_key
       end
-      @keys[new_key] = true
-      new_key
     end
 
     alias_method :<<, :add
     
     def all_connected?
-      @keys.each_key.each_cons(2).all? {|i,j| connected?(i,j)}
+      @leaders.each_key.each_cons(2).all? {|i,j| connected?(i,j)}
     end
     
     def join(i,j)
-      if @keys.key?(i) && @keys.key?(j) && !connected?(i,j)
+      if @leaders.key?(i) && @leaders.key?(j) && !connected?(i,j)
         root1, root2 = find_root(i), find_root(j)
         if @ranks[root1] > @ranks[root2]
           @leaders[root2] = root1
-          @ranks[root1] = [@ranks[root1], 1 + @ranks[root2]].max
+          @ranks[root1] = [@ranks[root1], @ranks[root2] + 1].max
         else
           @leaders[root1] = root2
-          @ranks[root2] = [@ranks[root2], 1 + @ranks[root1]].max  
+          @ranks[root2] = [@ranks[root2], @ranks[root1] + 1].max  
         end
       end
     end
 
     def connected?(i,j)
-      if @keys.key?(i) && @keys.key?(j)
+      if @leaders.key?(i) && @leaders.key?(j)
         find_root(i) == find_root(j)
       end
     end
 
     def find_root(i)
-      if @keys.key?(i)
+      if @leaders.key?(i)
         compress(i)
         @leaders[i]
       end
