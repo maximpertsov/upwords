@@ -10,7 +10,11 @@ module Upwords
     end
 
     def draw
-      @bank.delete_at(rand(@bank.size))
+      if self.empty?
+        raise IllegalMove, "Letter bank is empty!"
+      else
+        @bank.delete_at(rand(@bank.size))
+      end
     end
 
     def deposit(letter)

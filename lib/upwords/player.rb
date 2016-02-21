@@ -4,15 +4,14 @@ module Upwords
     attr_reader :name, :cursor_posn
     attr_accessor :score
 
-    def initialize(game, player_name)
-      @name = player_name
-      @board = game.board
-      @score = 0
-      @cursor_posn = @board.middle_square[0]
-      @letter_bank = game.letter_bank
-      
+    def initialize(name)
+      @name = name
       @rack = LetterRack.new(capacity=7)
-      # refill_rack
+      @score = 0
+      
+      # HACK: 4,4 is the middle square of the board, added
+      # so I can strip board class out of player
+      @cursor_posn = [4,4] #@board.middle_square[0]
     end
 
     def show_rack
@@ -23,6 +22,10 @@ module Upwords
       @rack.show_masked
     end
 
+    def rack_full?
+      @rack.full?
+    end
+
     def take_letter(letter)
       @rack.add(letter)
     end
@@ -31,22 +34,22 @@ module Upwords
       MoveUnit.new(@rack.remove(letter), *@cursor_posn)
     end
     
-    def move_cursor(move_vector)
-      max_move = [@board.num_rows, @board.num_columns]
-      move_vector.each_with_index do |move, idx|
-        @cursor_posn[idx] = (@cursor_posn[idx] + move) % max_move[idx]
+    def move_cursor(move_vector, bounds)
+      move_vector.each_with_index do |move, i|
+        @cursor_posn[i] = (@cursor_posn[i] + move) % bounds[i]
       end 
     end
 
-    def swap_letter(letter)
+    def swap_letter(letter, letter_bank)
+      new_letter = letter_bank.draw # Will raise error if bank if empty
       trade_letter = @rack.remove(letter)
-      @rack.add(@letter_bank.draw)
-      @letter_bank.deposit(trade_letter)
+      @rack.add(new_letter)
+      letter_bank.deposit(trade_letter)
     end
 
-    def refill_rack
-      while !(@rack.full?) && !(@letter_bank.empty?) do
-        @rack.add(@letter_bank.draw)
+    def refill_rack(letter_bank)
+      while !(rack_full?) && !(letter_bank.empty?) do
+        take_letter(letter_bank.draw)
       end
     end
   end

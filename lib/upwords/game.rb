@@ -58,7 +58,7 @@ module Upwords
       end
 
       # Each player fills their letter rack...
-      @players.each {|p| p.refill_rack}
+      @players.each {|p| p.refill_rack(@letter_bank)}
 
       # Init curses
       if @display
@@ -93,7 +93,7 @@ module Upwords
         if name.nil? || name.size < 1
           name = "Player #{player_count + 1}" 
         end
-        @players << Player.new(self, name)
+        @players << Player.new(name)
       end
     end
 
@@ -176,7 +176,7 @@ module Upwords
         if key_is_action?(inp)
           instance_eval(&ACTION_KEYMAP[inp])     
         elsif key_is_direction?(inp)
-          current_player.move_cursor(DIRECTION_KEYMAP.fetch(inp, [0,0]))
+          current_player.move_cursor(DIRECTION_KEYMAP.fetch(inp, [0,0]), [@board.num_rows, @board.num_columns])
         elsif inp =~ /[[:alpha:]]/
           play_letter(modify_letter_input(inp))
           update_message "Pending words: #{@moves.pending_result}"
@@ -246,7 +246,7 @@ module Upwords
         if @moves.legal?
           current_player.score += @moves.pending_score
           @moves.clear
-          current_player.refill_rack
+          current_player.refill_rack(@letter_bank)
           @moves.update_moves
         end
         #current_player.submit_moves
@@ -263,7 +263,7 @@ module Upwords
         letter = modify_letter_input(letter)
         if confirm_action? "Swap '#{letter}' for another?"
           return_move_letters
-          current_player.swap_letter(letter)
+          current_player.swap_letter(letter, @letter_bank)
           @submitted = true
         end
       end
@@ -290,6 +290,7 @@ module Upwords
 
     private
     
+    # Stripped out of player class    
     def return_move_letters
       while !(@moves.empty?) do
         current_player.take_letter(@moves.undo_last)
@@ -306,5 +307,6 @@ module Upwords
         @moves.add([move.row, move.col])
       end
     end
+    
   end
 end
