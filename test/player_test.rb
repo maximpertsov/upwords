@@ -4,8 +4,8 @@ class PlayerTest < Minitest::Test
   include Upwords
   
   def setup
-    @p1 = Player.new("P1")
-    @p2 = Player.new("P2")
+    @p1 = Player.new("P1", init_cursor_posn=[0,0])
+    @p2 = Player.new("P2", init_cursor_posn=[0,0])
   end
 
   def test_can_get_name

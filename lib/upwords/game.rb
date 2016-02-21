@@ -93,7 +93,8 @@ module Upwords
         if name.nil? || name.size < 1
           name = "Player #{player_count + 1}" 
         end
-        @players << Player.new(name)
+        @players << Player.new(name,
+                               init_cursor_posn=@board.middle_square[0])
       end
     end
 

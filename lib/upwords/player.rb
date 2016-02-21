@@ -4,14 +4,11 @@ module Upwords
     attr_reader :name, :cursor_posn
     attr_accessor :score
 
-    def initialize(name)
+    def initialize(name, init_cursor_posn)
       @name = name
+      @cursor_posn = init_cursor_posn
       @rack = LetterRack.new(capacity=7)
       @score = 0
-      
-      # HACK: 4,4 is the middle square of the board, added
-      # so I can strip board class out of player
-      @cursor_posn = [4,4] #@board.middle_square[0]
     end
 
     def show_rack
