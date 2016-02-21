@@ -174,7 +174,7 @@ module Upwords
         elsif key_is_direction?(inp)
           current_player.move_cursor(DIRECTION_KEYMAP.fetch(inp, [0,0]))
         elsif inp =~ /[[:alpha:]]/
-          current_player.play_letter(inp)
+          current_player.play_letter(modify_letter_input(inp))
           update_message "Pending words: #{current_player.show_pending_moves}"
         end
         refresh_graphics
@@ -201,6 +201,15 @@ module Upwords
 
     def key_is_direction?(inp)
       DIRECTION_KEYMAP.keys.include?(inp)
+    end
+
+    # Capitalize letters, and convert 'Q' and 'q' to 'Qu'
+    def modify_letter_input(letter)
+      if letter =~ /[Qq]/
+        'Qu'
+      else
+        letter.capitalize
+      end
     end
 
     def confirm_action?(question_text)
@@ -238,10 +247,14 @@ module Upwords
     # TODO: Test this method...
     def swap_letter
       update_message "Pick a letter to swap... "
-      letter = @win.getch #STDIN.getch
-      if confirm_action? "Swap '#{letter}' for another?"
-        current_player.swap_letter(letter)
-        @submitted = true
+      letter = @win.getch
+
+      if letter =~ /[[:alpha:]]/
+        letter = modify_letter_input(letter)
+        if confirm_action? "Swap '#{letter}' for another?"
+          current_player.swap_letter(letter)
+          @submitted = true
+        end
       end
     end
 

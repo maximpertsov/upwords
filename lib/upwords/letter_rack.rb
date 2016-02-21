@@ -21,7 +21,6 @@ module Upwords
     end
     
     def put_letter(letter)
-      @rack.compact!
       if full?
         raise IllegalMove, "Rack is full!"
       else
@@ -41,16 +40,8 @@ module Upwords
       @rack.join(' ')
     end
 
-    # private
-
-    # def proper_case(letter)
-    #   #convert letter to title case (qu or QU -> Qu)
-    #   if letter.capitalize == 'Q'
-    #     'Qu'
-    #   else
-    #     letter.capitalize
-    #   end
-    # end
-
+    def show_masked
+      @rack.map {'*'}.join(' ')
+    end
   end
 end

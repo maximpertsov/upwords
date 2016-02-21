@@ -4,7 +4,6 @@ module Upwords
     attr_reader :name, :score, :cursor_posn
 
     def initialize(game, player_name)
-      #@game = game
       @name = player_name
       @board = game.board
       @score = 0
@@ -21,7 +20,7 @@ module Upwords
     end
 
     def show_hidden_rack
-      '* ' * @rack.size
+      @rack.show_masked
     end
 
     def move_cursor(move_vector)
@@ -32,7 +31,7 @@ module Upwords
     end
 
     def play_letter(letter)
-      selected_letter = @rack.get_letter(letter) #@rack.take_from(letter)
+      selected_letter = @rack.get_letter(letter)
       begin
         if @pending_moves.include? @cursor_posn 
           raise IllegalMove, "You can't stack on a space more than once in a single turn!"
@@ -41,7 +40,7 @@ module Upwords
           @pending_moves.add(@cursor_posn)
         end
       rescue IllegalMove => exception
-        @rack.put_letter(selected_letter) #@rack.return_to(selected_letter)
+        @rack.put_letter(selected_letter)
         raise IllegalMove, exception.message
       end
     end

@@ -47,4 +47,9 @@ class LetterRackTest < Minitest::Test
     ['A', 'B', 'C', 'Qu'].each {|l| @rack.put_letter(l)}
     assert_equal 'A B C Qu', @rack.show
   end
+
+  def test_can_show_rack_as_masked_string
+    ['A', 'B', 'C', 'Qu'].each {|l| @rack.put_letter(l)}
+    assert_equal '* * * *', @rack.show_masked
+  end
 end
