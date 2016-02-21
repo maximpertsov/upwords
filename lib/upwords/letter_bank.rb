@@ -1,7 +1,7 @@
 module Upwords
   class LetterBank
 
-    def initialize(letters)
+    def initialize(letters=[])
       @bank = letters.dup
     end
 

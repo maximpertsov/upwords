@@ -4,11 +4,15 @@ class LetterRackTest < Minitest::Test
   include Upwords
 
   def setup
-    @rack = LetterRack.new(7)
+    @rack = LetterRack.new(4)
   end
 
   def test_size
     assert_equal 0, @rack.size
+  end
+
+  def test_capacity
+    assert_equal 4, @rack.capacity
   end
 
   def test_full?
