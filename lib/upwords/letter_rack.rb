@@ -20,7 +20,7 @@ module Upwords
       @rack.include? letter 
     end
     
-    def put_letter(letter)
+    def add(letter)
       if full?
         raise IllegalMove, "Rack is full!"
       else
@@ -28,7 +28,7 @@ module Upwords
       end
     end
 
-    def get_letter(letter)
+    def remove(letter)
       if has_letter?(letter)
         @rack.delete_at(@rack.index(letter))
       else

@@ -14,42 +14,42 @@ class LetterRackTest < Minitest::Test
   def test_full?
     (@rack.capacity).times do
       refute @rack.full?
-      @rack.put_letter('A')
+      @rack.add('A')
     end
 
     assert @rack.full?
   end
 
-  def test_can_put_letter
+  def test_can_add_letter
     refute @rack.has_letter? 'A'
-    @rack.put_letter 'A'
+    @rack.add 'A'
     assert @rack.has_letter? 'A'
   end
 
-  def test_cannot_put_beyond_capacity
-    (@rack.capacity).times { @rack.put_letter('A') }
-    assert_raises(IllegalMove) { @rack.put_letter('A') }
+  def test_cannot_add_beyond_capacity
+    (@rack.capacity).times { @rack.add('A') }
+    assert_raises(IllegalMove) { @rack.add('A') }
   end
 
-  def test_can_get_letter
-    @rack.put_letter 'A'
-    assert_equal 'A', @rack.get_letter('A')
+  def test_can_remove_letter
+    @rack.add 'A'
+    assert_equal 'A', @rack.remove('A')
     refute @rack.has_letter? 'A'
   end
 
-  def test_cannot_get_letter_that_is_not_in_rack
+  def test_cannot_remove_letter_that_is_not_in_rack
     assert_raises(IllegalMove) do
-      @rack.get_letter('A')
+      @rack.remove('A')
     end
   end
 
   def test_can_show_rack_as_string
-    ['A', 'B', 'C', 'Qu'].each {|l| @rack.put_letter(l)}
+    ['A', 'B', 'C', 'Qu'].each {|l| @rack.add(l)}
     assert_equal 'A B C Qu', @rack.show
   end
 
   def test_can_show_rack_as_masked_string
-    ['A', 'B', 'C', 'Qu'].each {|l| @rack.put_letter(l)}
+    ['A', 'B', 'C', 'Qu'].each {|l| @rack.add(l)}
     assert_equal '* * * *', @rack.show_masked
   end
 end

@@ -57,6 +57,9 @@ module Upwords
         add_player(player2)
       end
 
+      # Each player fills their letter rack...
+      @players.each {|p| p.refill_rack}
+
       # Init curses
       if @display
         init_window
@@ -139,6 +142,7 @@ module Upwords
       update_message standard_message
     end
 
+    # UGLY: Aligned second line by measuring 'Actions: '
     def standard_message
       "Actions: (1)Undo Moves (2)Submit (3)Swap (4)Skip (5)Quit\n#{' ' * 'Actions: '.size}(0)Show Letters"
     end
@@ -174,8 +178,8 @@ module Upwords
         elsif key_is_direction?(inp)
           current_player.move_cursor(DIRECTION_KEYMAP.fetch(inp, [0,0]))
         elsif inp =~ /[[:alpha:]]/
-          current_player.play_letter(modify_letter_input(inp))
-          update_message "Pending words: #{current_player.show_pending_moves}"
+          play_letter(modify_letter_input(inp))
+          update_message "Pending words: #{@moves.pending_result}"
         end
         refresh_graphics
       end
@@ -228,18 +232,24 @@ module Upwords
     # =========================================
 
     def undo_moves
-      if !current_player.has_pending_moves?
+      if @moves.empty? #!current_player.has_pending_moves?
         raise IllegalMove, "No moves to undo!"
       elsif confirm_action? "Are you sure you want to undo?"
-        current_player.undo_moves 
+        return_move_letters
       end
     end
 
     def submit_moves
-      if !current_player.has_pending_moves?
+      if @moves.empty? #!current_player.has_pending_moves?
         raise IllegalMove, "You haven't played any letters!"
       elsif confirm_action? "Are you sure you want to submit?"
-        current_player.submit_moves
+        if @moves.legal?
+          current_player.score += @moves.pending_score
+          @moves.clear
+          current_player.refill_rack
+          @moves.update_moves
+        end
+        #current_player.submit_moves
         @submitted = true
       end
     end
@@ -252,6 +262,7 @@ module Upwords
       if letter =~ /[[:alpha:]]/
         letter = modify_letter_input(letter)
         if confirm_action? "Swap '#{letter}' for another?"
+          return_move_letters
           current_player.swap_letter(letter)
           @submitted = true
         end
@@ -260,7 +271,8 @@ module Upwords
 
     def skip_turn
       if confirm_action? "Are you sure you want to skip your turn?"
-        current_player.undo_moves
+        #current_player.undo_moves
+        return_move_letters
         @submitted = true
       end
     end
@@ -274,6 +286,25 @@ module Upwords
 
     def toggle_rack_visibility #(need_confirm=true)
       @graphics.toggle_rack_visibility
+    end
+
+    private
+    
+    def return_move_letters
+      while !(@moves.empty?) do
+        current_player.take_letter(@moves.undo_last)
+      end
+    end
+
+    # Stripped out of player class
+    def play_letter(letter)
+      if @moves.include?(current_player.cursor_posn)
+        raise IllegalMove, "You can't stack on a space more than once in a single turn!"
+      else
+        move = current_player.play_letter(letter)
+        @board.play_letter(move.letter, move.row, move.col)
+        @moves.add([move.row, move.col])
+      end
     end
   end
 end
