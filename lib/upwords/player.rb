@@ -4,13 +4,16 @@ module Upwords
     attr_reader :name, :score, :cursor_posn
 
     def initialize(game, player_name)
-      @game = game
+      #@game = game
       @name = player_name
-      @board = @game.board
-      @rack = LetterRack.new(@game.letter_bank)
+      @board = game.board
       @score = 0
       @cursor_posn = @board.middle_square[0]
-      @pending_moves = @game.moves
+      @pending_moves = game.moves
+      @letter_bank = game.letter_bank
+      
+      @rack = LetterRack.new(capacity=7)
+      @rack.refill(@letter_bank)
     end
 
     def show_rack
@@ -49,11 +52,11 @@ module Upwords
 
     def swap_letter(letter)
       undo_moves
-      @rack.swap(letter)
+      @rack.swap(letter, @letter_bank)
     end
 
     def refill_rack
-      @rack.refill
+      @rack.refill(@letter_bank)
     end
 
     def undo_moves

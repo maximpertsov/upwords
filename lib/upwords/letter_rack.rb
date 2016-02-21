@@ -1,19 +1,14 @@
 module Upwords
   class LetterRack
     
-    attr_reader :rack
+    attr_reader :rack, :capacity
     
-    def initialize(letter_bank)
-      @bank = letter_bank
+    def initialize(capacity=7) #letter_bank)
+      #@bank = letter_bank
       @rack = []
-      refill
+      @capacity = capacity
     end
-    
-    # maximum number of letters that fit in each player's rack
-    def capacity
-      7
-    end
-    
+        
     def has_letter?(letter)
       @rack.include? letter 
     end
@@ -35,17 +30,17 @@ module Upwords
     end
 
     # re-fill letter rack to capacity (or until letter bank is empty)
-    def refill
+    def refill(letter_bank)
       @rack.compact! 
-      while (@rack.size < capacity) && !@bank.empty? do
-        @rack << @bank.draw 
+      while (@rack.size < capacity) && !letter_bank.empty? do
+        @rack << letter_bank.draw 
       end
     end
 
     # swap letter in rack for a random letter from the bank
-    def swap(letter)
-      @bank.deposit(take_from(letter))
-      @rack << @bank.draw
+    def swap(letter, letter_bank)
+      letter_bank.deposit(take_from(letter))
+      @rack << letter_bank.draw
     end
 
     def show

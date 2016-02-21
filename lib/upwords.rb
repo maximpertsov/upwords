@@ -14,6 +14,9 @@ require 'upwords/player'
 require 'upwords/graphics'
 require 'upwords/game'
 
+
+require 'upwords/move_manager'
+
 module Upwords
   # Raised when player makes an illegal move
   class IllegalMove < StandardError
