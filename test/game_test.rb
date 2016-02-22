@@ -13,7 +13,7 @@ class GameTest < Minitest::Test
 
   def test_has_game_objects
     assert_kind_of(Board, @game.board)
-    assert_kind_of(LetterBank, @game.letter_bank)
+    #assert_kind_of(LetterBank, @game.letter_bank)
   end
 
 end

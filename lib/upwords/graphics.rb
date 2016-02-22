@@ -11,7 +11,6 @@ module Upwords
     def initialize(game, init_message = nil)
       @game = game
       @board = @game.board
-      @moves = @game.moves
       @message = init_message
       @rack_visibility = false
     end
@@ -50,12 +49,13 @@ module Upwords
       elsif letter != "Qu"
         letter += " "
       end
-      # draw pending letters in red
-      if @moves.include? [row, col]
-        letter #.yellow
-      else
-        letter
-      end
+      letter
+      # # draw pending letters in red
+      # if @moves.include? [row, col]
+      #   letter #.yellow
+      # else
+      #   letter
+      # end
     end
 
     def draw_player_name

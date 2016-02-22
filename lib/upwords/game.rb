@@ -2,7 +2,7 @@ require 'curses'
 
 module Upwords
   class Game
-    attr_reader :board, :dictionary, :letter_bank, :moves, :players
+    attr_reader :board, :players
     
     # =========================================
     # Key Configurations
@@ -297,12 +297,20 @@ module Upwords
     end
 
     # Stripped out of player class
+    # FIX: Player loses letter when they stack on maximum height stack
     def play_letter(letter)
       if @moves.include?(current_player.cursor_posn)
         raise IllegalMove, "You can't stack on a space more than once in a single turn!"
       else
         move = current_player.play_letter(letter)
-        @board.play_letter(move.letter, move.row, move.col)
+        
+        begin
+          @board.play_letter(move.letter, move.row, move.col)
+        rescue IllegalMove => exn
+          current_player.take_letter(move.letter)
+          raise IllegalMove, exn.message
+        end
+        
         @moves.add([move.row, move.col])
       end
     end
