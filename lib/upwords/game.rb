@@ -43,8 +43,7 @@ module Upwords
       @display = display
       @board = Board.new
       @letter_bank = LetterBank.new(ALL_LETTERS)
-      @dictionary = Dictionary.new("data/ospd.txt")
-      @moves = Moves.new(self)
+      @moves = Moves.new(@board, Dictionary.new("data/ospd.txt"))
       @graphics = Graphics.new(self)
       
       # TODO: Remove the If block after testing is complete
@@ -93,8 +92,7 @@ module Upwords
         if name.nil? || name.size < 1
           name = "Player #{player_count + 1}" 
         end
-        @players << Player.new(name,
-                               init_cursor_posn=@board.middle_square[0])
+        @players << Player.new(name, init_cursor_posn=@board.middle_square[0])
       end
     end
 

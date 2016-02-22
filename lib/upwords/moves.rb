@@ -1,10 +1,10 @@
 module Upwords
   class Moves # How to make this a subclass of arrays?
 
-    def initialize(game)
-      @game = game
-      @board = @game.board
-      @dictionary = @game.dictionary
+    def initialize(board, dictionary)
+      #@game = game
+      @board = board
+      @dictionary = dictionary
       @pending_moves = []
       update_moves
     end
