@@ -95,12 +95,10 @@ class BoardTest < Minitest::Test
       @moves.each {|l, r, c| @board.play_letter(l, r, c)}
     end
 
-    def test_get_words_on_columns
-      assert_equal ["six"], @board.words_on_columns.map {|w| w.to_s}
-    end
-
-    def test_get_words_on_rows
-      assert_equal ["max", "mu"], @board.words_on_rows.map {|w| w.to_s}
+    def test_get_words_on_board
+      (@board.words).each do |word|
+        assert_includes(["six", "max", "mu"], word.to_s)
+      end
     end
   end
 end

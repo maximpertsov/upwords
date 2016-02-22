@@ -1,11 +1,15 @@
+require 'set'
+
 module Upwords
-  class Moves # How to make this a subclass of arrays?
+  class Moves
 
     def initialize(board, dictionary)
       #@game = game
       @board = board
       @dictionary = dictionary
       @pending_moves = []
+      @played_moves = @board.nonempty_spaces
+      @played_words = Hash.new {|h,k| h[k] = 0} # Counter Hash
       update_moves
     end
 
@@ -40,16 +44,19 @@ module Upwords
     end
     
     def update_played_words
-      @played_words = (@board.words_on_rows + @board.words_on_columns).map{|word| word.to_str}
-    end
-
-    def all_words
-      @board.words_on_rows + @board.words_on_columns
+      @played_words.clear
+      (@board.words).each do |word|
+        @played_words[word.to_str] += 1
+      end
     end
 
     def pending_words
-      new_words = all_words.map{|word| word.to_str} - @played_words
-      all_words.select{|word| (new_words.include? word.to_str)}
+      new_words = Hash.new {|h,k| h[k] = 0}
+      (@board.words).each do |word|
+        new_words[word.to_str] += 1
+      end
+      
+      (@board.words).select {|word| new_words[word.to_str] - @played_words[word.to_str] > 0}
     end
 
     def pending_illegal_words
@@ -75,6 +82,9 @@ module Upwords
       # Is at least one letter is in the middle 4 x 4 section of the board?
       elsif !letter_in_middle_square?
         raise IllegalMove, "You must play at least one letter in the middle 2x2 square!"
+      # (First move only) Is there at least one word that is two letters or more on the board?
+      elsif (@board.words).empty?  
+        raise IllegalMove, "Valid words must be at least two letters long!"
       # Is at least one letter intersecting or orthogonally touching a previously played letter? 
       elsif !connected_to_played?
         raise IllegalMove, "At least one letter in your move must be touching a previously played word!"

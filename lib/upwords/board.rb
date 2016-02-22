@@ -58,12 +58,8 @@ module Upwords
       @grid[row, col][-1]
     end
 
-    def words_on_rows
-      (0...num_rows).flat_map{|row| words_on_row row}
-    end
-
-    def words_on_columns
-      (0...num_columns).flat_map{|col| words_on_column col}
+    def words
+      words_on_rows + words_on_columns
     end
 
     def nonempty_spaces
@@ -89,8 +85,16 @@ module Upwords
       collect_words (0...num_columns).map{|col| [row, col]}
     end
 
+    def words_on_rows
+      (0...num_rows).flat_map{|row| words_on_row row}
+    end
+
     def words_on_column(col)
       collect_words (0...num_rows).map{|row| [row, col]}
+    end
+
+    def words_on_columns
+      (0...num_columns).flat_map{|col| words_on_column col}
     end
     
     def coordinates
