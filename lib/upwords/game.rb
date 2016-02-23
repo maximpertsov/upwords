@@ -42,8 +42,10 @@ module Upwords
     def initialize(player1 = nil, player2 = nil, display = true)
       @display = display
       @board = Board.new
-      @letter_bank = LetterBank.new(ALL_LETTERS)
-      @moves = Moves.new(@board, Dictionary.new("data/ospd.txt"))
+      #@letter_bank = LetterBank.new(ALL_LETTERS)
+      @moves = Moves.new(@board,
+                         Dictionary.new("data/ospd.txt"),
+                         LetterBank.new(ALL_LETTERS))
       @graphics = Graphics.new(self)
       
       # TODO: Remove the If block after testing is complete
@@ -57,7 +59,7 @@ module Upwords
       end
 
       # Each player fills their letter rack...
-      @players.each {|p| p.refill_rack(@letter_bank)}
+      @players.each {|p| @moves.refill_rack(p) }
 
       # Init curses
       if @display
@@ -157,7 +159,7 @@ module Upwords
     def run
       @running = true
       clear_message
-      while @running do
+      while running? do
         refresh_graphics
         begin
           input_loop
@@ -169,7 +171,7 @@ module Upwords
     end
 
     def input_loop
-      while !@submitted && @running do
+      while !@submitted && running? do
         inp = @win.getch
         clear_message
         if key_is_action?(inp)
@@ -177,7 +179,7 @@ module Upwords
         elsif key_is_direction?(inp)
           current_player.move_cursor(DIRECTION_KEYMAP.fetch(inp, [0,0]), [@board.num_rows, @board.num_columns])
         elsif inp =~ /[[:alpha:]]/
-          play_letter(modify_letter_input(inp))
+          @moves.add(current_player, modify_letter_input(inp))
           update_message "Pending words: #{@moves.pending_result}"
         end
         refresh_graphics
@@ -231,24 +233,13 @@ module Upwords
     # =========================================
 
     def undo_moves
-      if @moves.empty? #!current_player.has_pending_moves?
-        raise IllegalMove, "No moves to undo!"
-      elsif confirm_action? "Are you sure you want to undo?"
-        return_move_letters
-      end
+      @moves.undo_last(current_player)
+      update_message "Pending words: #{@moves.pending_result}"
     end
 
     def submit_moves
-      if @moves.empty? #!current_player.has_pending_moves?
-        raise IllegalMove, "You haven't played any letters!"
-      elsif confirm_action? "Are you sure you want to submit?"
-        if @moves.legal?
-          current_player.score += @moves.pending_score
-          @moves.clear
-          current_player.refill_rack(@letter_bank)
-          @moves.update_moves
-        end
-        #current_player.submit_moves
+      if confirm_action? "Are you sure you want to submit?"
+        @moves.submit(current_player)
         @submitted = true
       end
     end
@@ -261,8 +252,8 @@ module Upwords
       if letter =~ /[[:alpha:]]/
         letter = modify_letter_input(letter)
         if confirm_action? "Swap '#{letter}' for another?"
-          return_move_letters
-          current_player.swap_letter(letter, @letter_bank)
+          @moves.undo_all(current_player)
+          @moves.swap_letter(current_player, letter)
           @submitted = true
         end
       end
@@ -270,8 +261,7 @@ module Upwords
 
     def skip_turn
       if confirm_action? "Are you sure you want to skip your turn?"
-        #current_player.undo_moves
-        return_move_letters
+        @moves.undo_all(current_player)
         @submitted = true
       end
     end
@@ -286,34 +276,5 @@ module Upwords
     def toggle_rack_visibility #(need_confirm=true)
       @graphics.toggle_rack_visibility
     end
-
-    private
-    
-    # Stripped out of player class    
-    def return_move_letters
-      while !(@moves.empty?) do
-        current_player.take_letter(@moves.undo_last)
-      end
-    end
-
-    # Stripped out of player class
-    # FIX: Player loses letter when they stack on maximum height stack
-    def play_letter(letter)
-      if @moves.include?(current_player.cursor_posn)
-        raise IllegalMove, "You can't stack on a space more than once in a single turn!"
-      else
-        move = current_player.play_letter(letter)
-        
-        begin
-          @board.play_letter(move.letter, move.row, move.col)
-        rescue IllegalMove => exn
-          current_player.take_letter(move.letter)
-          raise IllegalMove, exn.message
-        end
-        
-        @moves.add([move.row, move.col])
-      end
-    end
-    
   end
 end

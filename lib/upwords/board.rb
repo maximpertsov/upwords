@@ -43,7 +43,7 @@ module Upwords
 
     def play_letter(letter, row, col)
       if stack_height(row, col) < max_height
-        @grid[row, col] << letter
+        @grid[row, col] << letter #MoveUnit.new(letter, row, col)
       else
         raise IllegalMove, "You cannot stack any more letters on this space"
       end  
@@ -51,11 +51,13 @@ module Upwords
 
     def remove_top_letter(row, col)
       @grid[row, col].pop
+      #@grid[row, col].pop.letter unless @grid[row, col].empty?
     end
-
+  
     # show top letter in board space
     def top_letter(row, col)
       @grid[row, col][-1]
+      #top_tile(row, col).letter unless top_tile(row, col).nil?
     end
 
     def words
@@ -66,8 +68,33 @@ module Upwords
       coordinates.select {|row, col| stack_height(row, col) > 0}
     end
 
+    # # TODO: Not used yet
+    # def pending_moves
+    #   nonempty_spaces.reject {|row, col| top_tile(row, col).final?}
+    # end
+
+    # # TODO: Not used yet
+    # def final_moves
+    #   nonempty_spaces.reject do |row, col|
+    #     top_final_tile(row, col).nil?
+    #   end
+    # end
+
+    # # TODO: Not used yet
+    # def finalize!
+    #   pending_moves.each {|row, col| top_tile(row, col).finalize!}
+    # end
+    
     private
 
+    # def top_tile(row, col)
+    #   @grid[row, col][-1]
+    # end
+
+    # def top_final_tile(row, col)
+    #   @grid[row, col].select{|m| m.final?}[-1]
+    # end
+    
     # Takes an array of positions and partitions them by empty spaces 
     # Ex. assume positions [[0,0], [0,1], [0,2], [0,3]] correspond to the top letters of ["a", "b", nil, "d"]
     #     then the result of inputing those positions into this method will be [[[0,0],[0,1]],[[0,3]]]
@@ -86,7 +113,7 @@ module Upwords
     end
 
     def words_on_rows
-      (0...num_rows).flat_map{|row| words_on_row row}
+      (0...num_rows).flat_map{|row| words_on_row(row)}
     end
 
     def words_on_column(col)
@@ -94,7 +121,7 @@ module Upwords
     end
 
     def words_on_columns
-      (0...num_columns).flat_map{|col| words_on_column col}
+      (0...num_columns).flat_map{|col| words_on_column(col)}
     end
     
     def coordinates

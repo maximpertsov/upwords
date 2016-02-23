@@ -1,12 +1,10 @@
-require 'set'
-
 module Upwords
   class Moves
 
-    def initialize(board, dictionary)
-      #@game = game
+    def initialize(board, dictionary, letter_bank)
       @board = board
       @dictionary = dictionary
+      @letter_bank = letter_bank
       @pending_moves = []
       @played_moves = @board.nonempty_spaces
       @played_words = Hash.new {|h,k| h[k] = 0} # Counter Hash
@@ -21,14 +19,74 @@ module Upwords
       @pending_moves.include? move
     end
 
-    def undo_last
-      undo_move = @pending_moves.pop
-      @board.remove_top_letter(undo_move[0], undo_move[1])
+    # --------------------------------
+    # Player-Board Interaction Methods
+    # --------------------------------
+    def add(player, letter)
+      move = player.play_letter(letter)
+      posn = [move.row, move.col]
+      begin
+        if @pending_moves.include? posn
+          raise IllegalMove, "You can't stack on a space more than once in a single turn!"
+        else
+          @board.play_letter(move.letter, move.row, move.col)
+          @pending_moves << Array.new(posn)
+        end
+      rescue IllegalMove => exn
+        player.take_letter(move.letter)
+        raise IllegalMove, exn.message
+      end
     end
 
-    def add(posn)
-      @pending_moves << Array.new(posn)
+    def undo_last(player)
+      if empty?
+        raise IllegalMove, "No moves to undo!"
+      else
+        letter = @board.remove_top_letter(*@pending_moves.pop)
+        player.take_letter(letter)
+      end
     end
+
+    def undo_all(player)
+      until empty? do
+        undo_last(player)
+      end
+    end
+
+    def submit(player)
+      if empty?
+        raise IllegalMove, "You haven't played any letters!"
+      else legal?
+        player.score += pending_score
+        clear
+        refill_rack(player) # TODO: Refactor
+        update_moves
+        # @board.finalize! # Not implemented
+      end
+    end
+    
+    # --------------------------------------
+    # Player-Letter Bank Interaction Methods # TODO: REFACTOR
+    # --------------------------------------
+    def refill_rack(player)
+      until (player.rack_full?) || (@letter_bank.empty?) do
+        player.take_letter(@letter_bank.draw)
+      end
+    end
+
+    def swap_letter(player, letter)
+      new_letter = @letter_bank.draw # Will raise error if bank if empty
+      begin
+        trade_letter = player.play_letter(letter).letter
+        player.take_letter(new_letter)
+        @letter_bank.deposit(trade_letter)
+      rescue IllegalMove => exn
+        @letter_bank.deposit(new_letter)
+        raise IllegalMove, exn.message
+      end
+    end
+
+    # --------------------------------------
 
     def clear
       @pending_moves.clear
@@ -100,6 +158,7 @@ module Upwords
         raise IllegalMove, error_msg
       end
       # TODO: Add the following legal move checks:
+      # - Cannot stack a letter on top of the same letter
       # - Move is not a simple pluralization? (e.g. Cat -> Cats is NOT a legal move)
       # - Move does not entirely cover up a word that is already on the board (i.e. you can change part of a previously-played
       #   word, but the whole thing. E.g. Cats -> Cots is legal, but Cats -> Spam is not)
@@ -168,7 +227,7 @@ module Upwords
     end
 
     def orthogonal_spaces
-      @pending_moves.flat_map{|row,col| [[row+1, col],[row-1, col],[row, col+1],[row, col-1]]} - @pending_moves
+      @pending_moves.flat_map{|row, col| [[row+1, col],[row-1, col],[row, col+1],[row, col-1]]} - @pending_moves
     end
 
     def connected_to_played?

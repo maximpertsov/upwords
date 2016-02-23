@@ -101,4 +101,32 @@ class BoardTest < Minitest::Test
       end
     end
   end
+
+  # class BoardMoveTest < BoardTest
+  #   def setup
+  #     @board = Board.new
+  #     @moves1 = [["m", 0, 1], ["a", 0, 2], ["x", 0, 3]]
+  #     @moves2 = [["j", 0, 1], ["i", 1, 1], ["m", 2, 1]] 
+  #   end
+
+  #   def test_pending_moves
+  #     @moves1.each {|l,r,c| @board.play_letter(l,r,c)}
+  #     assert_equal Set.new([[0,1],[0,2],[0,3]]), Set.new(@board.pending_moves)
+  #   end
+
+  #   def test_final_moves
+  #     @moves1.each {|l,r,c| @board.play_letter(l,r,c)}
+
+  #     @board.finalize!
+  #     assert_equal Set.new([[0,1],[0,2],[0,3]]), Set.new(@board.final_moves)
+
+  #     @moves2.each {|l,r,c| @board.play_letter(l,r,c)}
+  #     assert_equal Set.new([[0,1],[0,2],[0,3]]), Set.new(@board.final_moves)
+  #     assert_equal Set.new([[0,1],[1,1],[2,1]]), Set.new(@board.pending_moves)
+
+  #     @board.finalize!
+  #     assert_equal Set.new([[0,1],[0,2],[0,3],[1,1],[2,1]]), Set.new(@board.final_moves)
+  #     assert_empty @board.pending_moves
+  #   end
+  # end
 end

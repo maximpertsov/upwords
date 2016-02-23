@@ -41,17 +41,17 @@ module Upwords
       end 
     end
 
-    def swap_letter(letter, letter_bank)
-      new_letter = letter_bank.draw # Will raise error if bank if empty
-      trade_letter = @rack.remove(letter)
-      @rack.add(new_letter)
-      letter_bank.deposit(trade_letter)
-    end
+    # def swap_letter(letter, letter_bank)
+    #   new_letter = letter_bank.draw # Will raise error if bank if empty
+    #   trade_letter = @rack.remove(letter)
+    #   @rack.add(new_letter)
+    #   letter_bank.deposit(trade_letter)
+    # end
 
-    def refill_rack(letter_bank)
-      while !(rack_full?) && !(letter_bank.empty?) do
-        take_letter(letter_bank.draw)
-      end
-    end
+    # def refill_rack(letter_bank)
+    #   while !(rack_full?) && !(letter_bank.empty?) do
+    #     take_letter(letter_bank.draw)
+    #   end
+    # end
   end
 end
