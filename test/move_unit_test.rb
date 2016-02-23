@@ -19,6 +19,13 @@ class MoveUnitTest < Minitest::Test
     assert_equal MoveUnit.new('e', 8, 8), @mu_e88
   end
 
+  def test_hash_equality_aka_eql?
+    s = Set.new
+    assert_kind_of(Set, s.add?(@mu_a12))
+    assert_kind_of(Set, s.add?(@mu_b13))
+    assert_nil(s.add?(MoveUnit.new('b', 1, 3)))
+  end
+
   def test_posn
     assert_equal [1, 2], @mu_a12.posn
     assert_equal [1, 3], @mu_b13.posn

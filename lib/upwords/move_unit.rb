@@ -10,7 +10,15 @@ module Upwords
     end
 
     def ==(other_unit)
-      overlaps?(other_unit) && self.letter == other_unit.letter
+      overlaps?(other_unit) && (self.letter == other_unit.letter) && (final? == other_unit.final?) 
+    end
+
+    def eql?(other_unit)
+      self == other_unit
+    end
+
+    def hash
+      [letter, row, col, final?].hash
     end
     
     def same_row?(other_unit)
