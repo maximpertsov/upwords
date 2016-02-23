@@ -32,14 +32,28 @@ class MoveUnitTest < Minitest::Test
     refute @mu_a12.overlaps? @mu_b13
   end
 
-  def test_in_same_row?
-    assert @mu_a12.in_same_row? @mu_b13
-    refute @mu_a12.in_same_row? @mu_c02
+  def test_same_row?
+    assert @mu_a12.same_row? @mu_b13
+    refute @mu_a12.same_row? @mu_c02
   end
 
-  def test_in_same_col?
-    assert @mu_a12.in_same_col? @mu_c02
-    refute @mu_a12.in_same_col? @mu_b13    
+  def test_all_same_row?
+    assert @mu_a12.all_same_row? [@mu_b13, @mu_d12]
+    refute @mu_a12.all_same_row? [@mu_b13, @mu_e88]
+    assert @mu_a12.all_same_row? [@mu_a12]
+    assert @mu_a12.all_same_row? []
+  end
+
+  def test_same_col?
+    assert @mu_a12.same_col? @mu_c02
+    refute @mu_a12.same_col? @mu_b13    
+  end
+
+  def test_all_same_col?
+    assert @mu_a12.all_same_col? [@mu_c02, @mu_a12]
+    refute @mu_a12.all_same_col? [@mu_b13, @mu_c02]
+    assert @mu_a12.all_same_col? [@mu_a12]
+    assert @mu_a12.all_same_col? []
   end
 
   def test_orthogonal_spaces

@@ -13,16 +13,24 @@ module Upwords
       overlaps?(other_unit) && self.letter == other_unit.letter
     end
     
-    def in_same_row?(other_unit)
+    def same_row?(other_unit)
       self.row == other_unit.row
     end
 
-    def in_same_col?(other_unit)
+    def all_same_row?(other_units)
+      other_units.all? {|mu| mu.same_row? self}
+    end
+
+    def same_col?(other_unit)
       self.col == other_unit.col
     end
 
+    def all_same_col?(other_units)
+      other_units.all? {|mu| mu.same_col? self}
+    end
+
     def overlaps?(other_unit)
-      in_same_row?(other_unit) && in_same_col?(other_unit)
+      same_row?(other_unit) && same_col?(other_unit)
     end
 
     def orthogonal_spaces
