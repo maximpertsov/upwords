@@ -8,9 +8,10 @@ module Upwords
     LETTER_RACK_LINE = 2
     SCORE_LINE = 3
 
-    def initialize(game, init_message = nil)
+    def initialize(game, moves, init_message = nil)
       @game = game
       @board = @game.board
+      @moves = moves # Ugly...
       @message = init_message
       @rack_visibility = false
     end
@@ -109,7 +110,7 @@ module Upwords
       [draw_row_divider(0, false),
        "\n",
        (0...@board.num_rows).map do |i|
-         [draw_row(i, @game.current_player.cursor_posn),
+         [draw_row(i, @moves.cursor), #@game.current_player.cursor_posn),
           if i == PLAYER_NAME_LINE
             draw_player_name
           elsif i == LETTER_RACK_LINE

@@ -45,8 +45,9 @@ module Upwords
       #@letter_bank = LetterBank.new(ALL_LETTERS)
       @moves = Moves.new(@board,
                          Dictionary.import("data/ospd.txt"),
-                         LetterBank.new(ALL_LETTERS))
-      @graphics = Graphics.new(self)
+                         LetterBank.new(ALL_LETTERS),
+                         @board.middle_square[0])
+      @graphics = Graphics.new(self, @moves)
       
       # TODO: Remove the If block after testing is complete
       # Client should not be able to supply players to game
@@ -94,7 +95,7 @@ module Upwords
         if name.nil? || name.size < 1
           name = "Player #{player_count + 1}" 
         end
-        @players << Player.new(name, init_cursor_posn=@board.middle_square[0])
+        @players << Player.new(name, rack_capacity=7) #, init_cursor_posn=@board.middle_square[0])
       end
     end
 
@@ -177,7 +178,7 @@ module Upwords
         if key_is_action?(inp)
           instance_eval(&ACTION_KEYMAP[inp])     
         elsif key_is_direction?(inp)
-          current_player.move_cursor(DIRECTION_KEYMAP.fetch(inp, [0,0]), [@board.num_rows, @board.num_columns])
+          @moves.move_cursor(*DIRECTION_KEYMAP.fetch(inp, [0,0])) #, [@board.num_rows, @board.num_columns])
         elsif inp =~ /[[:alpha:]]/
           @moves.add(current_player, modify_letter_input(inp))
           update_message "Pending words: #{@moves.pending_result}"

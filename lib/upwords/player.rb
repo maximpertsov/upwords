@@ -1,12 +1,13 @@
 module Upwords
   class Player
 
-    attr_reader :name, :cursor_posn
+    attr_reader :name #, :cursor_posn
     attr_accessor :score
 
-    def initialize(name, init_cursor_posn, rack_capacity=7)
+    def initialize(name, #init_cursor_posn,
+                   rack_capacity=7)
       @name = name
-      @cursor_posn = init_cursor_posn
+      #@cursor_posn = init_cursor_posn
       @rack = LetterRack.new(rack_capacity)
       @score = 0
     end
@@ -32,14 +33,15 @@ module Upwords
     end
 
     def play_letter(letter)
-      MoveUnit.new(@rack.remove(letter), *@cursor_posn)
+      #MoveUnit.new(@rack.remove(letter), *@cursor_posn)
+      @rack.remove(letter)
     end
     
-    def move_cursor(move_vector, bounds)
-      move_vector.each_with_index do |move, i|
-        @cursor_posn[i] = (@cursor_posn[i] + move) % bounds[i]
-      end 
-    end
+    # def move_cursor(move_vector, bounds)
+    #   move_vector.each_with_index do |move, i|
+    #     @cursor_posn[i] = (@cursor_posn[i] + move) % bounds[i]
+    #   end 
+    # end
 
     # def swap_letter(letter, letter_bank)
     #   new_letter = letter_bank.draw # Will raise error if bank if empty

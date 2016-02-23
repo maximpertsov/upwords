@@ -6,8 +6,8 @@ class PlayerTest < Minitest::Test
   class BasicPlayerTest < PlayerTest
     
     def setup
-      @p1 = Player.new("P1", init_cursor_posn=[0,0])
-      @p2 = Player.new("P2", init_cursor_posn=[0,0])
+      @p1 = Player.new("P1")
+      @p2 = Player.new("P2")
     end
     
     def test_can_get_name
@@ -26,12 +26,7 @@ class PlayerTest < Minitest::Test
 
     def test_can_play_letter
       @p1.take_letter('A')
-      move = @p1.play_letter('A')
-
-      assert_kind_of(MoveUnit, move)
-      assert_equal 'A', move.letter
-      assert_equal @p1.cursor_posn[0], move.row
-      assert_equal @p1.cursor_posn[1], move.col
+      assert_equal 'A', @p1.play_letter('A')
     end
 
     def test_cannot_play_letter_that_player_doesnt_have

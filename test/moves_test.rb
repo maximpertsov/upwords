@@ -5,10 +5,23 @@ class MovesTest < Minitest::Test
 
   class BasicMoveTest < MovesTest
     def setup
-      @player = Player.new("P1", [0,0], 7)
-      ('a'..'g').each {|l| @player.take_letter(l)}
-      #@moves = Moves.new(Board.new(10), 
+      @player = Player.new("P1", 7)
+      ('A'..'G').each {|l| @player.take_letter(l)}
+
+      @board = Board.new(10)
+      @moves = Moves.new(@board,
+                         Dictionary.new(),
+                         LetterBank.new(),
+                         [0,0])
     end
+
+    def test_player_can_add_move
+      @moves.add(@player, 'A')
+      assert @moves.include?([0, 0])
+
+      assert_equal 'B C D E F G', @player.show_rack
+    end
+
   end
 
   # class LetterBankMoveTest < MovesTest
