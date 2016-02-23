@@ -11,6 +11,14 @@ class MoveUnitTest < Minitest::Test
     @mu_e88 = MoveUnit.new('e', 8, 8)
   end
 
+  def test_equality
+    assert_equal @mu_a12, MoveUnit.new('a', 1, 2)
+    assert_equal @mu_b13, MoveUnit.new('b', 1, 3)
+    assert_equal @mu_c02, MoveUnit.new('c', 0, 2)
+    assert_equal @mu_d12, MoveUnit.new('d', 1, 2)
+    assert_equal @mu_e88, MoveUnit.new('e', 8, 8)
+  end
+  
   def test_overlaps?
     assert @mu_a12.overlaps? @mu_d12
     refute @mu_a12.overlaps? @mu_b13

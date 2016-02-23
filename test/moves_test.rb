@@ -3,7 +3,15 @@ require 'test_helper'
 class MovesTest < Minitest::Test
   include Upwords
 
-  # class LetterBankMoveTest < PlayerTest
+  class BasicMoveTest < MovesTest
+    def setup
+      @player = Player.new("P1", [0,0], 7)
+      ('a'..'g').each {|l| @player.take_letter(l)}
+      #@moves = Moves.new(Board.new(10), 
+    end
+  end
+
+  # class LetterBankMoveTest < MovesTest
   #   def setup
   #     @p1 = Player.new("P1", [0,0], 7)
   #     @p2 = Player.new("P2", [0,0], 4)

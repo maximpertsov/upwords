@@ -44,7 +44,7 @@ module Upwords
       @board = Board.new
       #@letter_bank = LetterBank.new(ALL_LETTERS)
       @moves = Moves.new(@board,
-                         Dictionary.new("data/ospd.txt"),
+                         Dictionary.import("data/ospd.txt"),
                          LetterBank.new(ALL_LETTERS))
       @graphics = Graphics.new(self)
       

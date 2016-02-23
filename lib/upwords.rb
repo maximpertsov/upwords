@@ -1,3 +1,5 @@
+require 'set'
+
 require 'upwords/version'
 require 'upwords/board'
 

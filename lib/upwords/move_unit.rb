@@ -9,6 +9,10 @@ module Upwords
       @final = false
     end
 
+    def ==(other_unit)
+      overlaps?(other_unit) && self.letter == other_unit.letter
+    end
+    
     def in_same_row?(other_unit)
       self.row == other_unit.row
     end
