@@ -6,17 +6,16 @@ module Upwords
       @letter = letter
       @row = row
       @col = col
-      @final = false
     end
 
     # Letter does not factor into hash equality
     def eql?(other_unit)
-      overlaps?(other_unit) && (final? == other_unit.final?)
+      overlaps?(other_unit)
     end
     
     # Letter does not factor into hash equality
     def hash
-      [row, col, final?].hash
+      [row, col].hash
     end
     
     def same_row?(other_unit)
@@ -49,14 +48,6 @@ module Upwords
 
     def posn
       [self.row, self.col]
-    end
-
-    def final?
-      @final
-    end
-
-    def finalize!
-      @final = true
     end
   end
 end

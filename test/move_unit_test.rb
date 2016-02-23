@@ -11,19 +11,11 @@ class MoveUnitTest < Minitest::Test
     @mu_e88 = MoveUnit.new('e', 8, 8)
   end
 
-  # def test_equality
-  #   assert_equal MoveUnit.new('a', 1, 2), @mu_a12
-  #   assert_equal MoveUnit.new('b', 1, 3), @mu_b13
-  #   assert_equal MoveUnit.new('c', 0, 2), @mu_c02
-  #   assert_equal MoveUnit.new('d', 1, 2), @mu_d12
-  #   assert_equal MoveUnit.new('e', 8, 8), @mu_e88
-  # end
-
   def test_hash_equality_aka_eql?
     s = Set.new
     assert_kind_of(Set, s.add?(@mu_a12))
     assert_kind_of(Set, s.add?(@mu_b13))
-    assert_nil(s.add?(MoveUnit.new('c', 1, 3)))
+    assert_nil(s.add?(@mu_d12))
   end
 
   def test_posn
@@ -74,25 +66,5 @@ class MoveUnitTest < Minitest::Test
     assert @mu_a12.next_to? @mu_c02
     refute @mu_a12.next_to? @mu_e88
     refute @mu_a12.next_to? @mu_d12
-  end
-
-  def test_not_final_initially
-    refute @mu_a12.final?
-    refute @mu_b13.final?
-    refute @mu_c02.final?
-    refute @mu_d12.final?
-    refute @mu_e88.final?
-  end
-
-  def test_can_make_final
-    @mu_a12.finalize!
-    @mu_c02.finalize!
-    @mu_d12.finalize!
-
-    assert @mu_a12.final?
-    refute @mu_b13.final?
-    assert @mu_c02.final?
-    assert @mu_d12.final?
-    refute @mu_e88.final?
   end
 end
