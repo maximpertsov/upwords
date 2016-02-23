@@ -1,11 +1,9 @@
 require 'set'
+require 'matrix'
+require 'curses'
 
 require 'upwords/version'
 require 'upwords/board'
-
-#require 'upwords/unionfind'
-#require 'upwords/move'
-#require 'upwords/move_manager'
 
 require 'upwords/letter_bank'
 require 'upwords/letter_rack'

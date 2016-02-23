@@ -1,5 +1,3 @@
-require 'curses'
-
 module Upwords
   class Game
     attr_reader :board, :players

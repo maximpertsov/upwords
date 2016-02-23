@@ -1,5 +1,3 @@
-require 'matrix'
-
 module Upwords
   class Board
     
