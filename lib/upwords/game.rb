@@ -43,10 +43,10 @@ module Upwords
       @display = display
       @board = Board.new
       #@letter_bank = LetterBank.new(ALL_LETTERS)
-      @moves = Moves.new(@board,
-                         Dictionary.import("data/ospd.txt"),
-                         LetterBank.new(ALL_LETTERS),
-                         @board.middle_square[0])
+      @moves = MoveManager.new(@board,
+                               Dictionary.import("data/ospd.txt"),
+                               LetterBank.new(ALL_LETTERS),
+                               @board.middle_square[0])
       @graphics = Graphics.new(self, @moves)
       
       # TODO: Remove the If block after testing is complete

@@ -1,5 +1,5 @@
 module Upwords
-  class Moves
+  class MoveManager
     attr_reader :cursor
     
     def initialize(board, dictionary, letter_bank,

@@ -12,7 +12,7 @@ require 'upwords/letter_rack'
 require 'upwords/dictionary'
 
 require 'upwords/move_unit'
-require 'upwords/moves'
+require 'upwords/move_manager'
 
 require 'upwords/word'
 require 'upwords/player'

@@ -1,18 +1,18 @@
 require 'test_helper'
 
-class MovesTest < Minitest::Test
+class MoveManagerTest < Minitest::Test
   include Upwords
 
-  class BasicMoveTest < MovesTest
+  class BasicMoveTest < MoveManagerTest
     def setup
       @player = Player.new("P1", 7)
       ('A'..'G').each {|l| @player.take_letter(l)}
 
       @board = Board.new(10)
-      @moves = Moves.new(@board,
-                         Dictionary.new(),
-                         LetterBank.new(),
-                         [0,0])
+      @moves = MoveManager.new(@board,
+                               Dictionary.new(),
+                               LetterBank.new(),
+                               [0,0])
     end
 
     def test_player_can_add_move
@@ -24,7 +24,7 @@ class MovesTest < Minitest::Test
 
   end
 
-  # class LetterBankMoveTest < MovesTest
+  # class LetterBankMoveTest < MoveManagerTest
   #   def setup
   #     @p1 = Player.new("P1", [0,0], 7)
   #     @p2 = Player.new("P2", [0,0], 4)
