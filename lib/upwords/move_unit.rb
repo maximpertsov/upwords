@@ -30,7 +30,11 @@ module Upwords
     end
 
     def next_to?(other_unit)
-      orthogonal_spaces.include? [other_unit.row, other_unit.col]
+      orthogonal_spaces.include?(other_unit.posn)
+    end
+
+    def posn
+      [self.row, self.col]
     end
 
     def final?

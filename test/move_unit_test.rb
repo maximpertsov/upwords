@@ -12,11 +12,19 @@ class MoveUnitTest < Minitest::Test
   end
 
   def test_equality
-    assert_equal @mu_a12, MoveUnit.new('a', 1, 2)
-    assert_equal @mu_b13, MoveUnit.new('b', 1, 3)
-    assert_equal @mu_c02, MoveUnit.new('c', 0, 2)
-    assert_equal @mu_d12, MoveUnit.new('d', 1, 2)
-    assert_equal @mu_e88, MoveUnit.new('e', 8, 8)
+    assert_equal MoveUnit.new('a', 1, 2), @mu_a12
+    assert_equal MoveUnit.new('b', 1, 3), @mu_b13
+    assert_equal MoveUnit.new('c', 0, 2), @mu_c02
+    assert_equal MoveUnit.new('d', 1, 2), @mu_d12
+    assert_equal MoveUnit.new('e', 8, 8), @mu_e88
+  end
+
+  def test_posn
+    assert_equal [1, 2], @mu_a12.posn
+    assert_equal [1, 3], @mu_b13.posn
+    assert_equal [0, 2], @mu_c02.posn
+    assert_equal [1, 2], @mu_d12.posn
+    assert_equal [8, 8], @mu_e88.posn
   end
   
   def test_overlaps?

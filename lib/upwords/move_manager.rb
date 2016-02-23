@@ -26,15 +26,15 @@ module Upwords
     # Player-Board Interaction Methods
     # --------------------------------
     def add(player, letter)
-      #move
       selected_letter = player.play_letter(letter)
-      posn = @cursor.dup # [move.row, move.col]
+      posn = @cursor.dup
       begin
         if @pending_moves.include?(posn)
           raise IllegalMove, "You can't stack on a space more than once in a single turn!"
         else
-          @board.play_letter(selected_letter, *posn) #move.row, move.col)
-          @pending_moves << Array.new(posn) # TODO: Wrap in MoveUnit class before adding to @pending_moves
+          @board.play_letter(selected_letter, *posn)
+          # TODO: Wrap in MoveUnit class before adding to @pending_moves
+          @pending_moves << Array.new(posn) 
         end
       rescue IllegalMove => exn
         player.take_letter(selected_letter)
