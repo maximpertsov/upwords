@@ -11,6 +11,7 @@ require 'upwords/dictionary'
 
 require 'upwords/move_unit'
 require 'upwords/move_manager'
+require 'upwords/cursor'
 
 require 'upwords/word'
 require 'upwords/player'

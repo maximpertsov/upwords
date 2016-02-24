@@ -2,15 +2,15 @@ module Upwords
   class MoveManager
     attr_reader :cursor
     
-    def initialize(board, dictionary, letter_bank,
-                   init_cursor_posn = [0,0])
+    def initialize(board, dictionary, letter_bank)
+                   #init_cursor_posn = [0,0])
       @board = board
       @dictionary = dictionary
       @letter_bank = letter_bank
       @pending_moves = []
       @played_moves = @board.nonempty_spaces
       @played_words = Hash.new {|h,k| h[k] = 0} # Counter Hash
-      @cursor = init_cursor_posn
+#      @cursor = init_cursor_posn
       update_moves
     end
 
@@ -25,16 +25,16 @@ module Upwords
     # --------------------------------
     # Player-Board Interaction Methods
     # --------------------------------
-    def add(player, letter)
+    def add(player, letter, row, col)
       
       selected_letter = player.play_letter(letter)
-      posn = @cursor.dup
+      #posn = @cursor.dup
       begin
-        if @pending_moves.include?(posn)
+        if @pending_moves.include?([row, col])    # (posn)
           raise IllegalMove, "You can't stack on a space more than once in a single turn!"
         else
-          @board.play_letter(selected_letter, *posn)
-          @pending_moves << MoveUnit.new(selected_letter, *posn) 
+          @board.play_letter(selected_letter, row, col) #*posn)
+          @pending_moves << MoveUnit.new(selected_letter, row, col) # *posn) 
         end
       rescue IllegalMove => exn
         player.take_letter(selected_letter)
@@ -67,11 +67,6 @@ module Upwords
         update_moves
         # @board.finalize! # Not implemented
       end
-    end
-
-    def move_cursor(rows, cols)
-      @cursor[0] = (@cursor[0] + rows) % @board.num_rows
-      @cursor[1] = (@cursor[1] + cols) % @board.num_columns 
     end
     
     # --------------------------------------

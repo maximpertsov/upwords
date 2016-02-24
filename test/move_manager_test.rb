@@ -11,51 +11,44 @@ class MoveManagerTest < Minitest::Test
       @board = Board.new(10)
       @moves = MoveManager.new(@board,
                                Dictionary.new(),
-                               LetterBank.new(),
-                               [0,0])
+                               LetterBank.new())
     end
 
     def test_player_can_add_move
-      @moves.add(@player, 'A')
+      @moves.add(@player, 'A', 0 , 0)
       assert @moves.include?([0, 0])
 
       assert_equal 'B C D E F G', @player.show_rack
     end
 
     def test_player_can_undo_a_move
-      @moves.add(@player, 'A')
-      @moves.move_cursor(1, 0)
-      @moves.add(@player, 'B')
+      @moves.add(@player, 'A', 0, 0)
+      @moves.add(@player, 'B', 1, 0)
       @moves.undo_last(@player)
 
       assert_equal 'C D E F G B', @player.show_rack
     end
 
     def test_player_can_undo_all_moves
-      @moves.add(@player, 'A')
-      @moves.move_cursor(1, 0)
-      @moves.add(@player, 'B')
+      @moves.add(@player, 'A', 0, 0)
+      @moves.add(@player, 'B', 1, 0)
       @moves.undo_all(@player)
 
       assert_equal 'C D E F G B A', @player.show_rack
     end
 
     def test_is_move_in_a_straight_line?
-      @moves.add(@player, 'A')
-      @moves.move_cursor(2, 0)
-      @moves.add(@player, 'B')
-      @moves.move_cursor(2, 0)
-      @moves.add(@player, 'C')
+      @moves.add(@player, 'A', 0, 0)
+      @moves.add(@player, 'B', 2, 0)
+      @moves.add(@player, 'C', 4, 0)
 
       assert @moves.straight_line?
     end
 
     def test_is_move_not_in_a_straight_line?
-      @moves.add(@player, 'A')
-      @moves.move_cursor(2, 0)
-      @moves.add(@player, 'B')
-      @moves.move_cursor(0, 2) # Veer to right
-      @moves.add(@player, 'C')
+      @moves.add(@player, 'A', 0, 0)
+      @moves.add(@player, 'B', 2, 0)
+      @moves.add(@player, 'C', 0, 2)
 
       refute @moves.straight_line?
     end

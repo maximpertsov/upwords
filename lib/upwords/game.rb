@@ -41,11 +41,14 @@ module Upwords
       @display = display
       @board = Board.new
       #@letter_bank = LetterBank.new(ALL_LETTERS)
+      @cursor = Cursor.new(@board.num_rows,
+                           @board.num_columns,
+                           *@board.middle_square[0])
       @moves = MoveManager.new(@board,
                                Dictionary.import("data/ospd.txt"),
-                               LetterBank.new(ALL_LETTERS),
-                               @board.middle_square[0])
-      @graphics = Graphics.new(self, @moves)
+                               LetterBank.new(ALL_LETTERS))
+                               #@board.middle_square[0])
+      @graphics = Graphics.new(self, @cursor)
       
       # TODO: Remove the If block after testing is complete
       # Client should not be able to supply players to game
@@ -176,9 +179,12 @@ module Upwords
         if key_is_action?(inp)
           instance_eval(&ACTION_KEYMAP[inp])     
         elsif key_is_direction?(inp)
-          @moves.move_cursor(*DIRECTION_KEYMAP.fetch(inp, [0,0])) #, [@board.num_rows, @board.num_columns])
+          @cursor.move(*DIRECTION_KEYMAP.fetch(inp, [0,0]))
         elsif inp =~ /[[:alpha:]]/
-          @moves.add(current_player, modify_letter_input(inp))
+          @moves.add(current_player,
+                     modify_letter_input(inp),
+                     @cursor.y,
+                     @cursor.x)
           update_message "Pending words: #{@moves.pending_result}"
         end
         refresh_graphics
