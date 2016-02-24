@@ -53,7 +53,19 @@ class MoveManagerTest < Minitest::Test
       refute @moves.straight_line?
     end
 
+    # TODO: Refactor...
+    def test_is_internally_connected!
+      @board.play_letter('C', 2, 4)
+      @board.play_letter('A', 3, 4)
+      @board.play_letter('B', 4, 4)
+      @moves.update_moves
+      
+      @moves.add(@player, 'C', 3, 3)
+      @moves.add(@player, 'A', 3, 4)
+      @moves.add(@player, 'B', 3, 5)
 
+      assert @moves.connected_move?
+    end
   end
 
   # class LetterBankMoveTest < MoveManagerTest

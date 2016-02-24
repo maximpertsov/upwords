@@ -3,14 +3,12 @@ module Upwords
     attr_reader :cursor
     
     def initialize(board, dictionary, letter_bank)
-                   #init_cursor_posn = [0,0])
       @board = board
       @dictionary = dictionary
       @letter_bank = letter_bank
       @pending_moves = []
       @played_moves = @board.nonempty_spaces
       @played_words = Hash.new {|h,k| h[k] = 0} # Counter Hash
-#      @cursor = init_cursor_posn
       update_moves
     end
 
@@ -26,15 +24,13 @@ module Upwords
     # Player-Board Interaction Methods
     # --------------------------------
     def add(player, letter, row, col)
-      
       selected_letter = player.play_letter(letter)
-      #posn = @cursor.dup
       begin
-        if @pending_moves.include?([row, col])    # (posn)
+        if self.include?([row, col])
           raise IllegalMove, "You can't stack on a space more than once in a single turn!"
         else
-          @board.play_letter(selected_letter, row, col) #*posn)
-          @pending_moves << MoveUnit.new(selected_letter, row, col) # *posn) 
+          @board.play_letter(selected_letter, row, col)
+          @pending_moves << MoveUnit.new(selected_letter, row, col) 
         end
       rescue IllegalMove => exn
         player.take_letter(selected_letter)
@@ -65,7 +61,6 @@ module Upwords
         clear
         refill_rack(player) # TODO: Refactor
         update_moves
-        # @board.finalize! # Not implemented
       end
     end
     
@@ -90,18 +85,6 @@ module Upwords
       end
     end
 
-    # --------------------------------------
-    # Move shape
-    # --------------------------------------
-    # def straight_line?
-    #   MoveUnit.straight_line?(@pending_moves)
-    # end
-
-    # def no_gaps?
-    #   MoveUnit.skipped_rows(@pending_moves)
-    # end
-    
-    # --------------------------------------
     def clear
       @pending_moves.clear
     end
@@ -112,7 +95,9 @@ module Upwords
     end
 
     def update_played_moves
-      @played_moves = @board.nonempty_spaces
+      @played_moves = (@board.nonempty_spaces).map do |r,c|
+        MoveUnit.new(@board.top_letter(r, c), r, c)
+      end
     end
     
     def update_played_words
@@ -145,22 +130,16 @@ module Upwords
     end
 
     def legal?
-      # Are letters all along one axis?
       if !straight_line?
         raise IllegalMove, "The letters in your move must be along a single row or column!"
-      # Are letters on board connected to each other?  
       elsif !connected_move?
-        raise IllegalMove, "The letters in your move must be connected!"
-      # Is at least one letter is in the middle 4 x 4 section of the board?
+        raise IllegalMove, "The letters in your move must be internally connected!"
       elsif !letter_in_middle_square?
         raise IllegalMove, "You must play at least one letter in the middle 2x2 square!"
-      # (First move only) Is there at least one word that is two letters or more on the board?
       elsif (@board.words).empty?  
         raise IllegalMove, "Valid words must be at least two letters long!"
-      # Is at least one letter intersecting or orthogonally touching a previously played letter? 
       elsif !connected_to_played?
         raise IllegalMove, "At least one letter in your move must be touching a previously played word!"
-      # Are all resulting words in Official Scrabble Players Dictionary
       elsif !pending_illegal_words.empty?
         error_msg = pending_illegal_words.join(", ")
         case pending_illegal_words.size
@@ -182,74 +161,22 @@ module Upwords
     # =========================================
     # Individual legal move conditions
     # =========================================
-
-    # private
-
-    # What positions in a given dimension are spanned by the pending moves
-    def spanned(dim)
-      #@pending_moves.map{|posn| posn[dim]}.uniq
-      @pending_moves.map{|mu| mu.posn[dim]}.uniq
-    end
-
-    def spanned_rows
-      spanned(0)
-    end
-
-    def spanned_columns
-      spanned(1)
-    end
-
-    # What positions in a given dimension are skipped within the span of the pending moves
-    def skipped(dim)
-      lo, hi = spanned(dim).minmax
-      (lo..hi).to_a - spanned(dim)
-    end
-
-    def skipped_rows
-      skipped(0)
-    end
-
-    def skipped_columns
-      skipped(1)
-    end
-
-    def skipped_spaces
-      if horizontal?
-        spanned_rows.product skipped_columns
-      elsif vertical?
-        skipped_rows.product spanned_columns
-      end
-    end
-
-    def straight_line?
-      horizontal? || vertical?
-    end
-
-    def horizontal? 
-      spanned_rows.size == 1
-    end
     
-    def vertical?
-      spanned_columns.size == 1
+    def straight_line?
+      MoveUnit.straight_line?(@pending_moves)
     end
 
-    def connected_move?
-      skipped_spaces.empty? || (skipped_spaces - @played_moves).empty? 
+    def connected_move?     
+      gaps = MoveUnit.gaps(@pending_moves)
+      gaps.empty? || (gaps - (@played_moves.map {|mu| mu.posn})).empty? 
     end
 
     def letter_in_middle_square?
       @board.middle_square.map{|row, col| @board.stack_height(row, col) > 0}.any?
     end
 
-    def orthogonal_spaces
-      # @pending_moves.flat_map{|row, col| [[row+1, col],[row-1, col],[row, col+1],[row, col-1]]} - @pending_moves
-      @pending_moves.flat_map{|mu| mu.orthogonal_spaces} 
-    end
-
     def connected_to_played?
-    #   @played_moves.empty? || @played_moves.size > (@played_moves - (orthogonal_spaces + @pending_moves)).size 
-      @played_moves.empty? || @played_moves.size > (@played_moves - orthogonal_spaces).size 
+      @played_moves.empty? || MoveUnit.touching?(@pending_moves, @played_moves)
     end
-
   end
 end

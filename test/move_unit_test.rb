@@ -53,21 +53,7 @@ class MoveUnitTest < Minitest::Test
     refute @mu_a12.next_to? @mu_e88
     refute @mu_a12.next_to? @mu_d12
   end
-  
-  def test_all_same_row?
-    assert MoveUnit.all_same_row? [@mu_b13, @mu_d12]
-    refute MoveUnit.all_same_row? [@mu_b13, @mu_e88]
-    assert MoveUnit.all_same_row? [@mu_a12]
-    assert MoveUnit.all_same_row? []
-  end
-
-  def test_all_same_col?
-    assert MoveUnit.all_same_col? [@mu_c02, @mu_a12]
-    refute MoveUnit.all_same_col? [@mu_b13, @mu_c02]
-    assert MoveUnit.all_same_col? [@mu_a12]
-    assert MoveUnit.all_same_col? []
-  end
-  
+    
   def test_row_range
     MoveUnit.row_range([@mu_b13,@mu_e88,@mu_a12]).each do |r|
       assert_includes (1..8), r
@@ -80,20 +66,17 @@ class MoveUnitTest < Minitest::Test
     end
   end
 
-  def test_skipped_rows
-    MoveUnit.skipped_rows([@mu_b13,@mu_e88,@mu_a12]).each do |r|
-      assert_includes (2..7), r
+  def test_gaps
+    MoveUnit.gaps([@mu_b13, @mu_c02]).each do |gap|
+      assert_includes [[0,3],[1,2]], gap
     end
   end
 
-  def test_skipped_cols
-    MoveUnit.skipped_cols([@mu_b13,@mu_e88,@mu_a12]).each do |c|
-      assert_includes (4..7), c
-    end
+  def test_touching
+    assert MoveUnit.touching?([@mu_a12, @mu_b13], [@mu_c02])
+  end
 
-    mu_x15 = MoveUnit.new('x', 1, 5)
-    MoveUnit.skipped_cols([mu_x15,@mu_e88,@mu_a12]).each do |c|
-      assert_includes [3,4,6,7], c
-    end
+  def test_not_touching
+    refute MoveUnit.touching?([@mu_b13], [@mu_c02, @mu_e88])
   end
 end
