@@ -22,6 +22,45 @@ class MoveManagerTest < Minitest::Test
       assert_equal 'B C D E F G', @player.show_rack
     end
 
+    def test_player_can_undo_a_move
+      @moves.add(@player, 'A')
+      @moves.move_cursor(1, 0)
+      @moves.add(@player, 'B')
+      @moves.undo_last(@player)
+
+      assert_equal 'C D E F G B', @player.show_rack
+    end
+
+    def test_player_can_undo_all_moves
+      @moves.add(@player, 'A')
+      @moves.move_cursor(1, 0)
+      @moves.add(@player, 'B')
+      @moves.undo_all(@player)
+
+      assert_equal 'C D E F G B A', @player.show_rack
+    end
+
+    def test_is_move_in_a_straight_line?
+      @moves.add(@player, 'A')
+      @moves.move_cursor(2, 0)
+      @moves.add(@player, 'B')
+      @moves.move_cursor(2, 0)
+      @moves.add(@player, 'C')
+
+      assert @moves.straight_line?
+    end
+
+    def test_is_move_not_in_a_straight_line?
+      @moves.add(@player, 'A')
+      @moves.move_cursor(2, 0)
+      @moves.add(@player, 'B')
+      @moves.move_cursor(0, 2) # Veer to right
+      @moves.add(@player, 'C')
+
+      refute @moves.straight_line?
+    end
+
+
   end
 
   # class LetterBankMoveTest < MoveManagerTest

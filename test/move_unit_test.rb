@@ -36,23 +36,9 @@ class MoveUnitTest < Minitest::Test
     refute @mu_a12.same_row? @mu_c02
   end
 
-  def test_all_same_row?
-    assert @mu_a12.all_same_row? [@mu_b13, @mu_d12]
-    refute @mu_a12.all_same_row? [@mu_b13, @mu_e88]
-    assert @mu_a12.all_same_row? [@mu_a12]
-    assert @mu_a12.all_same_row? []
-  end
-
   def test_same_col?
     assert @mu_a12.same_col? @mu_c02
     refute @mu_a12.same_col? @mu_b13    
-  end
-
-  def test_all_same_col?
-    assert @mu_a12.all_same_col? [@mu_c02, @mu_a12]
-    refute @mu_a12.all_same_col? [@mu_b13, @mu_c02]
-    assert @mu_a12.all_same_col? [@mu_a12]
-    assert @mu_a12.all_same_col? []
   end
 
   def test_orthogonal_spaces
@@ -66,5 +52,48 @@ class MoveUnitTest < Minitest::Test
     assert @mu_a12.next_to? @mu_c02
     refute @mu_a12.next_to? @mu_e88
     refute @mu_a12.next_to? @mu_d12
+  end
+  
+  def test_all_same_row?
+    assert MoveUnit.all_same_row? [@mu_b13, @mu_d12]
+    refute MoveUnit.all_same_row? [@mu_b13, @mu_e88]
+    assert MoveUnit.all_same_row? [@mu_a12]
+    assert MoveUnit.all_same_row? []
+  end
+
+  def test_all_same_col?
+    assert MoveUnit.all_same_col? [@mu_c02, @mu_a12]
+    refute MoveUnit.all_same_col? [@mu_b13, @mu_c02]
+    assert MoveUnit.all_same_col? [@mu_a12]
+    assert MoveUnit.all_same_col? []
+  end
+  
+  def test_row_range
+    MoveUnit.row_range([@mu_b13,@mu_e88,@mu_a12]).each do |r|
+      assert_includes (1..8), r
+    end
+  end
+
+  def test_col_range
+    MoveUnit.col_range([@mu_b13,@mu_e88,@mu_a12]).each do |c|
+      assert_includes (2..8), c
+    end
+  end
+
+  def test_skipped_rows
+    MoveUnit.skipped_rows([@mu_b13,@mu_e88,@mu_a12]).each do |r|
+      assert_includes (2..7), r
+    end
+  end
+
+  def test_skipped_cols
+    MoveUnit.skipped_cols([@mu_b13,@mu_e88,@mu_a12]).each do |c|
+      assert_includes (4..7), c
+    end
+
+    mu_x15 = MoveUnit.new('x', 1, 5)
+    MoveUnit.skipped_cols([mu_x15,@mu_e88,@mu_a12]).each do |c|
+      assert_includes [3,4,6,7], c
+    end
   end
 end

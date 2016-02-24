@@ -18,14 +18,15 @@ module Upwords
       @pending_moves.empty?
     end
 
-    def include? move
-      @pending_moves.include? move
+    def include? posn
+      @pending_moves.map{|mu| mu.posn}.include? posn
     end
 
     # --------------------------------
     # Player-Board Interaction Methods
     # --------------------------------
     def add(player, letter)
+      
       selected_letter = player.play_letter(letter)
       posn = @cursor.dup
       begin
@@ -33,8 +34,7 @@ module Upwords
           raise IllegalMove, "You can't stack on a space more than once in a single turn!"
         else
           @board.play_letter(selected_letter, *posn)
-          # TODO: Wrap in MoveUnit class before adding to @pending_moves
-          @pending_moves << Array.new(posn) 
+          @pending_moves << MoveUnit.new(selected_letter, *posn) 
         end
       rescue IllegalMove => exn
         player.take_letter(selected_letter)
@@ -46,7 +46,7 @@ module Upwords
       if empty?
         raise IllegalMove, "No moves to undo!"
       else
-        letter = @board.remove_top_letter(*@pending_moves.pop)
+        letter = @board.remove_top_letter(*@pending_moves.pop.posn)
         player.take_letter(letter)
       end
     end
@@ -96,7 +96,17 @@ module Upwords
     end
 
     # --------------------------------------
+    # Move shape
+    # --------------------------------------
+    # def straight_line?
+    #   MoveUnit.straight_line?(@pending_moves)
+    # end
 
+    # def no_gaps?
+    #   MoveUnit.skipped_rows(@pending_moves)
+    # end
+    
+    # --------------------------------------
     def clear
       @pending_moves.clear
     end
@@ -178,11 +188,12 @@ module Upwords
     # Individual legal move conditions
     # =========================================
 
-    private
+    # private
 
     # What positions in a given dimension are spanned by the pending moves
     def spanned(dim)
-      @pending_moves.map{|posn| posn[dim]}.uniq
+      #@pending_moves.map{|posn| posn[dim]}.uniq
+      @pending_moves.map{|mu| mu.posn[dim]}.uniq
     end
 
     def spanned_rows
@@ -236,11 +247,13 @@ module Upwords
     end
 
     def orthogonal_spaces
-      @pending_moves.flat_map{|row, col| [[row+1, col],[row-1, col],[row, col+1],[row, col-1]]} - @pending_moves
+      # @pending_moves.flat_map{|row, col| [[row+1, col],[row-1, col],[row, col+1],[row, col-1]]} - @pending_moves
+      @pending_moves.flat_map{|mu| mu.orthogonal_spaces} 
     end
 
     def connected_to_played?
-      @played_moves.empty? || @played_moves.size > (@played_moves - (orthogonal_spaces + @pending_moves)).size
+    #   @played_moves.empty? || @played_moves.size > (@played_moves - (orthogonal_spaces + @pending_moves)).size 
+      @played_moves.empty? || @played_moves.size > (@played_moves - orthogonal_spaces).size 
     end
 
   end
