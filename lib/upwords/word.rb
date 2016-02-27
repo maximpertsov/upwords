@@ -6,9 +6,9 @@ module Upwords
     attr_reader :score, :length
 
     def initialize(posns, board, dictionary)
-      u_posns = posns.uniq
-      @text = make_string(board, u_posns)
-      @score = calc_score(board, u_posns)
+      posns = posns.uniq if posns.is_a?(Array)
+      @text = make_string(board, posns)
+      @score = calc_score(board, posns)
       @length = @text.length
       @dict = dictionary
     end

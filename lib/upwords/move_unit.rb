@@ -73,18 +73,9 @@ module Upwords
         end
       end
     end
-    
-    # def self.all_same_row?(move_units)
-    #   move_units.each_cons(2).all? {|m1, m2| m1.row == m2.row}
-    # end
-
-    # def self.all_same_col?(move_units)
-    #   move_units.each_cons(2).all? {|m1, m2| m1.col == m2.col}
-    # end
 
     def self.straight_line?(move_units)
       self.row_range(move_units).size == 1 || self.col_range(move_units).size == 1
-      #self.all_same_row?(move_units) || self.all_same_col?(move_units)
     end
   end
 end

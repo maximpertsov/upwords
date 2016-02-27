@@ -54,18 +54,45 @@ class MoveManagerTest < Minitest::Test
     end
 
     # TODO: Refactor...
-    def test_is_internally_connected!
+    def test_is_internally_connected
       @board.play_letter('C', 2, 4)
       @board.play_letter('A', 3, 4)
       @board.play_letter('B', 4, 4)
       @moves.update_moves
       
       @moves.add(@player, 'C', 3, 3)
-      @moves.add(@player, 'A', 3, 4)
+      #@moves.add(@player, 'A', 3, 4)
       @moves.add(@player, 'B', 3, 5)
 
       assert @moves.connected_move?
     end
+
+    def test_cannot_stack_letter_on_same_letter
+      @board.play_letter('C', 2, 4)
+      @board.play_letter('A', 3, 4)
+      @board.play_letter('B', 4, 4)
+      @moves.update_moves
+      
+      assert_raises(IllegalMove) { @moves.add(@player, 'A', 3, 4) }
+ 
+    end
+
+    def test_pending_words
+      @board.play_letter('C', 2, 4)
+      @board.play_letter('A', 3, 4)
+      @board.play_letter('B', 4, 4)
+
+      @board.play_letter('R', 3, 3)
+      @board.play_letter('A', 3, 4)
+      @board.play_letter('T', 3, 5)
+
+      expected = ['CAB', 'RAT']
+      actual = @moves.pending_words.map {|w| w.to_s}
+        
+      assert_equal Set.new(expected), Set.new(actual)
+ 
+    end
+    
   end
 
   # class LetterBankMoveTest < MoveManagerTest

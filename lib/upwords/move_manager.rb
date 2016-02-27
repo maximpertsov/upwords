@@ -1,6 +1,5 @@
 module Upwords
   class MoveManager
-    attr_reader :cursor
     
     def initialize(board, dictionary, letter_bank)
       @board = board
@@ -28,6 +27,8 @@ module Upwords
       begin
         if self.include?([row, col])
           raise IllegalMove, "You can't stack on a space more than once in a single turn!"
+        elsif selected_letter == @board.top_letter(row, col)
+          raise IllegalMove, "You can't stack a letter on the same letter!"
         else
           @board.play_letter(selected_letter, row, col)
           @pending_moves << MoveUnit.new(selected_letter, row, col) 
@@ -97,33 +98,24 @@ module Upwords
     def update_played_moves
       @played_moves = (@board.nonempty_spaces).map do |r,c|
         MoveUnit.new(@board.top_letter(r, c), r, c)
-      end
+      end.to_set
     end
     
     def update_played_words
-      @played_words.clear
-      (@board.word_positions).each do |posns|
-        @played_words[Word.new(posns, @board, @dict).to_str] += 1
-      end
+      @played_words = words_to_counter(positions_to_words(@board.word_positions))
     end
 
     def pending_words
-      new_words = []
-      counter = Hash.new {|h,k| h[k] = 0}
+      new_words = positions_to_words(@board.word_positions)
+      counter = words_to_counter(new_words)
 
-      @board.word_positions.map do |posns|
-        word = Word.new(posns, @board, @dict)
-        new_words << word
-        counter[word.to_s] += 1
-      end
-      
       new_words.select do |word|
         counter[word.to_s] - @played_words[word.to_s] > 0
       end 
     end
 
     def pending_illegal_words
-      pending_words.reject {|word| word.legal?} #legal_word? word.to_s.upcase}
+      pending_words.reject {|word| word.legal?}
     end
     
     def pending_result
@@ -157,7 +149,6 @@ module Upwords
         raise IllegalMove, error_msg
       end
       # TODO: Add the following legal move checks:
-      # - Cannot stack a letter on top of the same letter
       # - Move is not a simple pluralization? (e.g. Cat -> Cats is NOT a legal move)
       # - Move does not entirely cover up a word that is already on the board (i.e. you can change part of a previously-played
       #   word, but the whole thing. E.g. Cats -> Cots is legal, but Cats -> Spam is not)
@@ -184,5 +175,26 @@ module Upwords
     def connected_to_played?
       @played_moves.empty? || MoveUnit.touching?(@pending_moves, @played_moves)
     end
+
+    private
+
+    # convert word position set to Word array
+    def positions_to_words(word_posns)
+      word_posns.map do |posns|
+        new_word = Word.new(posns, @board, @dict)
+      end
+    end
+
+    # convert Word array to word counter
+    def words_to_counter(words)
+      counter = Hash.new {|h,k| h[k] = 0}
+
+      words.each do |word|
+        counter[word.to_s] += 1
+      end
+
+      counter
+    end
+    
   end
 end
