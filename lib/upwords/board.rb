@@ -53,8 +53,8 @@ module Upwords
       @grid[row, col][-1]
     end
 
-    def words
-      row_words + column_words
+    def word_positions
+      row_word_posns + column_word_posns
     end
 
     def nonempty_spaces
@@ -63,18 +63,19 @@ module Upwords
 
     private
 
-    def collect_words(&block)
+    def collect_word_posns(&block)
       nonempty_spaces.divide(&block).map do |s|
-        Word.new(self, s.to_a.sort)
+        s.to_a.sort
+        #Word.new(self, s.to_a.sort)
       end.select {|w| w.length >= min_word_length}
     end
 
-    def row_words
-      collect_words {|(r1,c1),(r2,c2)| (c1 - c2).abs == 1 && r1 == r2 }
+    def row_word_posns
+      collect_word_posns {|(r1,c1),(r2,c2)| (c1 - c2).abs == 1 && r1 == r2 }
     end
 
-    def column_words
-      collect_words {|(r1,c1),(r2,c2)| (r1 - r2).abs == 1 && c1 == c2 }
+    def column_word_posns
+      collect_word_posns {|(r1,c1),(r2,c2)| (r1 - r2).abs == 1 && c1 == c2 }
     end
     
     def coordinates

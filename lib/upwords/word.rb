@@ -5,10 +5,12 @@ module Upwords
 
     attr_reader :score, :length
 
-    def initialize(board, posns)
-      @text = make_string(board, posns.uniq)
-      @score = calc_score(board, posns.uniq)
+    def initialize(posns, board, dictionary)
+      u_posns = posns.uniq
+      @text = make_string(board, u_posns)
+      @score = calc_score(board, u_posns)
       @length = @text.length
+      @dict = dictionary
     end
 
     def to_s
@@ -19,15 +21,29 @@ module Upwords
       @text.to_str
     end
 
+    def legal?
+      @dict.legal_word?(self.to_s)
+    end
+
     private
     
     # A word's score is the sum of the tile heights of its letters
     # However, if all of a word's tile heights are exactly 1, then the score is double the word's length
     def calc_score(board, posns)
       stack_heights = posns.map{|row, col| board.stack_height(row, col)}
+
       score = stack_heights.inject(0) {|sum, h| sum + h}
-      # Double word score if each letter space is only 1 tile high
-      score * (stack_heights.all? {|h| h == 1} ? 2 : 1)
+
+      # Double score if all letters are only 1 tile high
+      if stack_heights.all? {|h| h == 1}
+        score *= 2
+        
+        # Add two points for each Qu (only all letters 1 tile high)
+        score += (2 * posns.count {|posn| board.top_letter(*posn) == 'Qu'})  
+      end
+
+      # TODO: Add 20 points if a player uses all of their entire rack in one turn. 7 is the maximum rack capacity
+      score
     end
 
     def make_string(board, posns)

@@ -4,7 +4,7 @@ module Upwords
     
     def initialize(board, dictionary, letter_bank)
       @board = board
-      @dictionary = dictionary
+      @dict = dictionary
       @letter_bank = letter_bank
       @pending_moves = []
       @played_moves = @board.nonempty_spaces
@@ -74,7 +74,7 @@ module Upwords
     end
 
     def swap_letter(player, letter)
-      new_letter = @letter_bank.draw # Will raise error if bank if empty
+      new_letter = @letter_bank.draw # Will raise error if bank is empty
       begin
         trade_letter = player.play_letter(letter)  #.letter
         player.take_letter(new_letter)
@@ -102,22 +102,28 @@ module Upwords
     
     def update_played_words
       @played_words.clear
-      (@board.words).each do |word|
-        @played_words[word.to_str] += 1
+      (@board.word_positions).each do |posns|
+        @played_words[Word.new(posns, @board, @dict).to_str] += 1
       end
     end
 
     def pending_words
-      new_words = Hash.new {|h,k| h[k] = 0}
-      (@board.words).each do |word|
-        new_words[word.to_str] += 1
+      new_words = []
+      counter = Hash.new {|h,k| h[k] = 0}
+
+      @board.word_positions.map do |posns|
+        word = Word.new(posns, @board, @dict)
+        new_words << word
+        counter[word.to_s] += 1
       end
       
-      (@board.words).select {|word| new_words[word.to_str] - @played_words[word.to_str] > 0}
+      new_words.select do |word|
+        counter[word.to_s] - @played_words[word.to_s] > 0
+      end 
     end
 
     def pending_illegal_words
-      pending_words.reject{|word| @dictionary.legal_word? word.to_s.upcase}
+      pending_words.reject {|word| word.legal?} #legal_word? word.to_s.upcase}
     end
     
     def pending_result
@@ -136,7 +142,7 @@ module Upwords
         raise IllegalMove, "The letters in your move must be internally connected!"
       elsif !letter_in_middle_square?
         raise IllegalMove, "You must play at least one letter in the middle 2x2 square!"
-      elsif (@board.words).empty?  
+      elsif (@board.word_positions).empty?  
         raise IllegalMove, "Valid words must be at least two letters long!"
       elsif !connected_to_played?
         raise IllegalMove, "At least one letter in your move must be touching a previously played word!"

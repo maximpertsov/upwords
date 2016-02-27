@@ -89,14 +89,17 @@ class BoardTest < Minitest::Test
                 ["a", 2, 0],
                 ["i", 2, 0], # stack 'i' on top of 'a'
                 ["x", 3, 0],
-                ["m", 5, 0], ["u", 5, 1]]
+                ["m", 5, 0], ["u", 5, 1],
+                ["z", 9, 9]] # not long enough to be a word
       
       @moves.each {|l, r, c| @board.play_letter(l, r, c)}
     end
 
     def test_get_words_on_board
-      expected = ["six", "max", "mu"]
-      actual = @board.words.map {|w| w.to_s}
+      expected = [[[1,0],[2,0],[3,0]], # "six"
+                  [[0,1],[0,2],[0,3]], # "max"
+                  [[5,0],[5,1]]]       # "mu"
+      actual = @board.word_positions
       
       assert_equal Set.new(expected), Set.new(actual)
     end
