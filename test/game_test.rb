@@ -4,7 +4,9 @@ class GameTest < Minitest::Test
   include Upwords
   
   def setup
-    @game = Game.new("Max", "Jordan", display=false)
+    @game = Game.new(display=false)
+    @game.add_player("Max")
+    @game.add_player("Jordan")
   end
 
   def teardown

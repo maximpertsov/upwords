@@ -3,11 +3,12 @@ module Upwords
     
     # MIN_WORD_LENGTH = 2
 
-    attr_reader :score
+    attr_reader :score, :length
 
     def initialize(board, posns)
       @text = make_string(board, posns.uniq)
       @score = calc_score(board, posns.uniq)
+      @length = @text.length
     end
 
     def to_s

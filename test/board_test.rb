@@ -73,10 +73,10 @@ class BoardTest < Minitest::Test
       @board.play_letter('a', 2, 4)
       @board.play_letter('x', 3, 5)
 
-      exp_empty = [[1,3], [2,4], [3,5]]
-      act_empty = @board.nonempty_spaces
+      expected = [[1,3], [2,4], [3,5]]
+      actual = @board.nonempty_spaces
       
-      assert_equal Set.new(exp_empty), Set.new(act_empty) 
+      assert_equal Set.new(expected), actual 
     end
   end
 
@@ -95,9 +95,10 @@ class BoardTest < Minitest::Test
     end
 
     def test_get_words_on_board
-      (@board.words).each do |word|
-        assert_includes(["six", "max", "mu"], word.to_s)
-      end
+      expected = ["six", "max", "mu"]
+      actual = @board.words.map {|w| w.to_s}
+      
+      assert_equal Set.new(expected), Set.new(actual)
     end
   end
 

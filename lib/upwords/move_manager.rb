@@ -76,7 +76,7 @@ module Upwords
     def swap_letter(player, letter)
       new_letter = @letter_bank.draw # Will raise error if bank if empty
       begin
-        trade_letter = player.play_letter(letter).letter
+        trade_letter = player.play_letter(letter)  #.letter
         player.take_letter(new_letter)
         @letter_bank.deposit(trade_letter)
       rescue IllegalMove => exn

@@ -26,32 +26,19 @@ module Upwords
                    ["J", "Qu", "V", "X", "Z"]*1)
     
     
-    def initialize(player1 = nil, player2 = nil, display = true)
-      @display = display
+    def initialize(display_on = true, max_players = 2)
+      @max_players = max_players
+      @display_on = display_on
       @board = Board.new
       @letter_bank = LetterBank.new(ALL_LETTERS)
       @cursor = Cursor.new(@board.num_rows,
                            @board.num_columns,
-                          *@board.middle_square[0])
+                           *@board.middle_square[0])
       @moves = MoveManager.new(@board,
                                Dictionary.import("data/ospd.txt"),
                                @letter_bank)
-                               #@board.middle_square[0])
       @graphics = Graphics.new(self, @cursor)
-      
-      # TODO: Remove the If block after testing is complete
-      # Client should not be able to supply players to game
-      # directly...
-      if (player1.nil? || player2.nil?)
-        add_players
-      else
-        add_player(player1)
-        add_player(player2)
-      end
-
-      # Each player fills their letter rack...
-      @players.each {|p| @moves.refill_rack(p) }
-      
+      @players = []
       @running = false
       @submitted = false
     end
@@ -65,7 +52,7 @@ module Upwords
     end
 
     def max_players
-      2
+      @max_players
     end
 
     def player_count
@@ -73,18 +60,17 @@ module Upwords
     end
 
     def add_player(name = nil)
-      @players ||= Array.new
       if player_count >= max_players
         raise StandardError, "No more players can join"
       else
         if name.nil? || name.size < 1
           name = "Player #{player_count + 1}" 
         end
-        @players << Player.new(name, rack_capacity=7) #, init_cursor_posn=@board.middle_square[0])
+        @players << Player.new(name, rack_capacity=7)
       end
     end
 
-    def add_players
+    def add_players(player_names = nil)
       @players ||= Array.new
       while player_count < max_players do
         print "What is Player #{player_count + 1}'s name?\n"
@@ -101,17 +87,17 @@ module Upwords
       Curses.noecho
       Curses.curs_set(0) 
       Curses.init_screen
-      Curses.start_color
+      # Curses.start_color
       @win = Curses::Window.new(0,0,0,0)
       @win.keypad(true)
     end
     
-    def display?
-      @display
+    def display_on?
+      @display_on
     end
     
     def refresh_graphics
-      if display? && running?
+      if display_on? && running?
         @win.clear
         @win << @graphics.to_s
         @win.refresh
@@ -119,7 +105,7 @@ module Upwords
     end
 
     def update_message msg
-      if display?
+      if display_on?
         @graphics.message = msg
         refresh_graphics
       end
@@ -153,8 +139,15 @@ module Upwords
 
     def run
       @running = true
-      init_window if @display
+      # Add players
+      add_players
+      @players.each {|p| @moves.refill_rack(p) }
+
+      # Start graphics
+      init_window if @display_on
       clear_message
+
+      # Start main loop
       while running? do
         begin
           read_input
@@ -223,14 +216,6 @@ module Upwords
     # Methods Related to Key Inputs
     # =========================================
 
-    def key_is_action?(inp)
-      ACTION_KEYMAP.keys.include?(inp)
-    end
-
-    def key_is_direction?(inp)
-      DIRECTION_KEYMAP.keys.include?(inp)
-    end
-
     # Capitalize letters, and convert 'Q' and 'q' to 'Qu'
     def modify_letter_input(letter)
       if letter =~ /[Qq]/
@@ -241,13 +226,13 @@ module Upwords
     end
 
     def confirm_action?(question_text)
-      if display?
+      if display_on?
         update_message "#{question_text} (y/n)"
         inp = @win.getch
         clear_message
         inp == 'y' || inp == 'Y'
       else
-        true # Never ask for confirm if the display is off
+        true # Never ask for confirm if the display_on is off
       end
     end
 
@@ -266,7 +251,7 @@ module Upwords
         @submitted = true
 
         # HACK: think of a better way to decrement skip count...
-        current_player.skip_count = 0 unless key == '-'
+        current_player.skip_count = 0
       end
     end
 
@@ -283,7 +268,7 @@ module Upwords
           @submitted = true
 
           # HACK: think of a better way to decrement skip count...
-          current_player.skip_count = 0 unless key == '-'
+          current_player.skip_count = 0
         end
       end
     end
@@ -299,7 +284,7 @@ module Upwords
     def exit_game(need_confirm=true)
       if confirm_action? "Are you sure you want to exit the game?"
         @running = false
-        @win.close
+        @win.close if display_on?
       end
     end
 
