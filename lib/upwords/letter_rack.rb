@@ -15,6 +15,10 @@ module Upwords
     def full?
       size == capacity
     end
+
+    def empty?
+      @rack.empty?
+    end
         
     def has_letter?(letter)
       @rack.include? letter 

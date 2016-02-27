@@ -2,7 +2,7 @@ module Upwords
   class Player
 
     attr_reader :name #, :cursor_posn
-    attr_accessor :score
+    attr_accessor :score, :skip_count
 
     def initialize(name, #init_cursor_posn,
                    rack_capacity=7)
@@ -10,6 +10,7 @@ module Upwords
       #@cursor_posn = init_cursor_posn
       @rack = LetterRack.new(rack_capacity)
       @score = 0
+      @skip_count = 0
     end
 
     def show_rack
@@ -22,6 +23,10 @@ module Upwords
 
     def rack_full?
       @rack.full?
+    end
+
+    def rack_empty?
+      @rack.empty?
     end
 
     def rack_capacity

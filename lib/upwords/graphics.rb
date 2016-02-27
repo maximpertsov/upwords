@@ -65,7 +65,7 @@ module Upwords
 
     def draw_score
       players = @game.players
-      score_display = players.map{|p| "#{p.name}: #{p.score} "}.join "| "
+      score_display = players.map{|p| "#{p.name} score: #{p.score} skips: #{p.skip_count}"}.join " | "
       "   #{score_display}"
     end
     

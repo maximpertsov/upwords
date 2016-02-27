@@ -5,22 +5,11 @@ module Upwords
     # =========================================
     # Key Configurations
     # =========================================
-    
-    DIRECTION_KEYMAP = {
-      Curses::KEY_UP    => [-1, 0], # up
-      Curses::KEY_DOWN  => [ 1, 0], # down
-      Curses::KEY_LEFT  => [ 0,-1], # left 
-      Curses::KEY_RIGHT => [ 0, 1]  # right
-    }
 
-    ACTION_KEYMAP = {
-      '1' => proc { undo_moves },
-      '2' => proc { submit_moves },
-      '3' => proc { swap_letter },
-      '4' => proc { skip_turn },
-      '5' => proc { exit_game },
-      '0' => proc { toggle_rack_visibility }
-    }
+    ESCAPE = 27    # Should already be in a Curses constant...
+    SPACE = ' '
+    DELETE = 127
+    ENTER = 10
 
     # =========================================
     # Data
@@ -40,13 +29,13 @@ module Upwords
     def initialize(player1 = nil, player2 = nil, display = true)
       @display = display
       @board = Board.new
-      #@letter_bank = LetterBank.new(ALL_LETTERS)
+      @letter_bank = LetterBank.new(ALL_LETTERS)
       @cursor = Cursor.new(@board.num_rows,
                            @board.num_columns,
-                           *@board.middle_square[0])
+                          *@board.middle_square[0])
       @moves = MoveManager.new(@board,
                                Dictionary.import("data/ospd.txt"),
-                               LetterBank.new(ALL_LETTERS))
+                               @letter_bank)
                                #@board.middle_square[0])
       @graphics = Graphics.new(self, @cursor)
       
@@ -62,11 +51,6 @@ module Upwords
 
       # Each player fills their letter rack...
       @players.each {|p| @moves.refill_rack(p) }
-
-      # Init curses
-      if @display
-        init_window
-      end
       
       @running = false
       @submitted = false
@@ -115,7 +99,7 @@ module Upwords
 
     def init_window
       Curses.noecho
-      Curses.curs_set(0)
+      Curses.curs_set(0) 
       Curses.init_screen
       Curses.start_color
       @win = Curses::Window.new(0,0,0,0)
@@ -145,9 +129,18 @@ module Upwords
       update_message standard_message
     end
 
-    # UGLY: Aligned second line by measuring 'Actions: '
     def standard_message
-      "Actions: (1)Undo Moves (2)Submit (3)Swap (4)Skip (5)Quit\n#{' ' * 'Actions: '.size}(0)Show Letters"
+      ["Pending words: #{@moves.pending_result}",
+       "",
+       "Controls",
+       "--------",
+       "[SPACE]\tShow Letters",
+       "[DEL]\tUndo Moves",
+       "[ENTER]\tSubmit",
+       "[+]\tSwap Letter",
+       "[-]\tSkip Turn",
+       "[ESC]\tQuit Game"
+      ].join("\n")
     end
     
     # =========================================
@@ -160,45 +153,70 @@ module Upwords
 
     def run
       @running = true
+      init_window if @display
       clear_message
       while running? do
-        refresh_graphics
         begin
-          input_loop
-          next_turn
+          read_input
+
+          # Game over check
+          if current_player.skip_count == 3
+            update_message "#{current_player.name} has skipped 3 times in a row and loses!"
+            @running = false
+          elsif @letter_bank.empty? && current_player.rack_empty?
+
+            # TODO: 
+            # multiply remaining letter x 5 and add to current player score
+            # player with the higher score wins
+            @running = false
+            
+          elsif @submitted
+            next_turn
+          end
+          
+          refresh_graphics
         rescue IllegalMove => exception
           update_message exception.message
+          @win.getch
+          clear_message
         end
       end
     end
 
-    def input_loop
-      while !@submitted && running? do
-        inp = @win.getch
+    def read_input
+      case (key = @win.getch)
+      when ESCAPE
+        exit_game
+      when SPACE
+        toggle_rack_visibility
+      when DELETE
+        undo_moves
+      when ENTER
+        submit_moves
+      when Curses::KEY_UP
+        @cursor.up
+      when Curses::KEY_DOWN
+        @cursor.down
+      when Curses::KEY_LEFT
+        @cursor.left
+      when Curses::KEY_RIGHT
+        @cursor.right
+      when '+'
+        swap_letter
+      when '-'
+        skip_turn
+      when /[[:alpha:]]/
+        @moves.add(current_player, modify_letter_input(key), @cursor.y, @cursor.x)
         clear_message
-        if key_is_action?(inp)
-          instance_eval(&ACTION_KEYMAP[inp])     
-        elsif key_is_direction?(inp)
-          @cursor.move(*DIRECTION_KEYMAP.fetch(inp, [0,0]))
-        elsif inp =~ /[[:alpha:]]/
-          @moves.add(current_player,
-                     modify_letter_input(inp),
-                     @cursor.y,
-                     @cursor.x)
-          update_message "Pending words: #{@moves.pending_result}"
-        end
-        refresh_graphics
       end
     end
     
     def next_turn
-      if @submitted
         # TODO: add subroutine to end game if letter bank is empty and either player has exhausted all their letters
         # TODO: add subroutine to end game if both players skipped 3 consecutive turns (check rules to see exactly how this works...)
-        @players.rotate!
-        @graphics.hide_rack
-        @submitted = false
-      end
+      @players.rotate!
+      @graphics.hide_rack
+      @submitted = false
     end
 
     # =========================================
@@ -246,6 +264,9 @@ module Upwords
       if confirm_action? "Are you sure you want to submit?"
         @moves.submit(current_player)
         @submitted = true
+
+        # HACK: think of a better way to decrement skip count...
+        current_player.skip_count = 0 unless key == '-'
       end
     end
 
@@ -258,8 +279,11 @@ module Upwords
         letter = modify_letter_input(letter)
         if confirm_action? "Swap '#{letter}' for another?"
           @moves.undo_all(current_player)
-          @moves.swap_letter(current_player, letter)
+          @moves.swap_letter(current_player, letter)          
           @submitted = true
+
+          # HACK: think of a better way to decrement skip count...
+          current_player.skip_count = 0 unless key == '-'
         end
       end
     end
@@ -267,6 +291,7 @@ module Upwords
     def skip_turn
       if confirm_action? "Are you sure you want to skip your turn?"
         @moves.undo_all(current_player)
+        current_player.skip_count += 1
         @submitted = true
       end
     end
