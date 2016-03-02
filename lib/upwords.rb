@@ -9,7 +9,7 @@ require 'upwords/letter_bank'
 require 'upwords/letter_rack'
 require 'upwords/dictionary'
 
-require 'upwords/move_unit'
+require 'upwords/move'
 require 'upwords/move_manager'
 require 'upwords/cursor'
 

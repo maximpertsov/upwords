@@ -9,12 +9,12 @@ class MoveManagerTest < Minitest::Test
       ('A'..'G').each {|l| @player.take_letter(l)}
 
       @board = Board.new(10)
-      @moves = MoveManager.new(@board, Dictionary.new())
+      @moves = MoveManager.new(@board, Dictionary.new(['BAD']))
     end
 
     def test_player_can_add_move
       @moves.add(@player, 'A', 0 , 0)
-      assert @moves.include?([0, 0])
+      #assert @moves.include?([0, 0])
 
       assert_equal 'B C D E F G', @player.show_rack
     end
@@ -35,20 +35,14 @@ class MoveManagerTest < Minitest::Test
       assert_equal 'C D E F G B A', @player.show_rack
     end
 
-    def test_is_move_in_a_straight_line?
-      @moves.add(@player, 'A', 0, 0)
-      @moves.add(@player, 'B', 2, 0)
-      @moves.add(@player, 'C', 4, 0)
+    def test_player_can_submit_move
+      @moves.add(@player, 'B', 4, 4)
+      @moves.add(@player, 'A', 4, 5)
+      @moves.add(@player, 'D', 4, 6)
+      @moves.submit(@player)
 
-      assert @moves.straight_line?
-    end
-
-    def test_is_move_not_in_a_straight_line?
-      @moves.add(@player, 'A', 0, 0)
-      @moves.add(@player, 'B', 2, 0)
-      @moves.add(@player, 'C', 0, 2)
-
-      refute @moves.straight_line?
+      assert_equal 6, @player.score
+      # TODO: expand test
     end
 
     # TODO: Refactor...
@@ -56,13 +50,28 @@ class MoveManagerTest < Minitest::Test
       @board.play_letter('C', 2, 4)
       @board.play_letter('A', 3, 4)
       @board.play_letter('B', 4, 4)
+            
       @moves.update_moves
       
       @moves.add(@player, 'C', 3, 3)
-      #@moves.add(@player, 'A', 3, 4)
       @moves.add(@player, 'B', 3, 5)
 
       assert @moves.connected_move?
+    end
+
+    def test_is_connected_to_previously_played_moves
+      @board.play_letter('C', 2, 4)
+      @board.play_letter('A', 3, 4)
+      @board.play_letter('B', 4, 4)
+      
+      @moves.update_moves
+      
+      # assert @moves.connected_to_played?
+      
+      @moves.add(@player, 'C', 2, 0)
+      @moves.add(@player, 'B', 3, 0)
+
+      refute @moves.connected_to_played?
     end
 
     def test_cannot_stack_letter_on_same_letter

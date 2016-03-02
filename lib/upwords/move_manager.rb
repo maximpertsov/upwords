@@ -4,7 +4,7 @@ module Upwords
     def initialize(board, dictionary)
       @board = board
       @dict = dictionary
-      @pending_moves = []
+      @pending_move = Move.new #[]
       @played_moves = @board.nonempty_spaces
       @played_words = Hash.new {|h,k| h[k] = 0} # Counter Hash
       update_moves
@@ -16,13 +16,13 @@ module Upwords
     def add(player, letter, row, col)
       selected_letter = player.play_letter(letter)
       begin
-        if self.include?([row, col])
+        if @pending_move.include?(row, col)
           raise IllegalMove, "You can't stack on a space more than once in a single turn!"
         elsif selected_letter == @board.top_letter(row, col)
           raise IllegalMove, "You can't stack a letter on the same letter!"
         else
           @board.play_letter(selected_letter, row, col)
-          @pending_moves << MoveUnit.new(selected_letter, row, col) 
+          @pending_move.add(selected_letter, row, col)
         end
       rescue IllegalMove => exn
         player.take_letter(selected_letter)
@@ -31,26 +31,26 @@ module Upwords
     end
 
     def undo_last(player)
-      if empty?
+      if @pending_move.empty?
         raise IllegalMove, "No moves to undo!"
       else
-        letter = @board.remove_top_letter(*@pending_moves.pop.posn)
+        letter = @board.remove_top_letter(*@pending_move.undo)
         player.take_letter(letter)
       end
     end
 
     def undo_all(player)
-      until empty? do
+      until @pending_move.empty? do
         undo_last(player)
       end
     end
 
     def submit(player)
-      if empty?
+      if @pending_move.empty?
         raise IllegalMove, "You haven't played any letters!"
       else legal?
         player.score += pending_score
-        clear
+        @pending_move.clear
         update_moves
       end
     end
@@ -93,7 +93,7 @@ module Upwords
     end
 
     def legal?
-      if !straight_line?
+      if !(@pending_move.straight_line?)
         raise IllegalMove, "The letters in your move must be along a single row or column!"
       elsif !connected_move?
         raise IllegalMove, "The letters in your move must be internally connected!"
@@ -123,25 +123,9 @@ module Upwords
     # =========================================
     # Individual legal move conditions
     # =========================================
-    
-    def empty?
-      @pending_moves.empty?
-    end
-
-    def include? posn
-      @pending_moves.map{|mu| mu.posn}.include? posn
-    end
-
-    def clear
-      @pending_moves.clear
-    end
-    
-    def straight_line?
-      MoveUnit.straight_line?(@pending_moves)
-    end
 
     def connected_move?     
-      gaps = MoveUnit.gaps(@pending_moves)
+      gaps = @pending_move.gaps
       gaps.empty? || (gaps - (@played_moves.map {|mu| mu.posn})).empty? 
     end
 
@@ -150,7 +134,13 @@ module Upwords
     end
 
     def connected_to_played?
-      @played_moves.empty? || MoveUnit.touching?(@pending_moves, @played_moves)
+      # TODO: Remove this ugliness...
+      played = Move.new
+      @played_moves.each do |pm|
+        played.add(pm.letter, pm.row, pm.col)
+      end
+      ###########
+      @played_moves.empty? || @pending_move.touching?(played)
     end
 
     private
