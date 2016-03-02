@@ -1,22 +1,13 @@
 module Upwords
   class MoveManager
     
-    def initialize(board, dictionary, letter_bank)
+    def initialize(board, dictionary)
       @board = board
       @dict = dictionary
-      @letter_bank = letter_bank
       @pending_moves = []
       @played_moves = @board.nonempty_spaces
       @played_words = Hash.new {|h,k| h[k] = 0} # Counter Hash
       update_moves
-    end
-
-    def empty?
-      @pending_moves.empty?
-    end
-
-    def include? posn
-      @pending_moves.map{|mu| mu.posn}.include? posn
     end
 
     # --------------------------------
@@ -60,36 +51,10 @@ module Upwords
       else legal?
         player.score += pending_score
         clear
-        refill_rack(player) # TODO: Refactor
         update_moves
       end
     end
-    
-    # --------------------------------------
-    # Player-Letter Bank Interaction Methods # TODO: REFACTOR
-    # --------------------------------------
-    def refill_rack(player)
-      until (player.rack_full?) || (@letter_bank.empty?) do
-        player.take_letter(@letter_bank.draw)
-      end
-    end
-
-    def swap_letter(player, letter)
-      new_letter = @letter_bank.draw # Will raise error if bank is empty
-      begin
-        trade_letter = player.play_letter(letter)  #.letter
-        player.take_letter(new_letter)
-        @letter_bank.deposit(trade_letter)
-      rescue IllegalMove => exn
-        @letter_bank.deposit(new_letter)
-        raise IllegalMove, exn.message
-      end
-    end
-
-    def clear
-      @pending_moves.clear
-    end
-
+ 
     def update_moves
       update_played_moves
       update_played_words
@@ -159,6 +124,18 @@ module Upwords
     # Individual legal move conditions
     # =========================================
     
+    def empty?
+      @pending_moves.empty?
+    end
+
+    def include? posn
+      @pending_moves.map{|mu| mu.posn}.include? posn
+    end
+
+    def clear
+      @pending_moves.clear
+    end
+    
     def straight_line?
       MoveUnit.straight_line?(@pending_moves)
     end
@@ -188,11 +165,7 @@ module Upwords
     # convert Word array to word counter
     def words_to_counter(words)
       counter = Hash.new {|h,k| h[k] = 0}
-
-      words.each do |word|
-        counter[word.to_s] += 1
-      end
-
+      words.each { |word| counter[word.to_s] += 1 }
       counter
     end
     

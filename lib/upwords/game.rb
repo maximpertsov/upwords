@@ -35,8 +35,7 @@ module Upwords
                            @board.num_columns,
                            *@board.middle_square[0])
       @moves = MoveManager.new(@board,
-                               Dictionary.import("data/ospd.txt"),
-                               @letter_bank)
+                               Dictionary.import("data/ospd.txt"))
       @graphics = Graphics.new(self, @cursor)
       @players = []
       @running = false
@@ -139,9 +138,10 @@ module Upwords
 
     def run
       @running = true
+      
       # Add players
       add_players
-      @players.each {|p| @moves.refill_rack(p) }
+      @players.each {|p| p.refill_rack(@letter_bank) }
 
       # Start graphics
       init_window if @display_on
@@ -151,6 +151,9 @@ module Upwords
       while running? do
         begin
           read_input
+
+          # TODO: add subroutine to end game if letter bank is empty and either player has exhausted all their letters
+          # TODO: add subroutine to end game if both players skipped 3 consecutive turns (check rules to see exactly how this works...)
 
           # Game over check
           if current_player.skip_count == 3
@@ -205,8 +208,6 @@ module Upwords
     end
     
     def next_turn
-        # TODO: add subroutine to end game if letter bank is empty and either player has exhausted all their letters
-        # TODO: add subroutine to end game if both players skipped 3 consecutive turns (check rules to see exactly how this works...)
       @players.rotate!
       @graphics.hide_rack
       @submitted = false
@@ -248,6 +249,7 @@ module Upwords
     def submit_moves
       if confirm_action? "Are you sure you want to submit?"
         @moves.submit(current_player)
+        current_player.refill_rack(@letter_bank)
         @submitted = true
 
         # HACK: think of a better way to decrement skip count...
@@ -264,7 +266,7 @@ module Upwords
         letter = modify_letter_input(letter)
         if confirm_action? "Swap '#{letter}' for another?"
           @moves.undo_all(current_player)
-          @moves.swap_letter(current_player, letter)          
+          current_player.swap_letter(letter, @letter_bank)
           @submitted = true
 
           # HACK: think of a better way to decrement skip count...
