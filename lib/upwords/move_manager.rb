@@ -5,7 +5,7 @@ module Upwords
       @board = board
       @dict = dictionary
       @pending_move = Move.new #[]
-      @played_moves = @board.nonempty_spaces
+      @played_moves = Move.new #@board.nonempty_spaces
       @played_words = Hash.new {|h,k| h[k] = 0} # Counter Hash
       update_moves
     end
@@ -61,9 +61,11 @@ module Upwords
     end
 
     def update_played_moves
-      @played_moves = (@board.nonempty_spaces).map do |r,c|
-        MoveUnit.new(@board.top_letter(r, c), r, c)
-      end.to_set
+      @played_moves = Move.new
+      
+      @board.nonempty_spaces.each do |r,c|
+        @played_moves.add(@board.top_letter(r,c), r, c)
+      end
     end
     
     def update_played_words
@@ -95,13 +97,13 @@ module Upwords
     def legal?
       if !(@pending_move.straight_line?)
         raise IllegalMove, "The letters in your move must be along a single row or column!"
-      elsif !connected_move?
+      elsif !(@pending_move.gaps_covered_by?(@played_moves))
         raise IllegalMove, "The letters in your move must be internally connected!"
       elsif !letter_in_middle_square?
         raise IllegalMove, "You must play at least one letter in the middle 2x2 square!"
       elsif (@board.word_positions).empty?  
         raise IllegalMove, "Valid words must be at least two letters long!"
-      elsif !connected_to_played?
+      elsif !(@played_moves.empty? || @pending_move.touching?(@played_moves))
         raise IllegalMove, "At least one letter in your move must be touching a previously played word!"
       elsif !pending_illegal_words.empty?
         error_msg = pending_illegal_words.join(", ")
@@ -124,23 +126,8 @@ module Upwords
     # Individual legal move conditions
     # =========================================
 
-    def connected_move?     
-      gaps = @pending_move.gaps
-      gaps.empty? || (gaps - (@played_moves.map {|mu| mu.posn})).empty? 
-    end
-
     def letter_in_middle_square?
       @board.middle_square.map{|row, col| @board.stack_height(row, col) > 0}.any?
-    end
-
-    def connected_to_played?
-      # TODO: Remove this ugliness...
-      played = Move.new
-      @played_moves.each do |pm|
-        played.add(pm.letter, pm.row, pm.col)
-      end
-      ###########
-      @played_moves.empty? || @pending_move.touching?(played)
     end
 
     private

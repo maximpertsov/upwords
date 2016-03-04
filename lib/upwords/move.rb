@@ -4,21 +4,20 @@ module Upwords
     def initialize
       @move_units = []
     end
-    
-    def connected?
+
+    def gaps_covered_by?(other_move)
+      (self.gaps - other_move.posns).empty?
+    end
+
+    def gaps
+      posns = self.posns
+      square_range.reject {|p| posns.include?(p)}
     end
     
     def square_range
       (row_range.to_a).product(col_range.to_a)
     end
-    
-    def gaps
-      posns = @move_units.map {|mu| mu.posn}
-      square_range.reject do |posn|
-        posns.include?(posn)
-      end
-    end
-    
+        
     def row_range
       Range.new(*@move_units.map {|mu| mu.row}.minmax)
     end
@@ -61,6 +60,10 @@ module Upwords
 
     def clear
       @move_units.clear
+    end
+
+    def posns
+      @move_units.map {|mu| mu.posn}
     end
 
     protected

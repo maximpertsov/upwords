@@ -7,6 +7,36 @@ class MoveTest < Minitest::Test
     @move = Move.new
   end
 
+  def test_is_internally_connected_to_previously_played_moves?
+    played_moves = Move.new
+
+    [['C', 2, 4],
+     ['A', 3, 4],
+     ['B', 4, 4]].each do |ch,r,c|
+      played_moves.add(ch, r, c)
+    end
+
+    @move.add('C', 3, 3)
+    @move.add('B', 3, 5)
+
+    assert @move.gaps_covered_by?(played_moves)
+  end
+  
+  def test_not_touching_previously_played_moves
+    played_moves = Move.new
+
+    [['C', 2, 4],
+     ['A', 3, 4],
+     ['B', 4, 4]].each do |ch,r,c|
+      played_moves.add(ch, r, c)
+    end
+
+    @move.add('C', 2, 0)
+    @move.add('B', 3, 0)
+
+    refute @move.touching?(played_moves)
+  end
+
   def test_is_move_in_a_straight_line?
     @move.add('A', 0, 0)
     @move.add('B', 2, 0)
@@ -52,7 +82,7 @@ class MoveTest < Minitest::Test
     end
   end
 
-  def test_touching
+  def test_touching?
     @move.add('a', 1, 2)
     @move.add('b', 1, 3)
 
