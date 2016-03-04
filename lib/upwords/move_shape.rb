@@ -1,5 +1,5 @@
 module Upwords
-  class Move
+  class MoveShape
 
     def initialize
       @move_units = []
@@ -36,8 +36,8 @@ module Upwords
       row_range.size == 1 || col_range.size == 1
     end
 
-    def add(letter, row, col)
-      @move_units << MoveUnit.new(letter, row, col)
+    def add(row, col)
+      @move_units << MoveUnit.new(row, col)
     end
 
     def empty?
@@ -50,7 +50,7 @@ module Upwords
 
     def include? (row, col)
       @move_units.any? do
-        |m| m.overlaps?(MoveUnit.new('dummy', row, col))
+        |m| m.overlaps?(MoveUnit.new(row, col))
       end
     end
 
@@ -66,6 +66,12 @@ module Upwords
       @move_units.map {|mu| mu.posn}
     end
 
+    def self.build(posns)
+      new_move = MoveShape.new
+      posns.each {|row, col| new_move.add(row, col)}
+      new_move
+    end
+
     protected
 
     def touching_unit?(move_unit)
@@ -77,10 +83,9 @@ module Upwords
   end
   
   class MoveUnit
-    attr_reader :letter, :row, :col
+    attr_reader :row, :col
     
-    def initialize(letter, row, col)
-      @letter = letter
+    def initialize(row, col)
       @row = row
       @col = col
     end
@@ -92,7 +97,7 @@ module Upwords
     
     # Letter does not factor into hash equality
     def hash
-      [row, col].hash
+      posn.hash
     end
     
     def same_row?(other_unit)

@@ -45,35 +45,6 @@ class MoveManagerTest < Minitest::Test
       # TODO: expand test
     end
 
-    # # TODO: Refactor...
-    # def test_is_internally_connected
-    #   @board.play_letter('C', 2, 4)
-    #   @board.play_letter('A', 3, 4)
-    #   @board.play_letter('B', 4, 4)
-            
-    #   @moves.update_moves
-      
-    #   @moves.add(@player, 'C', 3, 3)
-    #   @moves.add(@player, 'B', 3, 5)
-
-    #   assert @moves.connected_move?
-    # end
-
-    # def test_is_connected_to_previously_played_moves
-    #   @board.play_letter('C', 2, 4)
-    #   @board.play_letter('A', 3, 4)
-    #   @board.play_letter('B', 4, 4)
-      
-    #   @moves.update_moves
-      
-    #   assert @moves.connected_to_played?
-      
-    #   @moves.add(@player, 'C', 2, 0)
-    #   @moves.add(@player, 'B', 3, 0)
-
-    #   refute @moves.connected_to_played?
-    # end
-
     def test_cannot_stack_letter_on_same_letter
       @board.play_letter('C', 2, 4)
       @board.play_letter('A', 3, 4)
@@ -85,6 +56,12 @@ class MoveManagerTest < Minitest::Test
     end
 
     def test_pending_words
+      @board.play_letter('P', 2, 8)
+      @board.play_letter('O', 3, 8)
+      @board.play_letter('O', 4, 8)
+
+      @moves.update_moves
+      
       @board.play_letter('C', 2, 4)
       @board.play_letter('A', 3, 4)
       @board.play_letter('B', 4, 4)

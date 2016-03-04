@@ -4,8 +4,8 @@ module Upwords
     def initialize(board, dictionary)
       @board = board
       @dict = dictionary
-      @pending_move = Move.new #[]
-      @played_moves = Move.new #@board.nonempty_spaces
+      @pending_move = MoveShape.new #[]
+      @played_moves = MoveShape.new #@board.nonempty_spaces
       @played_words = Hash.new {|h,k| h[k] = 0} # Counter Hash
       update_moves
     end
@@ -22,7 +22,7 @@ module Upwords
           raise IllegalMove, "You can't stack a letter on the same letter!"
         else
           @board.play_letter(selected_letter, row, col)
-          @pending_move.add(selected_letter, row, col)
+          @pending_move.add(row, col) # selected_letter, 
         end
       rescue IllegalMove => exn
         player.take_letter(selected_letter)
@@ -61,10 +61,10 @@ module Upwords
     end
 
     def update_played_moves
-      @played_moves = Move.new
+      @played_moves = MoveShape.new
       
       @board.nonempty_spaces.each do |r,c|
-        @played_moves.add(@board.top_letter(r,c), r, c)
+        @played_moves.add(r, c) # @board.top_letter(r,c), 
       end
     end
     

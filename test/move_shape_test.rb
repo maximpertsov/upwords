@@ -1,62 +1,67 @@
 require 'test_helper'
 
-class MoveTest < Minitest::Test
+class MoveShapeTest < Minitest::Test
   include Upwords
 
   def setup
-    @move = Move.new
+    @move = MoveShape.new
+  end
+
+  def test_build
+    ms = MoveShape.build([[1,1], [1,2], [1,3]])
+
+    assert_kind_of(MoveShape, ms)
+    assert_equal 3, ms.size
   end
 
   def test_is_internally_connected_to_previously_played_moves?
-    played_moves = Move.new
+    played_moves = MoveShape.new
 
-    [['C', 2, 4],
-     ['A', 3, 4],
-     ['B', 4, 4]].each do |ch,r,c|
-      played_moves.add(ch, r, c)
+    [[2, 4], [3, 4], [4, 4]].each do |r,c|
+      played_moves.add(r, c)
     end
 
-    @move.add('C', 3, 3)
-    @move.add('B', 3, 5)
+    @move.add(3, 3)
+    @move.add(3, 5)
 
     assert @move.gaps_covered_by?(played_moves)
   end
   
   def test_not_touching_previously_played_moves
-    played_moves = Move.new
+    played_moves = MoveShape.new
 
-    [['C', 2, 4],
-     ['A', 3, 4],
-     ['B', 4, 4]].each do |ch,r,c|
-      played_moves.add(ch, r, c)
+    [[2, 4],
+     [3, 4],
+     [4, 4]].each do |r,c|
+      played_moves.add(r, c)
     end
 
-    @move.add('C', 2, 0)
-    @move.add('B', 3, 0)
+    @move.add(2, 0)
+    @move.add(3, 0)
 
     refute @move.touching?(played_moves)
   end
 
   def test_is_move_in_a_straight_line?
-    @move.add('A', 0, 0)
-    @move.add('B', 2, 0)
-    @move.add('C', 4, 0)
+    @move.add(0, 0)
+    @move.add(2, 0)
+    @move.add(4, 0)
     
     assert @move.straight_line?
   end
 
   def test_is_move_not_in_a_straight_line?
-    @move.add('A', 0, 0)
-    @move.add('B', 2, 0)
-    @move.add('C', 0, 2)
+    @move.add(0, 0)
+    @move.add(2, 0)
+    @move.add(0, 2)
 
     refute @move.straight_line?
   end
 
   def test_row_range
-    @move.add('b', 1, 3)
-    @move.add('e', 8, 8)
-    @move.add('a', 1, 2)
+    @move.add(1, 3)
+    @move.add(8, 8)
+    @move.add(1, 2)
     
     (1..8).each do |r|
       assert_includes @move.row_range, r
@@ -64,9 +69,9 @@ class MoveTest < Minitest::Test
   end
 
   def test_col_range
-    @move.add('b', 1, 3)
-    @move.add('e', 8, 8)
-    @move.add('a', 1, 2)
+    @move.add(1, 3)
+    @move.add(8, 8)
+    @move.add(1, 2)
     
     (2..8).each do |c|
       assert_includes @move.col_range, c
@@ -74,8 +79,8 @@ class MoveTest < Minitest::Test
   end
 
   def test_gaps
-    @move.add('b', 1, 3)
-    @move.add('c', 0, 2)
+    @move.add(1, 3)
+    @move.add(0, 2)
     
     [[0,3],[1,2]].each do |g|
       assert_includes @move.gaps, g
@@ -83,21 +88,21 @@ class MoveTest < Minitest::Test
   end
 
   def test_touching?
-    @move.add('a', 1, 2)
-    @move.add('b', 1, 3)
+    @move.add(1, 2)
+    @move.add(1, 3)
 
-    other_move = Move.new
-    other_move.add('c', 0, 2)
+    other_move = MoveShape.new
+    other_move.add(0, 2)
     
     assert @move.touching?(other_move)
   end
 
   def test_not_touching
-    @move.add('b', 1, 3)
+    @move.add(1, 3)
 
-    other_move = Move.new
-    other_move.add('c', 0, 2)
-    other_move.add('e', 8, 8)
+    other_move = MoveShape.new
+    other_move.add(0, 2)
+    other_move.add(8, 8)
     
     refute @move.touching?(other_move)
   end
@@ -107,20 +112,20 @@ class MoveTest < Minitest::Test
   end
 
   def test_can_add_move
-    @move.add('a', 1, 2)
+    @move.add(1, 2)
     assert @move.include?(1, 2)
   end
 
   def test_can_undo_last_move
-    @move.add('a', 1, 2)
-    @move.add('b', 3, 2)
+    @move.add(1, 2)
+    @move.add(3, 2)
     assert_equal [3,2], @move.undo
     assert_equal [1,2], @move.undo
   end
 
   def test_can_clear_moves
-    @move.add('a', 1, 2)
-    @move.add('b', 3, 2)
+    @move.add(1, 2)
+    @move.add(3, 2)
     @move.clear
     assert @move.empty?
   end
@@ -131,11 +136,11 @@ class MoveUnitTest < Minitest::Test
   include Upwords
 
   def setup
-    @mu_a12 = MoveUnit.new('a', 1, 2)
-    @mu_b13 = MoveUnit.new('b', 1, 3)
-    @mu_c02 = MoveUnit.new('c', 0, 2)
-    @mu_d12 = MoveUnit.new('d', 1, 2)
-    @mu_e88 = MoveUnit.new('e', 8, 8)
+    @mu_a12 = MoveUnit.new(1, 2)
+    @mu_b13 = MoveUnit.new(1, 3)
+    @mu_c02 = MoveUnit.new(0, 2)
+    @mu_d12 = MoveUnit.new(1, 2)
+    @mu_e88 = MoveUnit.new(8, 8)
   end
 
   def test_hash_equality_aka_eql?
