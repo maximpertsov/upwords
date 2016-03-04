@@ -4,9 +4,7 @@ module Upwords
     def initialize(board, dictionary)
       @board = board
       @dict = dictionary
-      @pending_move = MoveShape.new #[]
-      @played_moves = MoveShape.new #@board.nonempty_spaces
-      @played_words = Hash.new {|h,k| h[k] = 0} # Counter Hash
+      @pending_move = []
       update_moves
     end
 
@@ -16,13 +14,13 @@ module Upwords
     def add(player, letter, row, col)
       selected_letter = player.play_letter(letter)
       begin
-        if @pending_move.include?(row, col)
+        if @pending_move.include?([row, col])
           raise IllegalMove, "You can't stack on a space more than once in a single turn!"
         elsif selected_letter == @board.top_letter(row, col)
           raise IllegalMove, "You can't stack a letter on the same letter!"
         else
           @board.play_letter(selected_letter, row, col)
-          @pending_move.add(row, col) # selected_letter, 
+          @pending_move << [row, col]
         end
       rescue IllegalMove => exn
         player.take_letter(selected_letter)
@@ -34,7 +32,7 @@ module Upwords
       if @pending_move.empty?
         raise IllegalMove, "No moves to undo!"
       else
-        letter = @board.remove_top_letter(*@pending_move.undo)
+        letter = @board.remove_top_letter(*@pending_move.pop)
         player.take_letter(letter)
       end
     end
@@ -61,11 +59,7 @@ module Upwords
     end
 
     def update_played_moves
-      @played_moves = MoveShape.new
-      
-      @board.nonempty_spaces.each do |r,c|
-        @played_moves.add(r, c) # @board.top_letter(r,c), 
-      end
+      @played_moves = MoveShape.build(@board.nonempty_spaces)
     end
     
     def update_played_words
@@ -95,15 +89,17 @@ module Upwords
     end
 
     def legal?
-      if !(@pending_move.straight_line?)
+      pending_move_shape = MoveShape.build(@pending_move)
+      
+      if !(pending_move_shape.straight_line?)
         raise IllegalMove, "The letters in your move must be along a single row or column!"
-      elsif !(@pending_move.gaps_covered_by?(@played_moves))
+      elsif !(pending_move_shape.gaps_covered_by?(@played_moves))
         raise IllegalMove, "The letters in your move must be internally connected!"
       elsif !letter_in_middle_square?
         raise IllegalMove, "You must play at least one letter in the middle 2x2 square!"
       elsif (@board.word_positions).empty?  
         raise IllegalMove, "Valid words must be at least two letters long!"
-      elsif !(@played_moves.empty? || @pending_move.touching?(@played_moves))
+      elsif !(@played_moves.empty? || pending_move_shape.touching?(@played_moves))
         raise IllegalMove, "At least one letter in your move must be touching a previously played word!"
       elsif !pending_illegal_words.empty?
         error_msg = pending_illegal_words.join(", ")

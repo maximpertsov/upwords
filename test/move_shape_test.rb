@@ -8,23 +8,30 @@ class MoveShapeTest < Minitest::Test
   end
 
   def test_build
-    ms = MoveShape.build([[1,1], [1,2], [1,3]])
+    ms = MoveShape.build([[1,1],[1,2],[1,3]])
 
     assert_kind_of(MoveShape, ms)
     assert_equal 3, ms.size
   end
 
-  def test_is_internally_connected_to_previously_played_moves?
-    played_moves = MoveShape.new
+  # def test_union
+  #   ms1 = MoveShape.build([[1,1],[1,2],[1,3]])
+  #   ms2 = MoveShape.build([[1,2],[1,3],[1,4]])
 
-    [[2, 4], [3, 4], [4, 4]].each do |r,c|
-      played_moves.add(r, c)
-    end
+  #   ms_union = ms1.union(ms2)
 
-    @move.add(3, 3)
-    @move.add(3, 5)
+  #   assert_kind_of(MoveShape, ms_union)
+  #   assert_equal 4, ms_union.size
+  #   [[1,1],[1,2],[1,3],[1,4]].each do |r,c|
+  #      assert ms_union.include?(r,c)
+  #    end
+  # end
 
-    assert @move.gaps_covered_by?(played_moves)
+  def test_gaps_covered_by_other_move?
+    broken_move = MoveShape.build([[3, 3], [3, 5]])
+    other_move = MoveShape.build([[2, 4], [3, 4], [4, 4]])
+
+    assert broken_move.gaps_covered_by?(other_move)
   end
   
   def test_not_touching_previously_played_moves
@@ -115,20 +122,6 @@ class MoveShapeTest < Minitest::Test
     @move.add(1, 2)
     assert @move.include?(1, 2)
   end
-
-  def test_can_undo_last_move
-    @move.add(1, 2)
-    @move.add(3, 2)
-    assert_equal [3,2], @move.undo
-    assert_equal [1,2], @move.undo
-  end
-
-  def test_can_clear_moves
-    @move.add(1, 2)
-    @move.add(3, 2)
-    @move.clear
-    assert @move.empty?
-  end
   
 end
 
@@ -163,15 +156,15 @@ class MoveUnitTest < Minitest::Test
     refute @mu_a12.overlaps? @mu_b13
   end
 
-  def test_same_row?
-    assert @mu_a12.same_row? @mu_b13
-    refute @mu_a12.same_row? @mu_c02
-  end
+  # def test_same_row?
+  #   assert @mu_a12.same_row? @mu_b13
+  #   refute @mu_a12.same_row? @mu_c02
+  # end
 
-  def test_same_col?
-    assert @mu_a12.same_col? @mu_c02
-    refute @mu_a12.same_col? @mu_b13    
-  end
+  # def test_same_col?
+  #   assert @mu_a12.same_col? @mu_c02
+  #   refute @mu_a12.same_col? @mu_b13    
+  # end
 
   def test_orthogonal_spaces
     @mu_a12.orthogonal_spaces.each do |sp|

@@ -4,14 +4,13 @@ module Upwords
     def initialize
       @move_units = []
     end
-
+    
     def gaps_covered_by?(other_move)
       (self.gaps - other_move.posns).empty?
     end
 
     def gaps
-      posns = self.posns
-      square_range.reject {|p| posns.include?(p)}
+      square_range.reject {|posn| posns.include?(posn)}
     end
     
     def square_range
@@ -54,14 +53,6 @@ module Upwords
       end
     end
 
-    def undo
-      (@move_units.pop).posn
-    end
-
-    def clear
-      @move_units.clear
-    end
-
     def posns
       @move_units.map {|mu| mu.posn}
     end
@@ -90,26 +81,16 @@ module Upwords
       @col = col
     end
     
-    # Letter does not factor into hash equality
     def eql?(other_unit)
       overlaps?(other_unit)
     end
     
-    # Letter does not factor into hash equality
     def hash
       posn.hash
     end
     
-    def same_row?(other_unit)
-      self.row == other_unit.row
-    end
-
-    def same_col?(other_unit)
-      self.col == other_unit.col
-    end
-
     def overlaps?(other_unit)
-      same_row?(other_unit) && same_col?(other_unit)
+      (self.row == other_unit.row) && (self.col == other_unit.col)
     end
 
     def orthogonal_spaces
