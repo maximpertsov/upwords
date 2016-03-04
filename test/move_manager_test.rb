@@ -62,15 +62,14 @@ class MoveManagerTest < Minitest::Test
 
       @moves.update_moves
       
-      @board.play_letter('C', 2, 4)
-      @board.play_letter('A', 3, 4)
-      @board.play_letter('B', 4, 4)
+      @moves.add(@player, 'C', 2, 4)
+      @moves.add(@player, 'A', 3, 4)
+      @moves.add(@player, 'B', 4, 4)
 
-      @board.play_letter('R', 3, 3)
-      @board.play_letter('A', 3, 4)
-      @board.play_letter('T', 3, 5)
+      @moves.add(@player, 'F', 3, 3)
+      @moves.add(@player, 'D', 3, 5)
 
-      expected = ['CAB', 'RAT']
+      expected = ['CAB', 'FAD']
       actual = @moves.pending_words.map {|w| w.to_s}
         
       assert_equal Set.new(expected), Set.new(actual)

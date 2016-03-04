@@ -66,7 +66,6 @@ module Upwords
     def collect_word_posns(&block)
       nonempty_spaces.divide(&block).map do |s|
         s.to_a.sort
-        #Word.new(self, s.to_a.sort)
       end.select {|w| w.length >= min_word_length}
     end
 

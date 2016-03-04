@@ -46,7 +46,7 @@ module Upwords
     def submit(player)
       if @pending_move.empty?
         raise IllegalMove, "You haven't played any letters!"
-      else legal?
+      elsif legal?
         player.score += pending_score
         @pending_move.clear
         update_moves
@@ -54,25 +54,15 @@ module Upwords
     end
  
     def update_moves
-      update_played_moves
-      update_played_words
-    end
-
-    def update_played_moves
       @played_moves = MoveShape.build(@board.nonempty_spaces)
-    end
-    
-    def update_played_words
-      @played_words = words_to_counter(positions_to_words(@board.word_positions))
     end
 
     def pending_words
-      new_words = positions_to_words(@board.word_positions)
-      counter = words_to_counter(new_words)
-
-      new_words.select do |word|
-        counter[word.to_s] - @played_words[word.to_s] > 0
-      end 
+      (@board.word_positions).select do |posns|
+        posns.any? {|posn| @pending_move.include?(posn)}
+      end.map do |posns|
+        Word.new(posns, @board, @dict)
+      end
     end
 
     def pending_illegal_words
@@ -124,22 +114,6 @@ module Upwords
 
     def letter_in_middle_square?
       @board.middle_square.map{|row, col| @board.stack_height(row, col) > 0}.any?
-    end
-
-    private
-
-    # convert word position set to Word array
-    def positions_to_words(word_posns)
-      word_posns.map do |posns|
-        new_word = Word.new(posns, @board, @dict)
-      end
-    end
-
-    # convert Word array to word counter
-    def words_to_counter(words)
-      counter = Hash.new {|h,k| h[k] = 0}
-      words.each { |word| counter[word.to_s] += 1 }
-      counter
     end
     
   end
