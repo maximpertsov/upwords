@@ -2,7 +2,12 @@ module Upwords
   class MoveShape
 
     def initialize
-      @move_units = []
+      @move_units = Set.new
+    end
+
+    def union(other_move)
+      union_set = @move_units.union(other_move.move_units)
+      MoveShape.build(union_set.map {|mu| mu.posn})
     end
     
     def gaps_covered_by?(other_move)
@@ -69,6 +74,10 @@ module Upwords
       @move_units.any? do |mu|
         mu.next_to?(move_unit) || mu.overlaps?(move_unit)
       end
+    end
+
+    def move_units
+      @move_units
     end
 
   end

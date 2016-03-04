@@ -5,7 +5,7 @@ module Upwords
       @board = board
       @dict = dictionary
       @pending_move = []
-      update_moves
+      @move_history = []
     end
 
     # --------------------------------
@@ -48,13 +48,33 @@ module Upwords
         raise IllegalMove, "You haven't played any letters!"
       elsif legal?
         player.score += pending_score
-        @pending_move.clear
-        update_moves
+        finalize_pending_move
       end
     end
  
-    def update_moves
-      @played_moves = MoveShape.build(@board.nonempty_spaces)
+    def finalize_pending_move
+      @move_history << MoveShape.build(@pending_move)
+      @pending_move.clear
+    end
+
+    # TODO: Fix the ugliness
+    def covered_words
+      # HACK
+      lift_pending_letters = @pending_move.map{|r,c| [@board.remove_top_letter(r,c), r, c]}
+      
+      pending_posns = Set.new(@pending_move)
+
+      # TODO: Make word_positions return a SortedSet
+      covered = (@board.word_positions).select do |posns|
+        pending_posns >= Set.new(posns)
+      end.map do |posns|
+        Word.new(posns, @board, @dict)
+      end
+
+      # HACK
+      lift_pending_letters.each{|l,r,c| @board.play_letter(l,r,c)}
+
+      covered
     end
 
     def pending_words
@@ -79,17 +99,27 @@ module Upwords
     end
 
     def legal?
-      pending_move_shape = MoveShape.build(@pending_move)
+      new_move = MoveShape.build(@pending_move)
+      past_moves = @move_history.reverse.reduce(MoveShape.new) do |ms, m|
+        m.union(ms)
+      end
+
+      # Only perform these checks if first move of game
+      if @move_history.empty?
+        if !letter_in_middle_square?
+          raise IllegalMove, "You must play at least one letter in the middle 2x2 square!"
+        elsif (@move_history.empty? && @pending_move.size < 2)
+          raise IllegalMove, "Valid words must be at least two letters long!"
+        end
+      end
       
-      if !(pending_move_shape.straight_line?)
+      # The follow checks should always be performed
+      if !(new_move.straight_line?)
         raise IllegalMove, "The letters in your move must be along a single row or column!"
-      elsif !(pending_move_shape.gaps_covered_by?(@played_moves))
+      elsif !(new_move.gaps_covered_by?(past_moves))
         raise IllegalMove, "The letters in your move must be internally connected!"
-      elsif !letter_in_middle_square?
-        raise IllegalMove, "You must play at least one letter in the middle 2x2 square!"
-      elsif (@board.word_positions).empty?  
-        raise IllegalMove, "Valid words must be at least two letters long!"
-      elsif !(@played_moves.empty? || pending_move_shape.touching?(@played_moves))
+
+      elsif !(past_moves.empty? || new_move.touching?(past_moves))
         raise IllegalMove, "At least one letter in your move must be touching a previously played word!"
       elsif !pending_illegal_words.empty?
         error_msg = pending_illegal_words.join(", ")
@@ -112,8 +142,12 @@ module Upwords
     # Individual legal move conditions
     # =========================================
 
+    private
+    
     def letter_in_middle_square?
-      @board.middle_square.map{|row, col| @board.stack_height(row, col) > 0}.any?
+      @board.middle_square.any? do |posn|
+        @pending_move.include?(posn)
+      end
     end
     
   end

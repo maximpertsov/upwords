@@ -14,18 +14,41 @@ class MoveShapeTest < Minitest::Test
     assert_equal 3, ms.size
   end
 
-  # def test_union
-  #   ms1 = MoveShape.build([[1,1],[1,2],[1,3]])
-  #   ms2 = MoveShape.build([[1,2],[1,3],[1,4]])
+  def test_union
+    ms1 = MoveShape.build([[1,1],[1,2],[1,3]])
+    ms2 = MoveShape.build([[1,2],[1,3],[1,4]])
 
-  #   ms_union = ms1.union(ms2)
+    ms_union = ms1.union(ms2)
 
-  #   assert_kind_of(MoveShape, ms_union)
-  #   assert_equal 4, ms_union.size
-  #   [[1,1],[1,2],[1,3],[1,4]].each do |r,c|
-  #      assert ms_union.include?(r,c)
-  #    end
-  # end
+    assert_kind_of(MoveShape, ms_union)
+
+    assert_equal 4, ms_union.size
+    [[1,1],[1,2],[1,3],[1,4]].each do |r,c|
+       assert ms_union.include?(r,c)
+     end
+  end
+
+  def test_union_of_many
+    moves = [
+      MoveShape.build([[1,1],[1,2],[1,3]]),
+      MoveShape.build([[1,2],[1,3],[1,4]]),
+      MoveShape.build([[0,2],[0,3],[0,4]]),
+      MoveShape.build([[1,2],[1,3],[1,5]])
+    ]
+
+    ms_union = moves.reduce(MoveShape.new) do |ums, ms|
+      ms.union(ums)
+    end
+    
+    assert_kind_of(MoveShape, ms_union)
+
+    assert_equal 8, ms_union.size
+    
+    [[1,1],[1,2],[1,3],[1,4],[1,5],
+     [0,2],[0,3],[0,4]].each do |r,c|
+       assert ms_union.include?(r,c)
+    end
+  end
 
   def test_gaps_covered_by_other_move?
     broken_move = MoveShape.build([[3, 3], [3, 5]])

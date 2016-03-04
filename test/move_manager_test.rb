@@ -49,7 +49,7 @@ class MoveManagerTest < Minitest::Test
       @board.play_letter('C', 2, 4)
       @board.play_letter('A', 3, 4)
       @board.play_letter('B', 4, 4)
-      @moves.update_moves
+      @moves.finalize_pending_move
       
       assert_raises(IllegalMove) { @moves.add(@player, 'A', 3, 4) }
  
@@ -60,7 +60,7 @@ class MoveManagerTest < Minitest::Test
       @board.play_letter('O', 3, 8)
       @board.play_letter('O', 4, 8)
 
-      @moves.update_moves
+      #@moves.finalize_pending_move
       
       @moves.add(@player, 'C', 2, 4)
       @moves.add(@player, 'A', 3, 4)
@@ -72,8 +72,47 @@ class MoveManagerTest < Minitest::Test
       expected = ['CAB', 'FAD']
       actual = @moves.pending_words.map {|w| w.to_s}
         
-      assert_equal Set.new(expected), Set.new(actual)
- 
+      assert_equal Set.new(expected), Set.new(actual) 
+    end
+    
+    def test_covered_words
+      @board.play_letter('P', 2, 4)
+      @board.play_letter('O', 3, 4)
+      @board.play_letter('O', 4, 4)
+
+      @board.play_letter('Y', 2, 7)
+      @board.play_letter('U', 3, 7)
+      @board.play_letter('P', 4, 7)
+      
+      #@moves.finalize_pending_move
+      
+      @moves.add(@player, 'C', 2, 4)
+      @moves.add(@player, 'A', 3, 4)
+      @moves.add(@player, 'B', 4, 4)
+
+      expected = ['POO']
+      actual = @moves.covered_words.map {|w| w.to_s}
+        
+      assert_equal Set.new(expected), Set.new(actual) 
+    end
+
+    def test_cannot_play_single_letter_for_first_move
+      @moves = MoveManager.new(@board, Dictionary.new(['A']))
+      @moves.add(@player, 'A', 4, 4)
+      assert_raises(IllegalMove) {@moves.submit(@player)}
+    end
+    
+    def test_must_play_in_middle_2x2_square_for_first_move
+      @moves = MoveManager.new(@board, Dictionary.new(['AB']))
+      @moves.add(@player, 'A', 3, 3)
+      @moves.add(@player, 'B', 3, 4)
+      assert_raises(IllegalMove) {@moves.submit(@player)}
+
+      @moves.undo_all(@player)
+
+      @moves.add(@player, 'A', 4, 5)
+      @moves.add(@player, 'B', 4, 6)
+      assert @moves.legal?
     end
   end
 end
