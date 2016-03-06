@@ -3,11 +3,6 @@
 module Upwords
   class Graphics
     
-    # Define lines where game info appear
-    PLAYER_NAME_LINE = 1
-    LETTER_RACK_LINE = 2
-    SCORE_LINE = 3
-
     def initialize(game, cursor, init_message = nil)
       @game = game
       @board = @game.board
@@ -17,7 +12,9 @@ module Upwords
     end
 
     def to_s
-      draw_board
+      (draw_board.zip(draw_stats).map do |b,s|
+         b + (s.to_s)
+       end + draw_message).join("\n")
     end
 
     def message=(new_message)
@@ -107,24 +104,25 @@ module Upwords
     
     # print grid of top letter on each stack and stack height
     def draw_board
-      [draw_row_divider(0, false),
-       "\n",
-       (0...@board.num_rows).map do |i|
-         [draw_row(i, @cursor.posn), #@game.current_player.cursor_posn),
-          if i == PLAYER_NAME_LINE
-            draw_player_name
-          elsif i == LETTER_RACK_LINE
-            draw_letter_rack
-          elsif i == SCORE_LINE
-            draw_score
-          else
-            ""
-          end,
-          "\n",
-          draw_row_divider(i),
-          "\n"].join
-       end.join,
-       "\n#{@message}\n"].join
+      b = [draw_row_divider(0, false)]
+      
+      (0...@board.num_rows).each do |i|
+        b << draw_row(i, @cursor.posn)
+        b << draw_row_divider(i)
+      end
+
+      b.to_a
+    end
+    
+    def draw_message
+      ["", @message.to_s]
+    end
+
+    def draw_stats
+      [" ",
+       draw_player_name,
+       draw_letter_rack,
+       draw_score].zip([" "] * 3).flatten
     end
 
   end
