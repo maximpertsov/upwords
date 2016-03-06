@@ -3,6 +3,39 @@ require 'test_helper'
 class MoveManagerTest < Minitest::Test
   include Upwords
 
+  def setup
+    @player = Player.new("P1", 7)
+    ('A'..'G').each {|l| @player.take_letter(l)}
+  end
+  
+  class SubmitMoveTest < MoveManagerTest
+
+    def setup
+      super
+      @moves = MoveManager.new(
+        Board.new(10),
+        Dictionary.new(['ABC','ABCDEFG']))
+    end
+    
+    def test_player_can_submit_legal_move      
+      @moves.add(@player, 'A', 4, 4)
+      @moves.add(@player, 'B', 4, 5)
+      @moves.add(@player, 'C', 4, 6)
+      @moves.submit(@player)
+      assert_equal 6, @player.score
+    end
+
+    def test_player_gets_20pt_bonus_for_using_all_letters
+      (@player.letters).each_with_index do |letter, i|
+        @moves.add(@player, letter, 4, i+2)
+      end
+
+      @moves.submit(@player)
+      
+      assert_equal (7 * 2) + 20, @player.score
+    end
+  end
+
   class BasicMoveTest < MoveManagerTest
     def setup
       @player = Player.new("P1", 7)
@@ -35,21 +68,11 @@ class MoveManagerTest < Minitest::Test
       assert_equal 'C D E F G B A', @player.show_rack
     end
 
-    def test_player_can_submit_move
-      @moves.add(@player, 'B', 4, 4)
-      @moves.add(@player, 'A', 4, 5)
-      @moves.add(@player, 'D', 4, 6)
-      @moves.submit(@player)
-
-      assert_equal 6, @player.score
-      # TODO: expand test
-    end
-
     def test_cannot_stack_letter_on_same_letter
       @board.play_letter('C', 2, 4)
       @board.play_letter('A', 3, 4)
       @board.play_letter('B', 4, 4)
-      @moves.finalize_pending_move
+      #@moves.finalize_pending_move
       
       assert_raises(IllegalMove) { @moves.add(@player, 'A', 3, 4) }
  

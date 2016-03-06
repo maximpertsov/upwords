@@ -11,6 +11,10 @@ module Upwords
       @skip_count = 0
     end
 
+    def letters
+      @rack.letters.dup
+    end
+
     def show_rack
       @rack.show
     end
@@ -38,12 +42,6 @@ module Upwords
     def play_letter(letter)
       @rack.remove(letter)
     end
-    
-    # def move_cursor(move_vector, bounds)
-    #   move_vector.each_with_index do |move, i|
-    #     @cursor_posn[i] = (@cursor_posn[i] + move) % bounds[i]
-    #   end 
-    # end
 
     def swap_letter(letter, letter_bank)
       new_letter = letter_bank.draw # Will raise error if bank if empty

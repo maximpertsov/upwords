@@ -24,7 +24,8 @@ module Upwords
     # A word's score is the sum of the tile heights of its letters
     # However, if all of a word's tile heights are exactly 1, then the score is double the word's length
     #          also add two points for each 'Qu' if all words are 1 tile high
-    # Add 20 points if a player uses all their letters to form a word (TODO)
+    # Add 20 points if a player uses all their letters to form a word (this logic is in the MoveManager class,
+    #          because it requires the player as an input
     def self.calc_score(board, posns)
       stack_heights = posns.map{|row, col| board.stack_height(row, col)}
 

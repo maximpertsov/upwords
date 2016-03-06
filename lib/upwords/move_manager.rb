@@ -47,20 +47,19 @@ module Upwords
       if @pending_move.empty?
         raise IllegalMove, "You haven't played any letters!"
       elsif legal?
-        player.score += pending_score
-        finalize_pending_move
+        player.score += pending_score 
+        player.score += 20 if player.rack_capacity == @pending_move.size
+        @move_history << MoveShape.build(@pending_move)
+        @pending_move.clear
       end
-    end
- 
-    def finalize_pending_move
-      @move_history << MoveShape.build(@pending_move)
-      @pending_move.clear
     end
 
     # TODO: Fix the ugliness
     def covered_words
       # HACK: Lift pending letter tiles off of board before entering subroutine
-      lift_pending_letters = @pending_move.map{|r,c| [@board.remove_top_letter(r,c), r, c]}
+      lift_pending_letters = @pending_move.map do |r,c|
+        [@board.remove_top_letter(r,c), r, c]
+      end
       
       pending_posns = Set.new(@pending_move)
 
@@ -140,10 +139,9 @@ module Upwords
         end
         raise IllegalMove, error_msg
       end
+      
       # TODO: Add the following legal move checks:
       # - Move is not a simple pluralization? (e.g. Cat -> Cats is NOT a legal move)
-      # - Move does not entirely cover up a word that is already on the board (i.e. you can change part of a previously-played
-      #   word, but the whole thing. E.g. Cats -> Cots is legal, but Cats -> Spam is not)
       true
     end
     

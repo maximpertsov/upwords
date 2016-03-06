@@ -1,15 +1,15 @@
 module Upwords
   class LetterRack
     
-    attr_reader :capacity
+    attr_reader :capacity, :letters
     
     def initialize(capacity=7)
-      @rack = []
+      @letters = []
       @capacity = capacity
     end
 
     def size
-      @rack.size
+      @letters.size
     end
 
     def full?
@@ -17,35 +17,35 @@ module Upwords
     end
 
     def empty?
-      @rack.empty?
+      @letters.empty?
     end
         
     def has_letter?(letter)
-      @rack.include? letter 
+      @letters.include? letter 
     end
     
     def add(letter)
       if full?
         raise IllegalMove, "Rack is full!"
       else
-        @rack << letter        
+        @letters << letter        
       end
     end
 
     def remove(letter)
       if has_letter?(letter)
-        @rack.delete_at(@rack.index(letter))
+        @letters.delete_at(@letters.index(letter))
       else
         raise IllegalMove, "You don't have this letter!"
       end
     end
 
     def show
-      @rack.join(' ')
+      @letters.join(' ')
     end
 
     def show_masked
-      @rack.map {'*'}.join(' ')
+      @letters.map {'*'}.join(' ')
     end
   end
 end
