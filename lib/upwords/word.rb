@@ -7,8 +7,8 @@ module Upwords
 
     def initialize(posns, board, dictionary)
       posns = posns.uniq if posns.is_a?(Array)
-      @text = make_string(board, posns)
-      @score = calc_score(board, posns)
+      @text = Word.make_string(board, posns)
+      @score = Word.calc_score(board, posns)
       @length = @text.length
       @dict = dictionary
     end
@@ -17,19 +17,15 @@ module Upwords
       @text.to_s
     end
 
-    def to_str
-      @text.to_str
-    end
-
     def legal?
       @dict.legal_word?(self.to_s)
     end
-
-    private
     
     # A word's score is the sum of the tile heights of its letters
     # However, if all of a word's tile heights are exactly 1, then the score is double the word's length
-    def calc_score(board, posns)
+    #          also add two points for each 'Qu' if all words are 1 tile high
+    # Add 20 points if a player uses all their letters to form a word (TODO)
+    def self.calc_score(board, posns)
       stack_heights = posns.map{|row, col| board.stack_height(row, col)}
 
       score = stack_heights.inject(0) {|sum, h| sum + h}
@@ -46,7 +42,7 @@ module Upwords
       score
     end
 
-    def make_string(board, posns)
+    def self.make_string(board, posns)
       posns.map{|row, col| board.top_letter(row, col)}.join
     end
 

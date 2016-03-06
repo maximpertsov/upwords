@@ -50,7 +50,12 @@ module Upwords
   
     # show top letter in board space
     def top_letter(row, col)
-      @grid[row, col][-1]
+      get_letter(row, col, 1)
+      #@grid[row, col][-1]
+    end
+
+    def get_letter(row, col, depth=1)
+      @grid[row, col][-depth]
     end
 
     def word_positions

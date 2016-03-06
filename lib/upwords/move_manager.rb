@@ -59,7 +59,7 @@ module Upwords
 
     # TODO: Fix the ugliness
     def covered_words
-      # HACK
+      # HACK: Lift pending letter tiles off of board before entering subroutine
       lift_pending_letters = @pending_move.map{|r,c| [@board.remove_top_letter(r,c), r, c]}
       
       pending_posns = Set.new(@pending_move)
@@ -68,10 +68,14 @@ module Upwords
       covered = (@board.word_positions).select do |posns|
         pending_posns >= Set.new(posns)
       end.map do |posns|
+        # TODO: Build words using Word object methods
+        # posns.map do |r,c|
+        #   @board.get_letter(r,c, pending_posns.include?([r,c]) ? 2 : 1)
+        # end.join('')
         Word.new(posns, @board, @dict)
       end
 
-      # HACK
+      # HACK: Return pending letter tiles back to board
       lift_pending_letters.each{|l,r,c| @board.play_letter(l,r,c)}
 
       covered
@@ -116,11 +120,16 @@ module Upwords
       # The follow checks should always be performed
       if !(new_move.straight_line?)
         raise IllegalMove, "The letters in your move must be along a single row or column!"
+
       elsif !(new_move.gaps_covered_by?(past_moves))
         raise IllegalMove, "The letters in your move must be internally connected!"
 
       elsif !(past_moves.empty? || new_move.touching?(past_moves))
         raise IllegalMove, "At least one letter in your move must be touching a previously played word!"
+
+      elsif !(covered_words.empty?)
+        raise IllegalMove, "Cannot completely cover up any previously-played words!"
+        
       elsif !pending_illegal_words.empty?
         error_msg = pending_illegal_words.join(", ")
         case pending_illegal_words.size
