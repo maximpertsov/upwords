@@ -3,8 +3,8 @@ require 'matrix'
 require 'curses'
 
 require 'upwords/version'
-require 'upwords/board'
 
+require 'upwords/board'
 require 'upwords/letter_bank'
 require 'upwords/letter_rack'
 require 'upwords/dictionary'

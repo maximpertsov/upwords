@@ -1,9 +1,10 @@
 # require 'colored'
 
 module Upwords
-  class Graphics
+  class Graphics < Curses::Window
     
     def initialize(game, cursor, init_message = nil)
+      super(0,0,0,0)
       @game = game
       @board = @game.board
       @cursor = cursor 

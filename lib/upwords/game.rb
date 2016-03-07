@@ -25,7 +25,6 @@ module Upwords
                    ["K", "W", "Y"]*2 +
                    ["J", "Qu", "V", "X", "Z"]*1)
     
-    
     def initialize(display_on = true, max_players = 2)
       @max_players = max_players
       @display_on = display_on
@@ -36,7 +35,7 @@ module Upwords
                            *@board.middle_square[0])
       @moves = MoveManager.new(@board,
                                Dictionary.import("data/ospd.txt"))
-      @graphics = Graphics.new(self, @cursor)
+      #@graphics = Graphics.new(self, @cursor)
       @players = []
       @running = false
       @submitted = false
@@ -87,7 +86,9 @@ module Upwords
       Curses.curs_set(0) 
       Curses.init_screen
       # Curses.start_color
-      @win = Curses::Window.new(0,0,0,0)
+
+      @win = Graphics.new(self, @cursor)
+      #@win = Curses::Window.new(0,0,0,0)
       @win.keypad(true)
     end
     
@@ -98,14 +99,16 @@ module Upwords
     def refresh_graphics
       if display_on? && running?
         @win.clear
-        @win << @graphics.to_s
+        @win << @win.to_s
+        #@win << @graphics.to_s
         @win.refresh
       end
     end
 
     def update_message msg
       if display_on?
-        @graphics.message = msg
+        #@graphics.message = msg
+        @win.message = msg
         refresh_graphics
       end
     end
@@ -114,17 +117,18 @@ module Upwords
       update_message standard_message
     end
 
+    # TODO: move text parsing logic out of MoveManager's pending_result method
     def standard_message
-      ["Pending words: #{@moves.pending_result}",
+      ["#{current_player.name}'s pending words: #{@moves.pending_result}",
        "",
        "Controls",
        "--------",
-       "[SPACE]\tShow Letters",
-       "[DEL]\tUndo Moves",
-       "[ENTER]\tSubmit",
-       "[+]\tSwap Letter",
-       "[-]\tSkip Turn",
-       "[ESC]\tQuit Game"
+       "Show Letters\t[SPACE]",
+       "Undo Moves\t[DEL]",
+       "Submit Move\t[ENTER]",
+       "Swap Letter\t[+]",
+       "Skip Turn\t[-]",
+       "Quit Game\t[ESC] or [SHIFT+Q]"
       ].join("\n")
     end
     
@@ -144,13 +148,13 @@ module Upwords
       @players.each {|p| p.refill_rack(@letter_bank) }
 
       # Start graphics
-      init_window if @display_on
+      init_window #if @display_on
       clear_message
 
       # Start main loop
       while running? do
         begin
-          read_input
+          read_input(@win.getch)
 
           # TODO: add subroutine to end game if letter bank is empty and either player has exhausted all their letters
           # TODO: add subroutine to end game if both players skipped 3 consecutive turns (check rules to see exactly how this works...)
@@ -179,9 +183,11 @@ module Upwords
       end
     end
 
-    def read_input
-      case (key = @win.getch)
+    def read_input(key)
+      case key #(key = @win.getch)
       when ESCAPE
+        exit_game
+      when 'Q'
         exit_game
       when SPACE
         toggle_rack_visibility
@@ -209,7 +215,8 @@ module Upwords
     
     def next_turn
       @players.rotate!
-      @graphics.hide_rack
+      #@graphics.hide_rack
+      @win.hide_rack
       @submitted = false
     end
 
@@ -251,7 +258,8 @@ module Upwords
         @moves.submit(current_player)
         current_player.refill_rack(@letter_bank)
         @submitted = true
-
+        clear_message
+        
         # HACK: think of a better way to decrement skip count...
         current_player.skip_count = 0
       end
@@ -284,6 +292,9 @@ module Upwords
     end
 
     def exit_game(need_confirm=true)
+      # if display_on? && (@win.getch == ESCAPE)
+      #   exit_game(need_confirm)
+      #   els
       if confirm_action? "Are you sure you want to exit the game?"
         @running = false
         @win.close if display_on?
@@ -291,7 +302,8 @@ module Upwords
     end
 
     def toggle_rack_visibility #(need_confirm=true)
-      @graphics.toggle_rack_visibility
+      #@graphics.toggle_rack_visibility
+      @win.toggle_rack_visibility
     end
   end
 end
