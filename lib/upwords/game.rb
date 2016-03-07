@@ -1,41 +1,17 @@
 module Upwords
   class Game
     attr_reader :board, :players
-    
-    # =========================================
-    # Key Configurations
-    # =========================================
-
-    ESCAPE = 27    # Should already be in a Curses constant...
-    SPACE = ' '
-    DELETE = 127
-    ENTER = 10
-
-    # =========================================
-    # Data
-    # =========================================
-    
-    # Letters available in 10 x 10 version of Upwords
-    ALL_LETTERS = (["E"]*8 +
-                   ["A", "I", "O"]*7 +
-                   ["S"]*6 +
-                   ["D", "L", "M", "N", "R", "T", "U"]*5 +
-                   ["C"]*4 +
-                   ["B", "F", "G", "H", "P"]*3 +
-                   ["K", "W", "Y"]*2 +
-                   ["J", "Qu", "V", "X", "Z"]*1)
-    
+        
     def initialize(display_on = true, max_players = 2)
       @max_players = max_players
       @display_on = display_on
-      @board = Board.new
-      @letter_bank = LetterBank.new(ALL_LETTERS)
+      @board = Board.new(10)
+      @letter_bank = LetterBank.new(ALL_LETTERS.dup)
       @cursor = Cursor.new(@board.num_rows,
                            @board.num_columns,
                            *@board.middle_square[0])
       @moves = MoveManager.new(@board,
-                               Dictionary.import("data/ospd.txt"))
-      #@graphics = Graphics.new(self, @cursor)
+                               Dictionary.import(OSPD_FILE))
       @players = []
       @running = false
       @submitted = false

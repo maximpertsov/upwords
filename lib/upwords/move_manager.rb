@@ -92,11 +92,6 @@ module Upwords
       pending_words.reject {|word| word.legal?}
     end
     
-    # def pending_result
-    #   output = (pending_words.map{|word| "#{word} (#{word.score})"}.join ", ") 
-    #   output + " | Total: #{pending_score}" if output.size > 0
-    # end
-
     def pending_score
       pending_words.map{|word| word.score}.inject(:+).to_i
     end
