@@ -88,7 +88,6 @@ module Upwords
       # Curses.start_color
 
       @win = Graphics.new(self, @cursor)
-      #@win = Curses::Window.new(0,0,0,0)
       @win.keypad(true)
     end
     
@@ -119,7 +118,7 @@ module Upwords
 
     # TODO: move text parsing logic out of MoveManager's pending_result method
     def standard_message
-      ["#{current_player.name}'s pending words: #{@moves.pending_result}",
+      ["#{current_player.name}'s pending words: #{pending_result}",
        "",
        "Controls",
        "--------",
@@ -130,6 +129,16 @@ module Upwords
        "Skip Turn\t[-]",
        "Quit Game\t[ESC] or [SHIFT+Q]"
       ].join("\n")
+    end
+
+    def pending_result
+      new_words = @moves.pending_words
+
+      unless new_words.empty?
+        new_words.map do |w|
+          "#{w} (#{w.score})"
+        end.join(", ") + " (Total = #{@moves.pending_score})"
+      end
     end
     
     # =========================================
@@ -157,12 +166,13 @@ module Upwords
           read_input(@win.getch)
 
           # TODO: add subroutine to end game if letter bank is empty and either player has exhausted all their letters
-          # TODO: add subroutine to end game if both players skipped 3 consecutive turns (check rules to see exactly how this works...)
+          # TODO: add subroutine to end game if all players skip turn consecutively (check rules to see exactly how this works)
 
           # Game over check
           if current_player.skip_count == 3
             update_message "#{current_player.name} has skipped 3 times in a row and loses!"
             @running = false
+            
           elsif @letter_bank.empty? && current_player.rack_empty?
 
             # TODO: 
@@ -175,8 +185,9 @@ module Upwords
           end
           
           refresh_graphics
+          
         rescue IllegalMove => exception
-          update_message exception.message
+          update_message "#{exception.message} (press any key to continue...)"
           @win.getch
           clear_message
         end
@@ -184,7 +195,7 @@ module Upwords
     end
 
     def read_input(key)
-      case key #(key = @win.getch)
+      case key
       when ESCAPE
         exit_game
       when 'Q'
@@ -215,7 +226,6 @@ module Upwords
     
     def next_turn
       @players.rotate!
-      #@graphics.hide_rack
       @win.hide_rack
       @submitted = false
     end
@@ -250,7 +260,7 @@ module Upwords
 
     def undo_moves
       @moves.undo_last(current_player)
-      update_message "Pending words: #{@moves.pending_result}"
+      clear_message
     end
 
     def submit_moves
