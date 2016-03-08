@@ -1,6 +1,6 @@
 module Upwords
   class Game
-    attr_reader :board, :players
+    attr_reader :board, :cursor, :players
         
     def initialize(display_on = true, max_players = 2)
       @max_players = max_players
@@ -63,7 +63,7 @@ module Upwords
       Curses.init_screen
       # Curses.start_color
 
-      @win = Graphics.new(self, @cursor)
+      @win = Graphics.new(self)
       @win.keypad(true)
     end
     

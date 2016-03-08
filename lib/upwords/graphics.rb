@@ -3,12 +3,12 @@
 module Upwords
   class Graphics < Curses::Window
     
-    def initialize(game, cursor, init_message = nil)
+    def initialize(game)
       super(0,0,0,0)
       @game = game
       @board = @game.board
-      @cursor = cursor 
-      @message = init_message
+      @cursor = @game.cursor 
+      @message = ''
       @rack_visibility = false
     end
     
