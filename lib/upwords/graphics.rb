@@ -11,7 +11,13 @@ module Upwords
       @message = init_message
       @rack_visibility = false
     end
-
+    
+    def refresh
+      clear
+      self << self.to_s
+      super
+    end
+    
     def to_s
       (draw_board.zip(draw_stats).map do |b,s|
          b + (s.to_s)
@@ -26,8 +32,8 @@ module Upwords
       end
     end
 
-    def show_rack #toggle_rack_visibility
-      @rack_visibility = true #!@rack_visibility
+    def show_rack
+      @rack_visibility = true
     end
 
     def hide_rack

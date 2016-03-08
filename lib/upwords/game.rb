@@ -73,16 +73,12 @@ module Upwords
     
     def refresh_graphics
       if display_on? && running?
-        @win.clear
-        @win << @win.to_s
-        #@win << @graphics.to_s
         @win.refresh
       end
     end
 
     def update_message msg
       if display_on?
-        #@graphics.message = msg
         @win.message = msg
         refresh_graphics
       end
@@ -278,9 +274,6 @@ module Upwords
     end
 
     def exit_game(need_confirm=true)
-      # if display_on? && (@win.getch == ESCAPE)
-      #   exit_game(need_confirm)
-      #   els
       if confirm_action? "Are you sure you want to exit the game?"
         @running = false
         @win.close if display_on?
@@ -288,7 +281,6 @@ module Upwords
     end
 
     def toggle_rack_visibility #(need_confirm=true)
-      #@graphics.toggle_rack_visibility
       @win.toggle_rack_visibility
     end
   end
