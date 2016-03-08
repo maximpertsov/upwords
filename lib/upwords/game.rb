@@ -199,6 +199,7 @@ module Upwords
     def next_turn
       @players.rotate!
       @win.hide_rack
+      clear_message
       @submitted = false
     end
 
