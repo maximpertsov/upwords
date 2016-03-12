@@ -1,5 +1,4 @@
 require 'set'
-require 'matrix'
 require 'curses'
 
 require 'upwords/version'
@@ -11,6 +10,8 @@ require 'upwords/dictionary'
 
 require 'upwords/move_shape'
 require 'upwords/move_manager'
+require 'upwords/move_generator'
+
 require 'upwords/cursor'
 
 require 'upwords/word'

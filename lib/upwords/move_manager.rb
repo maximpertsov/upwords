@@ -99,17 +99,25 @@ module Upwords
       pending_words.map{|word| word.score}.inject(:+).to_i
     end
 
+    def past_moves_union
+      @move_history.reduce(MoveShape.new) {|ms, m| m.union(ms)}
+    end
+
     def legal?
-      new_move = MoveShape.build(@pending_move)
-      past_moves = @move_history.reverse.reduce(MoveShape.new) do |ms, m|
-        m.union(ms)
-      end
+      new_move = MoveShape.build(
+        @pending_move.map do |row, col| 
+          [row, col, @board.top_letter(row, col)]
+        end)
+      past_moves = past_moves_union
+# @move_history.reduce(MoveShape.new) do |ms, m|
+#         m.union(ms)
+#       end
 
       # Only perform these checks if first move of game
       if @move_history.empty?
         if !letter_in_middle_square?
           raise IllegalMove, "You must play at least one letter in the middle 2x2 square!"
-        elsif (@move_history.empty? && @pending_move.size < 2)
+        elsif (@move_history.empty? && new_move.size < 2)
           raise IllegalMove, "Valid words must be at least two letters long!"
         end
       end
@@ -142,10 +150,6 @@ module Upwords
       # TODO: Add the following legal move checks:
       # - Move is not a simple pluralization? (e.g. Cat -> Cats is NOT a legal move)
       true
-    end
-
-    def highest_value_move(player)
-      letters = player.letters
     end
     
     # =========================================

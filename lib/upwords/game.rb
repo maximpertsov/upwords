@@ -54,6 +54,55 @@ module Upwords
     end
 
     # =========================================
+    # AI Methods
+    # =========================================
+
+    def possible_spaces(player)
+      letters = player.letters
+      rows = @board.num_rows
+      cols = @board.num_columns
+      past_moves = @moves.past_moves_union
+
+      # Initialize with all single-position moves
+      all_move_shapes = (0...rows).to_a.product((0...cols).to_a).map {|posn| [posn] }
+      
+      (2..letters.size).each do |move_sz| # Limiting move sizes. For full move set, use (2..letters.size)
+        (0...rows).each do |row|
+          (0...cols).map {|col| [row, col]}.combination(move_sz) do |move_posns|
+            
+            # Vertical moves
+            all_move_shapes << move_posns
+            
+            # Horizontal moves 
+            all_move_shapes << move_posns.map {|posn| posn.rotate}
+            
+          end
+        end
+      end
+     
+      # filter out moves that are in bad configurations
+      # TODO: add more filters
+      all_move_shapes.select! do |ms_arr|
+        ms = MoveShape.build(ms_arr)
+        [@board.middle_square.any? { |posn| ms_arr.include?(posn) },
+         ms.gaps_covered_by?(past_moves),
+         past_moves.empty? || ms.touching(past_moves)].all?
+      end
+
+      all_possible_moves = []
+      
+      all_move_shapes.each do |ms|
+        letters.permutation(ms.size) do |combo|
+          all_possible_moves << ms.zip(combo)
+        end
+      end
+      
+      all_possible_moves# .select |mv| do
+        
+      # end
+    end
+
+    # =========================================
     # Graphics Methods
     # =========================================
 
@@ -198,7 +247,7 @@ module Upwords
     
     def next_turn
       @players.rotate!
-      @win.hide_rack
+      @win.hide_rack if display_on?
       clear_message
       @submitted = false
     end

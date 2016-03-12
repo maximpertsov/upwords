@@ -12,6 +12,14 @@ class GameTest < Minitest::Test
   def teardown
     @game.exit_game(false) if @game.running?
   end
+  
+  def test_all_possible_moves
+    @player = Player.new("P1", 7)
+    ('A'..'G').each {|l| @player.take_letter(l)}
+    
+    p " "
+    p @game.possible_spaces(@player)[0]
+  end
 
   def test_has_game_objects
     assert_kind_of(Board, @game.board)

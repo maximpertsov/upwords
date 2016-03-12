@@ -50,6 +50,35 @@ class MoveShapeTest < Minitest::Test
     end
   end
 
+  def test_words
+    @move.add(0, 0, 'c')
+    @move.add(0, 1, 'a')
+    @move.add(0, 2, 't')
+    
+    @move.add(2, 0, 't')
+    @move.add(1, 0, 'o')
+
+    @move.add(9, 0, 'o') # Should skip since it's only one letter
+
+    @move.add(9, 2, 'a')
+    @move.add(9, 4, 't')
+    @move.add(9, 3, 'r')
+
+    # Check positions
+    assert_equal(Set.new([[[0,0], [0,1], [0,2]],
+                          [[0,0], [1,0], [2,0]],
+                          [[9,2], [9,3], [9,4]]]), 
+                 @move.word_posns(2).map! do |w| 
+                   w.map {|mu| mu.posn}
+                 end)
+    
+    # Check actual words
+    assert_equal(Set.new(['cat', 'cot', 'art']), 
+                 @move.word_posns(2).map! do |w| 
+                   w.map {|mu| mu.letter}.join
+                 end)
+  end
+
   def test_gaps_covered_by_other_move?
     broken_move = MoveShape.build([[3, 3], [3, 5]])
     other_move = MoveShape.build([[2, 4], [3, 4], [4, 4]])

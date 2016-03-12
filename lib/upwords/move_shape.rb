@@ -7,7 +7,21 @@ module Upwords
 
     def union(other_move)
       union_set = @move_units.union(other_move.move_units)
-      MoveShape.build(union_set.map {|mu| mu.posn})
+      MoveShape.build(union_set.map {|mu| [mu.row, mu.col, mu.letter]})
+    end
+
+    def word_posns(min_size = 2)
+      word_posns_helper do |mu1, mu2| 
+        (mu1.col - mu2.col).abs == 1 && mu1.row == mu2.row
+      end + word_posns_helper do |mu1, mu2| 
+        (mu1.row - mu2.row).abs == 1 && mu1.col == mu2.col
+      end
+    end
+    
+    def word_posns_helper(min_size = 2, &block)
+      @move_units.divide(&block).map do |set|
+        set.to_a.sort_by {|mu| mu.posn}
+      end.select {|w| w.length >= min_size}.to_set
     end
     
     def gaps_covered_by?(other_move)
@@ -40,8 +54,8 @@ module Upwords
       row_range.size == 1 || col_range.size == 1
     end
 
-    def add(row, col)
-      @move_units << MoveUnit.new(row, col)
+    def add(row, col, letter = nil)
+      @move_units << MoveUnit.new(row, col, letter)
     end
 
     def empty?
@@ -64,7 +78,7 @@ module Upwords
 
     def self.build(posns)
       new_move = MoveShape.new
-      posns.each {|row, col| new_move.add(row, col)}
+      posns.each {|row, col, letter| new_move.add(row, col, letter)}
       new_move
     end
 
@@ -83,11 +97,12 @@ module Upwords
   end
   
   class MoveUnit
-    attr_reader :row, :col
+    attr_reader :row, :col, :letter
     
-    def initialize(row, col)
+    def initialize(row, col, letter = nil)
       @row = row
       @col = col
+      @letter = letter.nil? ? " " : letter
     end
     
     def eql?(other_unit)
