@@ -5,7 +5,10 @@ module Upwords
       @board = board
       @dict = dictionary
       @pending_move = []
-      @move_history = []
+
+      # Add filled board spaces as first move if board is not empty
+      bs = @board.nonempty_spaces
+      @move_history = bs.empty? ? [] : [MoveShape.build(bs)]
     end
 
     # --------------------------------
@@ -115,6 +118,7 @@ module Upwords
       if !(new_move.straight_line?)
         raise IllegalMove, "The letters in your move must be along a single row or column!"
 
+      # TODO: Can the next two checks be dependent on the board?
       elsif !(new_move.gaps_covered_by?(past_moves))
         raise IllegalMove, "The letters in your move must be internally connected!"
 
@@ -138,6 +142,10 @@ module Upwords
       # TODO: Add the following legal move checks:
       # - Move is not a simple pluralization? (e.g. Cat -> Cats is NOT a legal move)
       true
+    end
+
+    def highest_value_move(player)
+      letters = player.letters
     end
     
     # =========================================
