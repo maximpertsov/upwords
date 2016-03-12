@@ -57,7 +57,7 @@ module Upwords
     # AI Methods
     # =========================================
 
-    def possible_spaces(player)
+    def ai_move(player)
       letters = player.letters
       rows = @board.num_rows
       cols = @board.num_columns
@@ -86,7 +86,7 @@ module Upwords
         ms = MoveShape.build(ms_arr)
         [@board.middle_square.any? { |posn| ms_arr.include?(posn) },
          ms.gaps_covered_by?(past_moves),
-         past_moves.empty? || ms.touching(past_moves)].all?
+         past_moves.empty? || ms.touching?(past_moves)].all?
       end
 
       all_possible_moves = []
@@ -97,9 +97,23 @@ module Upwords
         end
       end
       
-      all_possible_moves# .select |mv| do
-        
-      # end
+      moves_and_scores = []
+
+      (all_possible_moves).sample(5000).each do |move|
+        begin
+          move.each do |posn, letter|
+            @moves.add(player, letter, *posn)
+          end
+          
+          if @moves.legal?
+            moves_and_scores << [@moves.pending_score, move]
+          end
+        rescue IllegalMove => exn
+        end
+        @moves.undo_all(player)
+      end
+
+      moves_and_scores
     end
 
     # =========================================
@@ -248,6 +262,26 @@ module Upwords
     def next_turn
       @players.rotate!
       @win.hide_rack if display_on?
+
+      # -- AI MOVE!!!! --------
+      # TODO: Make sure AI refills
+      # TODO: Hide letters
+      update_message "#{current_player.name} is thinking..."
+      cpu_move = ai_move(current_player).max_by {|score, move| score}
+      
+      if !cpu_move.nil?
+        
+        cpu_move[1].each do |posn, letter|
+          @moves.add(current_player, letter, *posn)
+        end
+        @moves.submit(current_player)
+        current_player.refill_rack(@letter_bank)
+      else
+        update_message "#{current_player.name} skipped a turn!"
+      end
+      @players.rotate!
+      # -----------------------
+
       clear_message
       @submitted = false
     end

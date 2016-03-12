@@ -18,7 +18,7 @@ class GameTest < Minitest::Test
     ('A'..'G').each {|l| @player.take_letter(l)}
     
     p " "
-    p @game.possible_spaces(@player)[0]
+    p @game.ai_move(@player) #.size
   end
 
   def test_has_game_objects

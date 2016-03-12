@@ -50,6 +50,7 @@ module Upwords
       if @pending_move.empty?
         raise IllegalMove, "You haven't played any letters!"
       elsif legal?
+        # TODO: pending score should factor in the 20 point bonus for using all letters
         player.score += pending_score 
         player.score += 20 if player.rack_capacity == @pending_move.size
         @move_history << MoveShape.build(@pending_move)
