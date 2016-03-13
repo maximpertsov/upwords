@@ -19,8 +19,8 @@ module Upwords
     end
     
     def to_s
-      (draw_board.zip(draw_stats).map do |b,s|
-         b + (s.to_s)
+      (draw_board.zip(draw_stats).map do |board, stats|
+         board + (stats.to_s)
        end + draw_message).join("\n")
     end
 
@@ -67,10 +67,8 @@ module Upwords
       "   #{@game.current_player.name}'s turn"
     end
 
-    def draw_score
-      players = @game.players
-      score_display = players.map{|p| "#{p.name} score: #{p.score} skips: #{p.skip_count}"}.join " | "
-      "   #{score_display}"
+    def draw_score(player)
+      "   #{player.name} score: #{player.score} skips: #{player.skip_count}"
     end
     
     def draw_letter_rack
@@ -129,7 +127,8 @@ module Upwords
       [" ",
        draw_player_name,
        draw_letter_rack,
-       draw_score].zip([" "] * 3).flatten
+       draw_score(@game.players[0]),
+       draw_score(@game.players[1])].zip([" "] * 3).flatten
     end
 
   end

@@ -107,12 +107,9 @@ module Upwords
     def legal?
       new_move = MoveShape.build(
         @pending_move.map do |row, col| 
-          [row, col, @board.top_letter(row, col)]
+          [row, col, @board.top_letter(row, col)] 
         end)
       past_moves = past_moves_union
-# @move_history.reduce(MoveShape.new) do |ms, m|
-#         m.union(ms)
-#       end
 
       # Only perform these checks if first move of game
       if @move_history.empty?
