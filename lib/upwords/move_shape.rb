@@ -5,6 +5,12 @@ module Upwords
       @move_units = Set.new
     end
 
+    def covering_moves?(other_move)
+      other_move.word_posns(2).any? do |posns|
+        @move_units >= Set.new(posns)
+      end
+    end
+
     def union(other_move)
       union_set = @move_units.union(other_move.move_units)
       MoveShape.build(union_set.map {|mu| [mu.row, mu.col, mu.letter]})
@@ -17,13 +23,7 @@ module Upwords
         (mu1.row - mu2.row).abs == 1 && mu1.col == mu2.col
       end
     end
-    
-    def word_posns_helper(min_size = 2, &block)
-      @move_units.divide(&block).map do |set|
-        set.to_a.sort_by {|mu| mu.posn}
-      end.select {|w| w.length >= min_size}.to_set
-    end
-    
+        
     def gaps_covered_by?(other_move)
       (self.gaps - other_move.posns).empty?
     end
@@ -92,6 +92,14 @@ module Upwords
 
     def move_units
       @move_units
+    end
+
+    private 
+    
+    def word_posns_helper(min_size = 2, &block)
+      @move_units.divide(&block).map do |set|
+        set.to_a.sort_by {|mu| mu.posn}
+      end.select {|w| w.length >= min_size}.to_set
     end
 
   end

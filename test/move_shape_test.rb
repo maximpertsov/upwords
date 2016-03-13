@@ -8,7 +8,7 @@ class MoveShapeTest < Minitest::Test
   end
 
   def test_build
-    ms = MoveShape.build([[1,1],[1,2],[1,3]])
+    ms = MoveShape.build([[1,1],[1,2, 'a'],[1,3]])
 
     assert_kind_of(MoveShape, ms)
     assert_equal 3, ms.size
@@ -77,6 +77,54 @@ class MoveShapeTest < Minitest::Test
                  @move.word_posns(2).map! do |w| 
                    w.map {|mu| mu.letter}.join
                  end)
+  end
+
+  def test_words_after_multiple_moves
+    moves = [MoveShape.build([[0, 0, 'c'],
+                              [0, 1, 'a'],
+                              [0, 2, 't']]),
+             MoveShape.build([[0, 2, 't'],
+                              [0, 1, 'o']]),
+             MoveShape.build([[1, 0, 'a'],
+                              [2, 0, 'r'],
+                              [3, 0, 't']])]
+
+    # Unify moves
+    ms_union = moves.reduce(MoveShape.new) do |ums, ms|
+      ms.union(ums)
+    end
+    
+    # Check positions
+    assert_equal(Set.new([[[0,0], [0,1], [0,2]],
+                          [[0,0], [1,0], [2,0], [3,0]]]), 
+                 ms_union.word_posns(2).map! do |w| 
+                   w.map {|mu| mu.posn}
+                 end)
+    
+    # Check actual words
+    assert_equal(Set.new(['cot', 'cart']), 
+                 ms_union.word_posns(2).map! do |w| 
+                   w.map {|mu| mu.letter}.join
+                 end)
+  end
+  
+  def test_covered_word_posns
+    old_moves = MoveShape.build([[2,4],
+                                 [3,4],
+                                 [4,4],
+                                 [2,7],
+                                 [3,7],
+                                 [4,7]])
+    
+    covering_move = MoveShape.build([[2,4], 
+                                     [3,4], 
+                                     [4,4]])
+
+    not_covering_move = MoveShape.build([[2,4], 
+                                         [3,4]])
+
+    assert covering_move.covering_moves?(old_moves)
+    refute not_covering_move.covering_moves?(old_moves)
   end
 
   def test_gaps_covered_by_other_move?
