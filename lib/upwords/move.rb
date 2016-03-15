@@ -1,5 +1,5 @@
 module Upwords
-  class MoveShape
+  class Move
 
     def initialize
       @move_units = Set.new
@@ -7,21 +7,31 @@ module Upwords
 
     def covering_moves?(other_move)
       other_move.word_posns(2).any? do |posns|
-        @move_units >= Set.new(posns)
+        @move_units >= posns
       end
     end
 
     def union(other_move)
       union_set = @move_units.union(other_move.move_units)
-      MoveShape.build(union_set.map {|mu| [mu.row, mu.col, mu.letter]})
+      Move.build(union_set.map {|mu| [mu.row, mu.col, mu.letter]})
+    end
+
+    def words(min_size = 2)
+      word_posns.map do |posns|
+        posns.sort_by {|mu| mu.posn}.map {|mu| mu.letter}.join
+      end
     end
 
     def word_posns(min_size = 2)
-      word_posns_helper do |mu1, mu2| 
+      row_words = @move_units.divide do |mu1, mu2| 
         (mu1.col - mu2.col).abs == 1 && mu1.row == mu2.row
-      end + word_posns_helper do |mu1, mu2| 
+      end
+      
+      col_words = @move_units.divide do |mu1, mu2| 
         (mu1.row - mu2.row).abs == 1 && mu1.col == mu2.col
       end
+
+      (row_words + col_words).select {|set| set.size > min_size}.to_set
     end
         
     def gaps_covered_by?(other_move)
@@ -29,11 +39,8 @@ module Upwords
     end
 
     def gaps
-      square_range.reject {|posn| posns.include?(posn)}
-    end
-    
-    def square_range
-      (row_range.to_a).product(col_range.to_a)
+      square_range = (row_range.to_a).product(col_range.to_a)
+      square_range.reject {|posn| (self.posns).include?(posn)}
     end
         
     def row_range
@@ -77,7 +84,7 @@ module Upwords
     end
 
     def self.build(posns)
-      new_move = MoveShape.new
+      new_move = Move.new
       posns.each {|row, col, letter| new_move.add(row, col, letter)}
       new_move
     end
@@ -92,14 +99,6 @@ module Upwords
 
     def move_units
       @move_units
-    end
-
-    private 
-    
-    def word_posns_helper(min_size = 2, &block)
-      @move_units.divide(&block).map do |set|
-        set.to_a.sort_by {|mu| mu.posn}
-      end.select {|w| w.length >= min_size}.to_set
     end
 
   end
@@ -120,7 +119,7 @@ module Upwords
     def hash
       posn.hash
     end
-    
+   
     def overlaps?(other_unit)
       (self.row == other_unit.row) && (self.col == other_unit.col)
     end

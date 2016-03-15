@@ -66,7 +66,7 @@ module Upwords
       # Initialize with all single-position moves
       all_move_shapes = (0...rows).to_a.product((0...cols).to_a).map {|posn| [posn] }
       
-      (2..letters.size).each do |move_sz| # Limiting move sizes. For full move set, use (2..letters.size)
+      (2..letters.size).each do |move_sz| 
         (0...rows).each do |row|
           (0...cols).map {|col| [row, col]}.combination(move_sz) do |move_posns|
             
@@ -83,21 +83,37 @@ module Upwords
       # filter out moves that are in bad configurations
       # TODO: add more filters
       all_move_shapes.select! do |ms_arr|
-        ms = MoveShape.build(ms_arr)
+        ms = Move.build(ms_arr)
         [@board.middle_square.any? { |posn| ms_arr.include?(posn) },
          ms.gaps_covered_by?(past_moves),
          past_moves.empty? || ms.touching?(past_moves)].all?
       end
 
       all_possible_moves = []
-      
+
+      # all_move_sizes = all_move_shapes.map { |s| s.length }.uniq.sort
+      # combos = {}
+      # all_move_sizes.each do |size|
+      #   combos[size] = letters.permutations(size)
+      # # 
+
+      permutations = (1..letters.size).to_a.reduce(Hash.new) do |h, sz|
+        h[sz] = letters.permutation(sz)
+        h
+      end
+
       all_move_shapes.each do |ms|
-        letters.permutation(ms.size) do |combo|
-          all_possible_moves << ms.zip(combo)
+        # combos[ms.size].each do |combo|
+        # letters.permutations(ms.size).each do |combo|
+        permutations[ms.size].each do |perm|
+          all_possible_moves << ms.zip(perm)
         end
       end
       
       moves_and_scores = []
+
+      # TODO: DELETE ME
+      print "Total Moves: #{all_possible_moves.size}\n"
 
       (all_possible_moves).sample(5000).each do |move|
         begin

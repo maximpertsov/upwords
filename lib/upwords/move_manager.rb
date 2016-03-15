@@ -8,7 +8,7 @@ module Upwords
 
       # Add filled board spaces as first move if board is not empty
       bs = @board.nonempty_spaces
-      @move_history = bs.empty? ? [] : [MoveShape.build(bs)]
+      @move_history = bs.empty? ? [] : [Move.build(bs)]
     end
 
     # --------------------------------
@@ -53,7 +53,7 @@ module Upwords
         # TODO: pending score should factor in the 20 point bonus for using all letters
         player.score += pending_score 
         player.score += 20 if player.rack_capacity == @pending_move.size
-        @move_history << MoveShape.build(@pending_move)
+        @move_history << Move.build(@pending_move)
         @pending_move.clear
       end
     end
@@ -75,11 +75,11 @@ module Upwords
     end
 
     def past_moves_union
-      @move_history.reduce(MoveShape.new) {|ms, m| m.union(ms)}
+      @move_history.reduce(Move.new) {|ms, m| m.union(ms)}
     end
 
     def legal?
-      new_move = MoveShape.build(
+      new_move = Move.build(
         @pending_move.map do |row, col| 
           [row, col, @board.top_letter(row, col)] 
         end)

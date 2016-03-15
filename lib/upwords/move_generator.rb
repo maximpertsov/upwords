@@ -2,7 +2,7 @@ module Upwords
   module MoveGenerator
     
     def self.union_moves(moves)
-      moves.reduce(MoveShape.new) {|ms, m| m.union(ms)}
+      moves.reduce(Move.new) {|ms, m| m.union(ms)}
     end
 
     def self.play_move(board, move)

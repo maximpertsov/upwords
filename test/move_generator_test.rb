@@ -5,9 +5,9 @@ class MoveGeneratorTest < Minitest::Test
 
   def setup
     @moves = [
-      MoveShape.build([[0,1], [0,2]]),
-      MoveShape.build([[1,1], [0,2]]),
-      MoveShape.build([[1,1], [0,3], [3,3]])
+      Move.build([[0,1], [0,2]]),
+      Move.build([[1,1], [0,2]]),
+      Move.build([[1,1], [0,3], [3,3]])
     ]
   end
 

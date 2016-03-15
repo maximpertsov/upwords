@@ -1,26 +1,26 @@
 require 'test_helper'
 
-class MoveShapeTest < Minitest::Test
+class MoveTest < Minitest::Test
   include Upwords
 
   def setup
-    @move = MoveShape.new
+    @move = Move.new
   end
 
   def test_build
-    ms = MoveShape.build([[1,1],[1,2, 'a'],[1,3]])
+    ms = Move.build([[1,1],[1,2, 'a'],[1,3]])
 
-    assert_kind_of(MoveShape, ms)
+    assert_kind_of(Move, ms)
     assert_equal 3, ms.size
   end
 
   def test_union
-    ms1 = MoveShape.build([[1,1],[1,2],[1,3]])
-    ms2 = MoveShape.build([[1,2],[1,3],[1,4]])
+    ms1 = Move.build([[1,1],[1,2],[1,3]])
+    ms2 = Move.build([[1,2],[1,3],[1,4]])
 
     ms_union = ms1.union(ms2)
 
-    assert_kind_of(MoveShape, ms_union)
+    assert_kind_of(Move, ms_union)
 
     assert_equal 4, ms_union.size
     [[1,1],[1,2],[1,3],[1,4]].each do |r,c|
@@ -30,17 +30,17 @@ class MoveShapeTest < Minitest::Test
 
   def test_union_of_many
     moves = [
-      MoveShape.build([[1,1],[1,2],[1,3]]),
-      MoveShape.build([[1,2],[1,3],[1,4]]),
-      MoveShape.build([[0,2],[0,3],[0,4]]),
-      MoveShape.build([[1,2],[1,3],[1,5]])
+      Move.build([[1,1],[1,2],[1,3]]),
+      Move.build([[1,2],[1,3],[1,4]]),
+      Move.build([[0,2],[0,3],[0,4]]),
+      Move.build([[1,2],[1,3],[1,5]])
     ]
 
-    ms_union = moves.reduce(MoveShape.new) do |ums, ms|
+    ms_union = moves.reduce(Move.new) do |ums, ms|
       ms.union(ums)
     end
     
-    assert_kind_of(MoveShape, ms_union)
+    assert_kind_of(Move, ms_union)
 
     assert_equal 8, ms_union.size
     
@@ -65,62 +65,58 @@ class MoveShapeTest < Minitest::Test
     @move.add(9, 3, 'r')
 
     # Check positions
-    assert_equal(Set.new([[[0,0], [0,1], [0,2]],
-                          [[0,0], [1,0], [2,0]],
-                          [[9,2], [9,3], [9,4]]]), 
-                 @move.word_posns(2).map! do |w| 
-                   w.map {|mu| mu.posn}
-                 end)
+    assert_equal(Set.new([[[0,0], [0,1], [0,2]].to_set,
+                          [[0,0], [1,0], [2,0]].to_set,
+                          [[9,2], [9,3], [9,4]].to_set]), 
+                 @move.word_posns(2).map do |w| 
+                   w.map {|mu| mu.posn}.to_set
+                 end.to_set)
     
     # Check actual words
     assert_equal(Set.new(['cat', 'cot', 'art']), 
-                 @move.word_posns(2).map! do |w| 
-                   w.map {|mu| mu.letter}.join
-                 end)
+                 @move.words(2).to_set)
   end
 
   def test_words_after_multiple_moves
-    moves = [MoveShape.build([[0, 0, 'c'],
-                              [0, 1, 'a'],
-                              [0, 2, 't']]),
-             MoveShape.build([[0, 2, 't'],
-                              [0, 1, 'o']]),
-             MoveShape.build([[1, 0, 'a'],
-                              [2, 0, 'r'],
-                              [3, 0, 't']])]
+    moves = [Move.build([[0, 0, 'c'],
+                         [0, 1, 'a'],
+                         [0, 2, 't']]),
+             Move.build([[0, 2, 't'],
+                         [0, 1, 'o']]),
+             Move.build([[1, 0, 'a'],
+                         [2, 0, 'r'],
+                         [3, 0, 't']])]
 
     # Unify moves
-    ms_union = moves.reduce(MoveShape.new) do |ums, ms|
+    ms_union = moves.reduce(Move.new) do |ums, ms|
       ms.union(ums)
     end
     
     # Check positions
-    assert_equal(Set.new([[[0,0], [0,1], [0,2]],
-                          [[0,0], [1,0], [2,0], [3,0]]]), 
-                 ms_union.word_posns(2).map! do |w| 
-                   w.map {|mu| mu.posn}
-                 end)
+    assert_equal(Set.new([[[0,0], [0,1], [0,2]].to_set,
+                          [[0,0], [1,0], [2,0], [3,0]].to_set]), 
+                 ms_union.word_posns(2).map do |w| 
+                   w.map {|mu| mu.posn}.to_set
+                 end.to_set)
     
     # Check actual words
     assert_equal(Set.new(['cot', 'cart']), 
-                 ms_union.word_posns(2).map! do |w| 
-                   w.map {|mu| mu.letter}.join
-                 end)
+                 ms_union.words(2).to_set)
   end
   
   def test_covered_word_posns
-    old_moves = MoveShape.build([[2,4],
+    old_moves = Move.build([[2,4],
                                  [3,4],
                                  [4,4],
                                  [2,7],
                                  [3,7],
                                  [4,7]])
     
-    covering_move = MoveShape.build([[2,4], 
+    covering_move = Move.build([[2,4], 
                                      [3,4], 
                                      [4,4]])
 
-    not_covering_move = MoveShape.build([[2,4], 
+    not_covering_move = Move.build([[2,4], 
                                          [3,4]])
 
     assert covering_move.covering_moves?(old_moves)
@@ -128,14 +124,14 @@ class MoveShapeTest < Minitest::Test
   end
 
   def test_gaps_covered_by_other_move?
-    broken_move = MoveShape.build([[3, 3], [3, 5]])
-    other_move = MoveShape.build([[2, 4], [3, 4], [4, 4]])
+    broken_move = Move.build([[3, 3], [3, 5]])
+    other_move = Move.build([[2, 4], [3, 4], [4, 4]])
 
     assert broken_move.gaps_covered_by?(other_move)
   end
   
   def test_not_touching_previously_played_moves
-    played_moves = MoveShape.new
+    played_moves = Move.new
 
     [[2, 4],
      [3, 4],
@@ -198,7 +194,7 @@ class MoveShapeTest < Minitest::Test
     @move.add(1, 2)
     @move.add(1, 3)
 
-    other_move = MoveShape.new
+    other_move = Move.new
     other_move.add(0, 2)
     
     assert @move.touching?(other_move)
@@ -207,7 +203,7 @@ class MoveShapeTest < Minitest::Test
   def test_not_touching
     @move.add(1, 3)
 
-    other_move = MoveShape.new
+    other_move = Move.new
     other_move.add(0, 2)
     other_move.add(8, 8)
     
@@ -256,14 +252,16 @@ class MoveUnitTest < Minitest::Test
     refute @mu_a12.overlaps? @mu_b13
   end
 
-  # def test_same_row?
-  #   assert @mu_a12.same_row? @mu_b13
-  #   refute @mu_a12.same_row? @mu_c02
+  # def test_row_diff
+  #   assert_equal 0, @mu_a12.row_diff(@mu_b13)
+  #   assert_equal 1, @mu_a12.row_diff(@mu_c02)
+  #   assert_equal -1, @mu_c02.row_diff(@mu_b13)
   # end
 
-  # def test_same_col?
-  #   assert @mu_a12.same_col? @mu_c02
-  #   refute @mu_a12.same_col? @mu_b13    
+  # def test_col_diff
+  #   assert_equal 0, @mu_a12.col_diff(@mu_c02)
+  #   assert_equal -1, @mu_a12.col_diff(@mu_b13)
+  #   assert_equal 1, @mu_b13.col_diff(@mu_a12)
   # end
 
   def test_orthogonal_spaces
