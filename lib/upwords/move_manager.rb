@@ -20,11 +20,8 @@ module Upwords
       begin
         if @pending_move.include?([row, col])
           raise IllegalMove, "You can't stack on a space more than once in a single turn!"
-        elsif selected_letter == @board.top_letter(row, col)
-          raise IllegalMove, "You can't stack a letter on the same letter!"
         else
-          @board.play_letter(selected_letter, row, col)
-          @pending_move << [row, col]
+          @pending_move << @board.play_letter(selected_letter, row, col)
         end
       rescue IllegalMove => exn
         player.take_letter(selected_letter)
