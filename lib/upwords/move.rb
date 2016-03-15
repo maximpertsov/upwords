@@ -6,7 +6,7 @@ module Upwords
     end
 
     def covering_moves?(other_move, &filter_func)
-      other_move.word_posns(&filter_func).any? do |posns|
+      other_move.word_positions(&filter_func).any? do |posns|
         @move_units >= posns
       end
     end
@@ -17,12 +17,12 @@ module Upwords
     end
 
     def words(&filter_func)    #(min_size = 2)
-      word_posns(&filter_func).map do |posns|
+      word_positions(&filter_func).map do |posns|
         posns.sort_by {|mu| mu.posn}.map {|mu| mu.letter}.join
       end
     end
 
-    def word_posns(&filter_func)    #(min_size = 2)
+    def word_positions(&filter_func)    #(min_size = 2)
       row_words = @move_units.divide do |mu1, mu2| 
         (mu1.col - mu2.col).abs == 1 && mu1.row == mu2.row
       end

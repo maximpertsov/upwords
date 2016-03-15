@@ -68,7 +68,7 @@ class MoveTest < Minitest::Test
     assert_equal(Set.new([[[0,0], [0,1], [0,2]].to_set,
                           [[0,0], [1,0], [2,0]].to_set,
                           [[9,2], [9,3], [9,4]].to_set]), 
-                 @move.word_posns {|w| w.size > 2}.map do |w| 
+                 @move.word_positions {|w| w.size > 2}.map do |w| 
                    w.map {|mu| mu.posn}.to_set
                  end.to_set)
     
@@ -95,7 +95,7 @@ class MoveTest < Minitest::Test
     # Check positions
     assert_equal(Set.new([[[0,0], [0,1], [0,2]].to_set,
                           [[0,0], [1,0], [2,0], [3,0]].to_set]), 
-                 ms_union.word_posns {|w| w.size > 2}.map do |w| 
+                 ms_union.word_positions {|w| w.size > 2}.map do |w| 
                    w.map {|mu| mu.posn}.to_set
                  end.to_set)
     
@@ -104,7 +104,7 @@ class MoveTest < Minitest::Test
                  ms_union.words {|w| w.size > 2}.to_set)
   end
   
-  def test_covered_word_posns
+  def test_covered_word_positions
     old_moves = Move.build([[2,4],
                                  [3,4],
                                  [4,4],
