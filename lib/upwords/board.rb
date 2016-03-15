@@ -2,36 +2,36 @@ module Upwords
   class Board
     
     # creates a 10 x 10 board
-    def initialize(size=10)
-      if size.positive?
-        @grid = Array.new(size) {Array.new(size) { [] }}
-      else
+    def initialize(size=10, max_height=5)
+      if !size.positive?
         raise ArgumentError, "Board size must be greater than zero!"
+      else
+        @size = size
+        @max_height = max_height
+        @grid = Hash.new do |h, (row,col)|
+          if row < 0 || col < 0 || num_rows <= row || num_columns <= col
+            raise IllegalMove, "#{row}, #{col} is out of bounds!"
+          else
+            h[[row, col]] = []    # Initialize with empty array
+          end
       end
     end
-    
+
     # maximum letters than can be stacked in one space
     def min_word_length
       2
     end
 
     def max_height
-      5
-    end
-
-    def in_bounds?(row, col)
-      [0 <= row, 
-       0 <= col,
-       row < num_rows, 
-       col < num_columns].all?
+      @max_height
     end
 
     def num_rows
-      @grid.size
+      @size
     end
     
     def num_columns
-      @grid[0].size
+      @size
     end
 
     # Defines a 2x2 square in the middle of the board (in the case of the 10 x 10 board)
@@ -44,27 +44,22 @@ module Upwords
     end
 
     def stack_height(row, col)
-      if !in_bounds?(row, col)
-        raise IllegalMove, "#{row}, #{col} is out of bounds!"
-      else
-        @grid[row][col].size
-      end
+      @grid[[row, col]].size
     end
 
     def play_letter(letter, row, col)
-      if stack_height(row, col) < max_height
-        @grid[row][col] << letter
-      else
+      if stack_height(row, col) == max_height
         raise IllegalMove, "You cannot stack any more letters on this space"
+      elsif top_letter(row, col) == letter
+        raise IllegalMove, "You can't stack a letter on the same letter!"
+      else
+        @grid[[row, col]] << letter
+        return [row, col]     # Return position after successfully playing a move
       end  
     end
 
     def remove_top_letter(row, col)
-      if !in_bounds?(row, col)
-        raise IllegalMove, "#{row}, #{col} is out of bounds!"
-      else
-        @grid[row][col].pop
-      end
+      @grid[[row, col]].pop
     end
   
     # show top letter in board space
@@ -73,11 +68,7 @@ module Upwords
     end
 
     def get_letter(row, col, depth=1)
-      if !in_bounds?(row, col)
-        raise IllegalMove, "#{row}, #{col} is out of bounds!"
-      else
-        @grid[row][col][-depth] 
-      end
+      @grid[[row, col]][-depth]
     end
 
     def word_positions
