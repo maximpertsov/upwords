@@ -68,13 +68,13 @@ class MoveTest < Minitest::Test
     assert_equal(Set.new([[[0,0], [0,1], [0,2]].to_set,
                           [[0,0], [1,0], [2,0]].to_set,
                           [[9,2], [9,3], [9,4]].to_set]), 
-                 @move.word_posns(2).map do |w| 
+                 @move.word_posns {|w| w.size > 2}.map do |w| 
                    w.map {|mu| mu.posn}.to_set
                  end.to_set)
     
     # Check actual words
     assert_equal(Set.new(['cat', 'cot', 'art']), 
-                 @move.words(2).to_set)
+                 @move.words {|w| w.size > 2}.to_set)
   end
 
   def test_words_after_multiple_moves
@@ -95,13 +95,13 @@ class MoveTest < Minitest::Test
     # Check positions
     assert_equal(Set.new([[[0,0], [0,1], [0,2]].to_set,
                           [[0,0], [1,0], [2,0], [3,0]].to_set]), 
-                 ms_union.word_posns(2).map do |w| 
+                 ms_union.word_posns {|w| w.size > 2}.map do |w| 
                    w.map {|mu| mu.posn}.to_set
                  end.to_set)
     
     # Check actual words
     assert_equal(Set.new(['cot', 'cart']), 
-                 ms_union.words(2).to_set)
+                 ms_union.words {|w| w.size > 2}.to_set)
   end
   
   def test_covered_word_posns
@@ -119,8 +119,8 @@ class MoveTest < Minitest::Test
     not_covering_move = Move.build([[2,4], 
                                          [3,4]])
 
-    assert covering_move.covering_moves?(old_moves)
-    refute not_covering_move.covering_moves?(old_moves)
+    assert covering_move.covering_moves?(old_moves) {|w| w.size > 2}
+    refute not_covering_move.covering_moves?(old_moves) {|w| w.size > 2}
   end
 
   def test_gaps_covered_by_other_move?
@@ -181,14 +181,14 @@ class MoveTest < Minitest::Test
     end
   end
 
-  def test_gaps
-    @move.add(1, 3)
-    @move.add(0, 2)
+  # def test_gaps
+  #   @move.add(1, 3)
+  #   @move.add(0, 2)
     
-    [[0,3],[1,2]].each do |g|
-      assert_includes @move.gaps, g
-    end
-  end
+  #   [[0,3],[1,2]].each do |g|
+  #     assert_includes @move.gaps, g
+  #   end
+  # end
 
   def test_touching?
     @move.add(1, 2)

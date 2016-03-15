@@ -5,8 +5,8 @@ module Upwords
       @move_units = Set.new
     end
 
-    def covering_moves?(other_move)
-      other_move.word_posns(2).any? do |posns|
+    def covering_moves?(other_move, &filter_func)
+      other_move.word_posns(&filter_func).any? do |posns|
         @move_units >= posns
       end
     end
@@ -16,13 +16,13 @@ module Upwords
       Move.build(union_set.map {|mu| [mu.row, mu.col, mu.letter]})
     end
 
-    def words(min_size = 2)
-      word_posns.map do |posns|
+    def words(&filter_func)    #(min_size = 2)
+      word_posns(&filter_func).map do |posns|
         posns.sort_by {|mu| mu.posn}.map {|mu| mu.letter}.join
       end
     end
 
-    def word_posns(min_size = 2)
+    def word_posns(&filter_func)    #(min_size = 2)
       row_words = @move_units.divide do |mu1, mu2| 
         (mu1.col - mu2.col).abs == 1 && mu1.row == mu2.row
       end
@@ -31,16 +31,14 @@ module Upwords
         (mu1.row - mu2.row).abs == 1 && mu1.col == mu2.col
       end
 
-      (row_words + col_words).select {|set| set.size > min_size}.to_set
+      (row_words + col_words).select(&filter_func).to_set # {|set| set.size > min_size}.to_set
     end
         
     def gaps_covered_by?(other_move)
-      (self.gaps - other_move.posns).empty?
-    end
-
-    def gaps
       square_range = (row_range.to_a).product(col_range.to_a)
-      square_range.reject {|posn| (self.posns).include?(posn)}
+      gaps_in_square = square_range.reject {|posn| (self.posns).include?(posn)}
+
+      (gaps_in_square - other_move.posns).empty?
     end
         
     def row_range

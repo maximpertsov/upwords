@@ -1,9 +1,10 @@
 module Upwords
   class MoveManager
     
-    def initialize(board, dictionary)
+    def initialize(board, dictionary, min_word_size = 2)
       @board = board
       @dict = dictionary
+      @min_word_size = min_word_size
       @pending_move = []
 
       # Add filled board spaces as first move if board is not empty
@@ -89,7 +90,7 @@ module Upwords
       if @move_history.empty?
         if !letter_in_middle_square?
           raise IllegalMove, "You must play at least one letter in the middle 2x2 square!"
-        elsif (@move_history.empty? && new_move.size < 2)
+        elsif (@move_history.empty? && new_move.size < @min_word_size)
           raise IllegalMove, "Valid words must be at least two letters long!"
         end
       end
@@ -105,8 +106,7 @@ module Upwords
       elsif !(past_moves.empty? || new_move.touching?(past_moves))
         raise IllegalMove, "At least one letter in your move must be touching a previously played word!"
 
-      elsif new_move.covering_moves?(past_moves)
-        #!(covered_words.empty?)
+      elsif new_move.covering_moves?(past_moves) {|w| w.size >= @min_word_size}
         raise IllegalMove, "Cannot completely cover up any previously-played words!"
         
       elsif !pending_illegal_words.empty?

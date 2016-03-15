@@ -106,7 +106,6 @@ module Upwords
     
     def coordinates
       (0...num_rows).to_a.product((0...num_columns).to_a)
-      #@grid.each_with_index.map {|letters, row, col| [row, col]}
     end    
   end
 end
