@@ -40,6 +40,14 @@ module Upwords
 
       (gaps_in_square - other_move.posns).empty?
     end
+    
+    def covering_breaks?(broken_move)
+      (broken_move.breaks - self.posns).empty?
+    end
+    
+    def breaks
+      (row_range.to_a).product(col_range.to_a).reject {|posn| (self.posns).include?(posn)}.to_set
+    end
         
     def row_range
       Range.new(*@move_units.map {|mu| mu.row}.minmax)
@@ -78,7 +86,7 @@ module Upwords
     end
 
     def posns
-      @move_units.map {|mu| mu.posn}
+      @move_units.map {|mu| mu.posn}.to_set
     end
 
     def self.build(posns)
