@@ -106,49 +106,28 @@ listed in Rule 7 on page 5.
 ### 5. HOW TO FORM WORDS
 
 Figures 2 through 7 show a
-
 sequence of plays. Arrows
-
 point out the word or words
-
 formed on each play. Point
-
 scores are given for each
-
 example. See Rule 6 on page
-
 5 for details on scoring.
 
 You can play letters to form a
-
 word that reads across (from
-
 left to right only) or down the
-
 gameboard (never diagonally
-
 or up) and connects to a word
-
 already on the board. For
-
 example, build down from the
-
 letter"D in MOOD to form the
-
 word DEAR as shown in Figure
-
 2. Build across using the letter
-
 "E" in DEAR to form the word
-
 NET as shown in Figure 3.
-
 The word ON is also formed
-
 reading down.You score
-
 points for all of the words
-
 formed during your turn.
 
 Figure 2 Score: 8 Points
@@ -156,140 +135,85 @@ Figure 2 Score: 8 Points
 Figure 3 Score: 10 Points 
 
 N0TE:Any letter in your
-
 word that is adjacent to
-
 another letter or letters on
-
 the board must form a word.
-
 For example, in Figure 3, the
-
 letter "Nu in NET is adjacent to
-
 the letterUOin MOOD, which
-
 forms the word ON.
 
-Stacking Letters: You can
+#### Stacking Letters 
 
-stack letters on top of letters
-
+You can stack letters on top of letters
 already on the board to
-
 change a word into a different
-
 word. For example, stack the letter
-
 "W"on top of the"M"in MOOD to
-
 change MOOD to WOOD as shown
-
 in Figure 4.You cannot play more
-
 than one letter on the same stack
-
 during one turn. You cannot stack
-
 a letter on the same letter - for
-
 example, andlA"on an "A."
 
 IMPORTANT: Letters cannot be
-
 stacked more than five tiles high.
 
 Figure 4 Score: 5 Points 
 
-Mom on Stacking: You can
+#### More on Stacking 
 
-stack the letter "LUon top
-
+You can stack the letter "LUon top
 of the letter"DU and stack
-
 the letterUP"on top of the
-
 letter "R in the words WOOD
-
 and DEAR to change them
-
 into the words WOOL and
-
 LEAP as shown in Figure 5.
 
 IMPORTANT: when you
-
 change a word already
-
 on the board into a Figure 5 Score: 72 Points
-
 different word, at
-
 least one letter
-
 from the old word
-
 must remain
-
 uncovered and be
-
 used in the new
-
 word.You cannot
-
 stack letters to
-
 cover up an entire
-
 word.You can
-
 build a new word
-
 and change a
-
--
+word already on
+the board into
+a different word
+on the same turn.
+For example,
+build across
+stacking the
+letterUN"on top
+of the letter"Pn in
+LEAP to form the
+word SNACK and
+change the word
+LEAP to LEAN
+as shown in
+Figure 6. 
 
 Figure 6 Score: 14 Points 
 
-wora alreaay on
+Figure 7 Score: I6 Points
 
-the board into
+#### Plurals
 
-a different word
-
-on the same turn.
-
-For example,
-
-build across
-
-stacking the
-
-letterUN"on top
-
-of the letter"Pn in
-
-LEAP to form the
-
-word SNACK and
-
-change the word
-
-LEAP to LEAN
-
-as shown in
-
-Figure 6. Figure 7 Score: I6 Points
-
-Plurals:You cannot simply add anUS"to a word already on the board to
-
+You cannot simply add anUS"to a word already on the board to
 form a plural.You can, however, play letters to form a word that connects
-
 to a word already on the board to make it a plural. For example, build
-
 down to form the word PLUS which connects with the word NET and
-
-makes it plural as shown in Figure 7.You score points for both words. 
+makes it plural as shown in Figure 7.You score points for both words.
 
 ### 6. HOW TO SCORE WORDS
 
