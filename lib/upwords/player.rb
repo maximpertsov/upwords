@@ -39,8 +39,14 @@ module Upwords
       @rack.add(letter)
     end
 
-    def play_letter(letter)
-      @rack.remove(letter)
+    def play_letter(board, letter, row, col)
+      rack_letter = @rack.remove(letter)
+      begin
+        board.play_letter(rack_letter, row, col)
+      rescue IllegalMove => exn
+        take_letter(rack_letter)
+        raise IllegalMove, exn
+      end
     end
 
     def swap_letter(letter, letter_bank)
@@ -55,5 +61,6 @@ module Upwords
         take_letter(letter_bank.draw)
       end
     end
+    
   end
 end
