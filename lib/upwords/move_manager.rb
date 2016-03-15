@@ -16,16 +16,10 @@ module Upwords
     # Player-Board Interaction Methods
     # --------------------------------
     def add(player, letter, row, col)
-      selected_letter = player.play_letter(letter)
-      begin
-        if @pending_move.include?([row, col])
-          raise IllegalMove, "You can't stack on a space more than once in a single turn!"
-        else
-          @pending_move << @board.play_letter(selected_letter, row, col)
-        end
-      rescue IllegalMove => exn
-        player.take_letter(selected_letter)
-        raise IllegalMove, exn.message
+      if @pending_move.include?([row, col])
+        raise IllegalMove, "You can't stack on a space more than once in a single turn!"
+      else
+        @pending_move << player.play_letter(@board, letter, row, col)
       end
     end
 
@@ -49,8 +43,8 @@ module Upwords
         raise IllegalMove, "You haven't played any letters!"
       elsif legal?
         # TODO: pending score should factor in the 20 point bonus for using all letters
-        player.score += pending_score 
-        player.score += 20 if player.rack_capacity == @pending_move.size
+        player.score += pending_score(player)
+        #player.score += 20 if player.rack_capacity == @pending_move.size
         @move_history << Move.build(@pending_move)
         @pending_move.clear
       end
@@ -68,8 +62,8 @@ module Upwords
       pending_words.reject {|word| word.legal?}
     end
     
-    def pending_score
-      pending_words.map{|word| word.score}.inject(:+).to_i
+    def pending_score(player)
+      pending_words.map{|word| word.score}.inject(:+).to_i + (player.rack_capacity == @pending_move.size ? 20 : 0)
     end
 
     def past_moves_union
