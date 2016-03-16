@@ -14,9 +14,10 @@ module Upwords
           else
             h[[row, col]] = []    # Initialize with empty array
           end
+        end
       end
     end
-
+    
     # maximum letters than can be stacked in one space
     def min_word_length
       2
@@ -61,7 +62,7 @@ module Upwords
     def remove_top_letter(row, col)
       @grid[[row, col]].pop
     end
-  
+    
     # show top letter in board space
     def top_letter(row, col)
       get_letter(row, col, 1)

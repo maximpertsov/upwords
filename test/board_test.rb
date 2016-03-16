@@ -14,17 +14,17 @@ class BoardTest < Minitest::Test
       end
     end
 
-    def test_in_bounds
-      assert @board.in_bounds?(0,0)
-      assert @board.in_bounds?(9,9)
-      assert @board.in_bounds?(5,4)
-      assert @board.in_bounds?(7,8)
+    # def test_in_bounds
+    #   assert @board.in_bounds?(0,0)
+    #   assert @board.in_bounds?(9,9)
+    #   assert @board.in_bounds?(5,4)
+    #   assert @board.in_bounds?(7,8)
     
-      refute @board.in_bounds?(0,10)
-      refute @board.in_bounds?(10,9)
-      refute @board.in_bounds?(-5,4)
-      refute @board.in_bounds?(7,18)
-    end
+    #   refute @board.in_bounds?(0,10)
+    #   refute @board.in_bounds?(10,9)
+    #   refute @board.in_bounds?(-5,4)
+    #   refute @board.in_bounds?(7,18)
+    # end
 
     def test_can_play_letters
       @board.play_letter('m', 1, 3)

@@ -6,6 +6,7 @@ class PlayerTest < Minitest::Test
   class BasicPlayerTest < PlayerTest
     
     def setup
+      @board = Board.new(10, 5)
       @p1 = Player.new("P1")
       @p2 = Player.new("P2")
     end
@@ -26,11 +27,13 @@ class PlayerTest < Minitest::Test
 
     def test_can_play_letter
       @p1.take_letter('A')
-      assert_equal 'A', @p1.play_letter('A')
+      assert_equal [0, 1], @p1.play_letter(@board, 'A', 0, 1)
+      assert_equal 'A', @board.top_letter(0, 1)
     end
 
     def test_cannot_play_letter_that_player_doesnt_have
-      assert_raises(IllegalMove) { @p1.play_letter('A') }
+      assert_raises(IllegalMove) { @p1.play_letter(@board, 'A', 0, 1) }
+      assert_nil @board.top_letter(0, 1)
     end
   end
   

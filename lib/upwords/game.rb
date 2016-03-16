@@ -120,9 +120,12 @@ module Upwords
           move.each do |posn, letter|
             @moves.add(player, letter, *posn)
           end
-          
+
+          # Show Move Attempts
+          refresh_graphics
+
           if @moves.legal?
-            moves_and_scores << [@moves.pending_score, move]
+            moves_and_scores << [@moves.pending_score(player), move]
           end
         rescue IllegalMove => exn
         end

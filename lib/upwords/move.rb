@@ -36,7 +36,7 @@ module Upwords
         
     def gaps_covered_by?(other_move)
       square_range = (row_range.to_a).product(col_range.to_a)
-      gaps_in_square = square_range.reject {|posn| (self.posns).include?(posn)}
+      gaps_in_square = square_range.reject {|posn| (self.posns).include?(posn)}.to_set
 
       (gaps_in_square - other_move.posns).empty?
     end
