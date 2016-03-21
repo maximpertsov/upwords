@@ -84,7 +84,7 @@ module Upwords
     def legal_move_shapes(player)
       past_moves = @moves.past_moves_union	
       
-      straight_moves.select do |move_arr|
+      straight_moves(player).select do |move_arr|
         move = Move.build(move_arr)
         
         [@board.middle_square.any? { |posn| move_arr.include?(posn) },
