@@ -57,73 +57,72 @@ module Upwords
     # AI Methods
     # =========================================
 
-    def ai_move(player)
+    # TODO: Make private
+    def straight_moves(player)
       letters = player.letters
       rows = @board.num_rows
       cols = @board.num_columns
-      past_moves = @moves.past_moves_union
-
-      # Initialize with all single-position moves
-      all_move_shapes = (0...rows).to_a.product((0...cols).to_a).map {|posn| [posn] }
       
-      (2..letters.size).each do |move_sz| 
-        (0...rows).each do |row|
-          (0...cols).map {|col| [row, col]}.combination(move_sz) do |move_posns|
-            
-            # Vertical moves
-            all_move_shapes << move_posns
-            
-            # Horizontal moves 
-            all_move_shapes << move_posns.map {|posn| posn.rotate}
-            
-          end
+      # Get single-position moves
+      one_space_moves = (0...rows).to_a.product((0...cols).to_a).map {|posn| [posn] }
+      
+      # Get board positions grouped by rows
+      (0..rows).map do |row| 
+        (0..cols).map {|col| [row, col]}
+        
+        # Get horizontal multi-position moves
+      end.flat_map do |posns|
+        (2..letters.size).flat_map {|sz| posns.combination(sz)}
+    
+        # Collect all possible straight moves 
+      end.reduce(one_space_moves) do |all_moves, move|
+        all_moves << move << move.map {|posn| posn.rotate}
+      end
+    end
+    
+    # TODO: Make private
+    def legal_move_shapes(player)
+      past_moves = @moves.past_moves_union	
+      
+      straight_moves.select do |move_arr|
+        move = Move.build(move_arr)
+        
+        [@board.middle_square.any? { |posn| move_arr.include?(posn) },
+         move.gaps_covered_by?(past_moves),
+         past_moves.empty? || move.touching?(past_moves)].all?
+      end
+    end
+    
+    # TODO: Make private
+    def legal_shape_letter_permutations(player)
+      # Keep track of letter permutations for each permutation size
+      letters = player.letters
+      letter_perms = Hash.new {|h,k| h[k] = letters.permutation(sz).to_a }
+      
+      legal_move_shapes(player).reduce([]) do |all_moves, move|
+        letter_perms[move.size].reduce(all_moves) do |move_perms, perm|
+          move_perms << move.zip(perm)
         end
       end
-     
-      # filter out moves that are in bad configurations
-      # TODO: add more filters
-      all_move_shapes.select! do |ms_arr|
-        ms = Move.build(ms_arr)
-        [@board.middle_square.any? { |posn| ms_arr.include?(posn) },
-         ms.gaps_covered_by?(past_moves),
-         past_moves.empty? || ms.touching?(past_moves)].all?
-      end
-
-      all_possible_moves = []
-
-      # all_move_sizes = all_move_shapes.map { |s| s.length }.uniq.sort
-      # combos = {}
-      # all_move_sizes.each do |size|
-      #   combos[size] = letters.permutations(size)
-      # # 
-
-      permutations = (1..letters.size).to_a.reduce(Hash.new) do |h, sz|
-        h[sz] = letters.permutation(sz)
-        h
-      end
-
-      all_move_shapes.each do |ms|
-        # combos[ms.size].each do |combo|
-        # letters.permutations(ms.size).each do |combo|
-        permutations[ms.size].each do |perm|
-          all_possible_moves << ms.zip(perm)
-        end
-      end
-      
+    end
+    
+    def ai_move(player)
       moves_and_scores = []
-
+    
+      all_possible_moves = legal_shape_letter_permutations(player)
+    
       # TODO: DELETE ME
       print "Total Moves: #{all_possible_moves.size}\n"
-
+    
       (all_possible_moves).sample(5000).each do |move|
         begin
           move.each do |posn, letter|
             @moves.add(player, letter, *posn)
           end
-
+    
           # Show Move Attempts
           refresh_graphics
-
+    
           if @moves.legal?
             moves_and_scores << [@moves.pending_score(player), move]
           end
@@ -131,7 +130,6 @@ module Upwords
         end
         @moves.undo_all(player)
       end
-
       moves_and_scores
     end
 
