@@ -56,60 +56,11 @@ module Upwords
     # =========================================
     # AI Methods
     # =========================================
-
-    # TODO: Make private
-    def straight_moves(player)
-      letters = player.letters
-      rows = @board.num_rows
-      cols = @board.num_columns
-      
-      # Get single-position moves
-      one_space_moves = (0...rows).to_a.product((0...cols).to_a).map {|posn| [posn] }
-      
-      # Get board positions grouped by rows
-      (0..rows).map do |row| 
-        (0..cols).map {|col| [row, col]}
-        
-        # Get horizontal multi-position moves
-      end.flat_map do |posns|
-        (2..letters.size).flat_map {|sz| posns.combination(sz)}
-    
-        # Collect all possible straight moves 
-      end.reduce(one_space_moves) do |all_moves, move|
-        all_moves << move << move.map {|posn| posn.rotate}
-      end
-    end
-    
-    # TODO: Make private
-    def legal_move_shapes(player)
-      past_moves = @moves.past_moves_union	
-      
-      straight_moves(player).select do |move_arr|
-        move = Move.build(move_arr)
-        
-        [@board.middle_square.any? { |posn| move_arr.include?(posn) },
-         move.gaps_covered_by?(past_moves),
-         past_moves.empty? || move.touching?(past_moves)].all?
-      end
-    end
-    
-    # TODO: Make private
-    def legal_shape_letter_permutations(player)
-      # Keep track of letter permutations for each permutation size
-      letters = player.letters
-      letter_perms = Hash.new {|h,k| h[k] = letters.permutation(sz).to_a }
-      
-      legal_move_shapes(player).reduce([]) do |all_moves, move|
-        letter_perms[move.size].reduce(all_moves) do |move_perms, perm|
-          move_perms << move.zip(perm)
-        end
-      end
-    end
     
     def ai_move(player)
       moves_and_scores = []
     
-      all_possible_moves = legal_shape_letter_permutations(player)
+      all_possible_moves = player.legal_shape_letter_permutations(@board)
     
       # TODO: DELETE ME
       print "Total Moves: #{all_possible_moves.size}\n"

@@ -76,4 +76,29 @@ class PlayerTest < Minitest::Test
     end
   end
 
+  class CPUMovePlayerTest < PlayerTest
+    
+    def setup
+      @board = Board.new(2, 5)
+      @board.play_letter('C', 0, 0)
+
+      @p1 = Player.new("P1")
+
+      @p1.take_letter('A')
+      @p1.take_letter('B')
+    end
+
+    def test_straight_moves
+      assert_equal 8, @p1.straight_moves(@board).size
+    end
+
+    def test_legal_move_shapes
+      assert_equal 7, @p1.legal_move_shapes(@board).size
+    end
+
+    def test_legal_shape_letter_permutations
+      assert_equal 14, @p1.legal_shape_letter_permutations(@board).size
+    end
+
+  end
 end

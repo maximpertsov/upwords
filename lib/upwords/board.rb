@@ -80,6 +80,10 @@ module Upwords
       coordinates.select {|row, col| stack_height(row, col) > 0}.to_set
     end
 
+    def coordinates
+      (0...num_rows).to_a.product((0...num_columns).to_a)
+    end    
+
     private
 
     def collect_word_posns(&block)
@@ -96,8 +100,5 @@ module Upwords
       collect_word_posns {|(r1,c1),(r2,c2)| (r1 - r2).abs == 1 && c1 == c2 }
     end
     
-    def coordinates
-      (0...num_rows).to_a.product((0...num_columns).to_a)
-    end    
   end
 end
