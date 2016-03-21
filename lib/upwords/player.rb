@@ -62,5 +62,57 @@ module Upwords
       end
     end
     
+    private
+    
+    # ----------------
+    # CPU Move Methods
+    # ----------------
+    
+    def straight_moves(board)
+      rows = board.num_rows
+      cols = board.num_columns
+      
+      # Get single-position moves
+      # TODO: Make the board.coordinates method public
+      one_space_moves = board.coordinates.map {|posn| [posn]}
+      # one_space_moves = (0...rows).to_a.product((0...cols).to_a).map {|posn| [posn] }
+      
+      # Get board positions grouped by rows
+      (0..rows).map do |row| 
+        (0..cols).map {|col| [row, col]}
+      
+      # Get horizontal multi-position moves
+      end.flat_map do |posns|
+        (2..(letters.size)).flat_map {|sz| posns.combination(sz)}
+    
+      # Collect all possible straight moves 
+      end.reduce(one_space_moves) do |all_moves, move|
+        all_moves << move << move.map {|posn| posn.rotate}
+      end
+    end
+    
+    def legal_move_shapes(board)
+      past_moves = Moves.build(board.nonempty_spaces)	
+      
+      straight_moves(board).select do |move_arr|
+        move = Move.build(move_arr)
+        
+        [board.middle_square.any? { |posn| move_arr.include?(posn) },
+         move.gaps_covered_by?(past_moves),
+         past_moves.empty? || move.touching?(past_moves)].all?
+      end
+    end
+    
+    def legal_shape_letter_permutations(board)
+      # Cache result of letter permutation computation for each move size
+      letter_perms = Hash.new {|h,k| h[k] = letters.permutation(sz).to_a }
+      
+      legal_move_shapes(board).reduce([]) do |all_moves, move|
+        letter_perms[move.size].reduce(all_moves) do |move_perms, perm|
+          move_perms << move.zip(perm)
+        end
+      end
+    end
+    
   end
 end
