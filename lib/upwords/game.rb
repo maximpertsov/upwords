@@ -1,11 +1,11 @@
 module Upwords
   class Game
     attr_reader :board, :cursor, :players
-        
+    
     def initialize(display_on = true, max_players = 2)
       @max_players = max_players
       @display_on = display_on
-      @board = Board.new(10)
+      @board = Board.new(10, 5)
       @letter_bank = LetterBank.new(ALL_LETTERS.dup)
       @cursor = Cursor.new(@board.num_rows,
                            @board.num_columns,
@@ -59,18 +59,18 @@ module Upwords
     
     def ai_move(player, sample_size = 5000)
       moves_and_scores = []
-    
+      
       all_possible_moves = player.legal_shape_letter_permutations(@board, &player.standard_legal_shape_filter(@board))
-          
+      
       (all_possible_moves).sample(sample_size).each do |move|
         begin
           move.each do |posn, letter|
             @moves.add(player, letter, *posn)
           end
-    
+          
           # Show Move Attempts
           refresh_graphics
-    
+          
           if @moves.legal?
             moves_and_scores << [@moves.pending_score(player), move]
           end

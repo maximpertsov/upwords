@@ -10,7 +10,6 @@ require 'upwords/dictionary'
 
 require 'upwords/move'
 require 'upwords/move_manager'
-require 'upwords/move_generator'
 
 require 'upwords/cursor'
 
