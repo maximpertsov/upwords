@@ -13,11 +13,6 @@ class LetterBankTest < Minitest::Test
     end
   end
 
-  def test_raises_error_on_draws_from_empty_bank
-    4.times { @bank.draw }
-    assert_raises(IllegalMove) { @bank.draw }
-  end
-
   def test_empty?
     refute @bank.empty?
     

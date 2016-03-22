@@ -58,14 +58,19 @@ module Upwords
     end
 
     def swap_letter(letter, letter_bank)
-      new_letter = letter_bank.draw # Will raise error if bank if empty
-      trade_letter = @rack.remove(letter)
-      take_letter(new_letter)
-      letter_bank.deposit(trade_letter)
+      if letter_bank.empty?
+        raise IllegalMove, "Letter bank is empty!"
+      else
+        new_letter = letter_bank.draw
+        trade_letter = @rack.remove(letter)
+        take_letter(new_letter)
+        letter_bank.deposit(trade_letter)
+      end
     end
 
     def refill_rack(letter_bank)
-      while !(rack_full?) && !(letter_bank.empty?) do
+      until rack_full? || letter_bank.empty? do
+        #while !(rack_full?) && !(letter_bank.empty?) do
         take_letter(letter_bank.draw)
       end
     end

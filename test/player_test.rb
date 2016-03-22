@@ -63,7 +63,7 @@ class PlayerTest < Minitest::Test
       @p2 = Player.new("P2", 4)
       @bank = LetterBank.new(('A'..'Z').to_a)
     end
-    
+   
     def test_can_refill_rack_to_capacity
       @p1.refill_rack(@bank)
       @p2.refill_rack(@bank)
@@ -87,12 +87,14 @@ class PlayerTest < Minitest::Test
 
     def test_cannot_swap_letter_with_empty_bank
       @p1.take_letter('x')
+      empty_bank = LetterBank.new()
       
       assert_raises(IllegalMove) do
-        @p1.swap_letter('x', LetterBank.new())
+        @p1.swap_letter('x', empty_bank)
       end
       
       assert_equal 'x', @p1.show_rack
+      assert empty_bank.empty?
     end
   end
 
