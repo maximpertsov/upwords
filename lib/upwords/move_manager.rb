@@ -93,10 +93,12 @@ module Upwords
       elsif !(new_move.gaps_covered_by?(Move.make_board(@move_history))) #past_moves))
         raise IllegalMove, "The letters in your move must be internally connected!"
 
-      elsif !(past_moves.empty? || new_move.touching?(past_moves))
+      # TODO: Move make_board call to top of method  
+      elsif !(past_moves.empty? || new_move.touching?(Move.make_board(@move_history))) #past_moves))
         raise IllegalMove, "At least one letter in your move must be touching a previously played word!"
 
-      elsif new_move.covering_moves?(past_moves) {|w| w.size >= @min_word_size}
+      # TODO: Move make_board call to top of method  
+      elsif new_move.covering_moves?(Move.make_board(@move_history))  #past_moves) {|w| w.size >= @min_word_size}
         raise IllegalMove, "Cannot completely cover up any previously-played words!"
         
       elsif !pending_illegal_words.empty?

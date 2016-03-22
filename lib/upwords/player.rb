@@ -57,9 +57,8 @@ module Upwords
       if letter_bank.empty?
         raise IllegalMove, "Letter bank is empty!"
       else
-        new_letter = letter_bank.draw
         trade_letter = @rack.remove(letter)
-        take_letter(new_letter)
+        take_letter(letter_bank.draw)
         letter_bank.deposit(trade_letter)
       end
     end
@@ -107,8 +106,8 @@ module Upwords
         
         [board.middle_square.any? { |posn| move_arr.include?(posn) },
          move.gaps_covered_by?(board),
-         (past_moves.empty? || move.touching?(past_moves)),
-         !(move.covering_moves?(past_moves) {|w| w.size >= 2})].all?
+         (past_moves.empty? || move.touching?(board)),
+         !move.covering_moves?(board)].all?
       end
     end
     

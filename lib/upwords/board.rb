@@ -87,9 +87,9 @@ module Upwords
     private
 
     def collect_word_posns(&block)
-      nonempty_spaces.divide(&block).map do |s|
-        s.to_a.sort
-      end.select {|w| w.length >= min_word_length}
+      SortedSet.new(nonempty_spaces).divide(&block).select do |w| 
+        w.length >= min_word_length
+      end.to_set
     end
 
     def row_word_posns

@@ -133,22 +133,18 @@ class MoveTest < Minitest::Test
   end
   
   def test_covered_word_positions
-    old_moves = Move.build([[2,4],
-                            [3,4],
-                            [4,4],
-                            [2,7],
-                            [3,7],
-                            [4,7]])
+    board = [[2,4],[3,4],[4,4],
+             [2,7],[3,7],[4,7]].reduce(Board.new(10,5)) do |b,(r,c)|
+      b.play_letter('x', r, c)
+      b
+    end
     
-    covering_move = Move.build([[2,4], 
-                                [3,4], 
-                                [4,4]])
+    covering_move = Move.build([[2,4],[3,4],[4,4]])
 
-    not_covering_move = Move.build([[2,4], 
-                                    [3,4]])
+    not_covering_move = Move.build([[2,4],[3,4]])
 
-    assert covering_move.covering_moves?(old_moves) {|w| w.size >= 2}
-    refute not_covering_move.covering_moves?(old_moves) {|w| w.size >= 2}
+    assert covering_move.covering_moves?(board)
+    refute not_covering_move.covering_moves?(board) 
   end
 
   def test_gaps_covered_by_other_move?
@@ -166,18 +162,15 @@ class MoveTest < Minitest::Test
   # end
   
   def test_not_touching_previously_played_moves
-    played_moves = Move.new
-
-    [[2, 4],
-     [3, 4],
-     [4, 4]].each do |r,c|
-      played_moves.add(r, c)
+    board = [[2, 4], [3, 4], [4, 4]].reduce(Board.new) do |b,(r,c)|
+      b.play_letter('x', r, c)
+      b
     end
 
     @move.add(2, 0)
     @move.add(3, 0)
 
-    refute @move.touching?(played_moves)
+    refute @move.touching?(board)
   end
 
   def test_is_move_in_a_straight_line?
@@ -229,20 +222,20 @@ class MoveTest < Minitest::Test
     @move.add(1, 2)
     @move.add(1, 3)
 
-    other_move = Move.new
-    other_move.add(0, 2)
+    board = Board.new(10, 5)
+    board.play_letter('x', 0, 2)
     
-    assert @move.touching?(other_move)
+    assert @move.touching?(board)
   end
 
   def test_not_touching
     @move.add(1, 3)
 
-    other_move = Move.new
-    other_move.add(0, 2)
-    other_move.add(8, 8)
+    board = Board.new(10, 5)
+    board.play_letter('x', 0, 2)
+    board.play_letter('x', 8, 8)
     
-    refute @move.touching?(other_move)
+    refute @move.touching?(board)
   end
 
   def test_empty?

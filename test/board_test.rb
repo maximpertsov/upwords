@@ -14,18 +14,6 @@ class BoardTest < Minitest::Test
       end
     end
 
-    # def test_in_bounds
-    #   assert @board.in_bounds?(0,0)
-    #   assert @board.in_bounds?(9,9)
-    #   assert @board.in_bounds?(5,4)
-    #   assert @board.in_bounds?(7,8)
-    
-    #   refute @board.in_bounds?(0,10)
-    #   refute @board.in_bounds?(10,9)
-    #   refute @board.in_bounds?(-5,4)
-    #   refute @board.in_bounds?(7,18)
-    # end
-
     def test_can_play_letters
       @board.play_letter('m', 1, 3)
       @board.play_letter('a', 2, 4)
@@ -108,9 +96,11 @@ class BoardTest < Minitest::Test
     end
 
     def test_get_words_on_board
-      expected = [[[1,0],[2,0],[3,0]], # "six"
-                  [[0,1],[0,2],[0,3]], # "max"
-                  [[5,0],[5,1]]]       # "mu"
+      expected = [
+        [[1,0],[2,0],[3,0]], # "six"
+        [[0,1],[0,2],[0,3]], # "max"
+        [[5,0],[5,1]]        # "mu"
+      ].map {|posns| SortedSet.new(posns)}       
       actual = @board.word_positions
       
       assert_equal Set.new(expected), Set.new(actual)

@@ -5,9 +5,9 @@ module Upwords
       @move_units = Set.new
     end
 
-    def covering_moves?(other_move, &filter_func)
-      other_move.word_positions(&filter_func).any? do |posns|
-        @move_units >= posns
+    def covering_moves?(board)
+      (board.word_positions).any? do |word_posns|
+        posns >= word_posns
       end
     end
 
@@ -40,17 +40,7 @@ module Upwords
 
       (gaps_in_square - board.nonempty_spaces).empty?
     end
-    
-    # def covering_breaks?(broken_move)
-    #   (broken_move.breaks - self.posns).empty?
-    # end
-    
-    # def breaks
-    #   (row_range.to_a).product(col_range.to_a).reject do |posn| 
-    #     (self.posns).include?(posn)
-    #   end.to_set
-    # end
-        
+       
     def row_range
       Range.new(*@move_units.map {|mu| mu.row}.minmax)
     end
@@ -59,7 +49,8 @@ module Upwords
       Range.new(*@move_units.map {|mu| mu.col}.minmax)
     end
 
-    def touching?(other_move)
+    def touching?(board) 
+      other_move = Move.build(board.nonempty_spaces) 
       @move_units.any? do |mu|
         other_move.touching_unit?(mu)
       end
