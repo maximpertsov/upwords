@@ -27,8 +27,7 @@ module Upwords
       if @pending_move.empty?
         raise IllegalMove, "No moves to undo!"
       else
-        letter = @board.remove_top_letter(*@pending_move.pop)
-        player.take_letter(letter)
+        player.take_from(@board, *@pending_move.pop)
       end
     end
 
@@ -44,7 +43,6 @@ module Upwords
       elsif legal?
         # TODO: pending score should factor in the 20 point bonus for using all letters
         player.score += pending_score(player)
-        #player.score += 20 if player.rack_capacity == @pending_move.size
         @move_history << Move.build(@pending_move)
         @pending_move.clear
       end

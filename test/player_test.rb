@@ -24,6 +24,14 @@ class PlayerTest < Minitest::Test
     def test_rack_full?
       refute @p1.rack_full?
     end
+  end
+
+  class BoardPlayerTest < PlayerTest
+
+    def setup
+      @board = Board.new(10, 5)
+      @p1 = Player.new("P1")
+    end
 
     def test_can_play_letter
       @p1.take_letter('A')
@@ -32,8 +40,20 @@ class PlayerTest < Minitest::Test
     end
 
     def test_cannot_play_letter_that_player_doesnt_have
-      assert_raises(IllegalMove) { @p1.play_letter(@board, 'A', 0, 1) }
+      assert_raises(IllegalMove) {@p1.play_letter(@board, 'A', 0, 1)}
       assert_nil @board.top_letter(0, 1)
+    end
+
+    def test_can_take_from_board
+      @board.play_letter('A', 0, 0)
+      @p1.take_from(@board, 0, 0)
+
+      assert_nil @board.top_letter(0, 0)
+      assert_equal 'A', @p1.show_rack
+    end
+
+    def test_raise_error_if_no_letter_to_take_from_board
+      assert_raises(IllegalMove) {@p1.take_from(@board, 0, 0)}
     end
   end
   

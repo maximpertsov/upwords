@@ -39,6 +39,14 @@ module Upwords
       @rack.add(letter)
     end
 
+    def take_from(board, row, col)
+      if board.stack_height(row, col) == 0
+        raise IllegalMove, "No letters in #{row}, #{col}!"
+      else
+        take_letter(board.remove_top_letter(row, col))
+      end
+    end
+
     def play_letter(board, letter, row, col)
       rack_letter = @rack.remove(letter)
       begin
@@ -52,7 +60,7 @@ module Upwords
     def swap_letter(letter, letter_bank)
       new_letter = letter_bank.draw # Will raise error if bank if empty
       trade_letter = @rack.remove(letter)
-      @rack.add(new_letter)
+      take_letter(new_letter)
       letter_bank.deposit(trade_letter)
     end
 
