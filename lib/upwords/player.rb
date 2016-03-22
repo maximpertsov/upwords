@@ -15,12 +15,8 @@ module Upwords
       @rack.letters.dup
     end
 
-    def show_rack
-      @rack.show
-    end
-
-    def show_hidden_rack
-      @rack.show_masked
+    def show_rack(masked = false)
+      masked ? @rack.show_masked : @rack.show
     end
 
     def rack_full?
@@ -70,7 +66,6 @@ module Upwords
 
     def refill_rack(letter_bank)
       until rack_full? || letter_bank.empty? do
-        #while !(rack_full?) && !(letter_bank.empty?) do
         take_letter(letter_bank.draw)
       end
     end

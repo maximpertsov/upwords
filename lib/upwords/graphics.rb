@@ -72,7 +72,7 @@ module Upwords
     end
     
     def draw_letter_rack
-      "   #{@rack_visibility ? @game.current_player.show_rack : @game.current_player.show_hidden_rack} "
+      "   #{@game.current_player.show_rack(!@rack_visibility)} "
     end
 
     def draw_space(row, col, cursor_posn)

@@ -68,8 +68,8 @@ class PlayerTest < Minitest::Test
       @p1.refill_rack(@bank)
       @p2.refill_rack(@bank)
 
-      assert_equal '* * * * * * *', @p1.show_hidden_rack
-      assert_equal '* * * *', @p2.show_hidden_rack
+      assert_equal '* * * * * * *', @p1.show_rack(true)
+      assert_equal '* * * *', @p2.show_rack(true)
     end
 
     def test_cannot_refill_rack_beyond_bank_capacity
