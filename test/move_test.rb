@@ -7,6 +7,34 @@ class MoveTest < Minitest::Test
     @move = Move.new
   end
 
+  def test_make_board
+    move_list = [[[1,1,'a'], [1,2,'b'], [1,3,'c']],
+                 [[1,1,'d']],
+                 [[3,1,'e'], [4,1,'f'], [5,1,'g']]].map do |mv|
+      Move.build(mv)
+    end
+
+    board = Move.make_board(10, 5, move_list)
+
+    assert_equal 'd', board.top_letter(1, 1)
+    assert_equal 2, board.stack_height(1, 1)
+    
+    assert_equal 'b', board.top_letter(1, 2)
+    assert_equal 1, board.stack_height(1, 2)
+    
+    assert_equal 'c', board.top_letter(1, 3)
+    assert_equal 1, board.stack_height(1, 3)
+
+    assert_equal 'e', board.top_letter(3, 1)
+    assert_equal 1, board.stack_height(3, 1)
+
+    assert_equal 'f', board.top_letter(4, 1)
+    assert_equal 1, board.stack_height(4, 1)
+
+    assert_equal 'g', board.top_letter(5, 1)
+    assert_equal 1, board.stack_height(5, 1)
+  end
+
   def test_build
     ms = Move.build([[1,1],[1,2, 'a'],[1,3]])
 
@@ -24,8 +52,8 @@ class MoveTest < Minitest::Test
 
     assert_equal 4, ms_union.size
     [[1,1],[1,2],[1,3],[1,4]].each do |r,c|
-       assert ms_union.include?(r,c)
-     end
+      assert ms_union.include?(r,c)
+    end
   end
 
   def test_union_of_many
@@ -46,7 +74,7 @@ class MoveTest < Minitest::Test
     
     [[1,1],[1,2],[1,3],[1,4],[1,5],
      [0,2],[0,3],[0,4]].each do |r,c|
-       assert ms_union.include?(r,c)
+      assert ms_union.include?(r,c)
     end
   end
 
@@ -106,18 +134,18 @@ class MoveTest < Minitest::Test
   
   def test_covered_word_positions
     old_moves = Move.build([[2,4],
-                                 [3,4],
-                                 [4,4],
-                                 [2,7],
-                                 [3,7],
-                                 [4,7]])
+                            [3,4],
+                            [4,4],
+                            [2,7],
+                            [3,7],
+                            [4,7]])
     
     covering_move = Move.build([[2,4], 
-                                     [3,4], 
-                                     [4,4]])
+                                [3,4], 
+                                [4,4]])
 
     not_covering_move = Move.build([[2,4], 
-                                         [3,4]])
+                                    [3,4]])
 
     assert covering_move.covering_moves?(old_moves) {|w| w.size >= 2}
     refute not_covering_move.covering_moves?(old_moves) {|w| w.size >= 2}
@@ -189,7 +217,7 @@ class MoveTest < Minitest::Test
   # def test_gaps
   #   @move.add(1, 3)
   #   @move.add(0, 2)
-    
+  
   #   [[0,3],[1,2]].each do |g|
   #     assert_includes @move.gaps, g
   #   end

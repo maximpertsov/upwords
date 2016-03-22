@@ -97,16 +97,25 @@ module Upwords
       new_move
     end
 
+    def self.make_board(size = 10, max_height = 5, move_list)
+      move_list.reduce(Board.new(size, max_height)) do |board, move|
+        move.move_units.reduce(board) do |b, mu|
+          board.play_letter(mu.letter, mu.row, mu.col)
+          board
+        end
+      end
+    end
+
+    def move_units
+      @move_units
+    end
+
     protected
 
     def touching_unit?(move_unit)
       @move_units.any? do |mu|
         mu.next_to?(move_unit) || mu.overlaps?(move_unit)
       end
-    end
-
-    def move_units
-      @move_units
     end
 
   end
