@@ -1,6 +1,6 @@
 module Upwords
   class Board
-    
+
     # creates a 10 x 10 board
     def initialize(size=10, max_height=5)
       if !size.positive?
@@ -18,6 +18,10 @@ module Upwords
       end
     end
     
+    def empty?
+      @grid.empty? || @grid.each_key.all? {|k| @grid[k].empty?}
+    end
+
     # maximum letters than can be stacked in one space
     def min_word_length
       2

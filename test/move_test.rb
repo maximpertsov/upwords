@@ -42,95 +42,95 @@ class MoveTest < Minitest::Test
     assert_equal 3, ms.size
   end
 
-  def test_union
-    ms1 = Move.build([[1,1],[1,2],[1,3]])
-    ms2 = Move.build([[1,2],[1,3],[1,4]])
+  # def test_union
+  #   ms1 = Move.build([[1,1],[1,2],[1,3]])
+  #   ms2 = Move.build([[1,2],[1,3],[1,4]])
 
-    ms_union = ms1.union(ms2)
+  #   ms_union = ms1.union(ms2)
 
-    assert_kind_of(Move, ms_union)
+  #   assert_kind_of(Move, ms_union)
 
-    assert_equal 4, ms_union.size
-    [[1,1],[1,2],[1,3],[1,4]].each do |r,c|
-      assert ms_union.include?(r,c)
-    end
-  end
+  #   assert_equal 4, ms_union.size
+  #   [[1,1],[1,2],[1,3],[1,4]].each do |r,c|
+  #     assert ms_union.include?(r,c)
+  #   end
+  # end
 
-  def test_union_of_many
-    moves = [
-      Move.build([[1,1],[1,2],[1,3]]),
-      Move.build([[1,2],[1,3],[1,4]]),
-      Move.build([[0,2],[0,3],[0,4]]),
-      Move.build([[1,2],[1,3],[1,5]])
-    ]
+  # def test_union_of_many
+  #   moves = [
+  #     Move.build([[1,1],[1,2],[1,3]]),
+  #     Move.build([[1,2],[1,3],[1,4]]),
+  #     Move.build([[0,2],[0,3],[0,4]]),
+  #     Move.build([[1,2],[1,3],[1,5]])
+  #   ]
 
-    ms_union = moves.reduce(Move.new) do |ums, ms|
-      ms.union(ums)
-    end
+  #   ms_union = moves.reduce(Move.new) do |ums, ms|
+  #     ms.union(ums)
+  #   end
     
-    assert_kind_of(Move, ms_union)
+  #   assert_kind_of(Move, ms_union)
 
-    assert_equal 8, ms_union.size
+  #   assert_equal 8, ms_union.size
     
-    [[1,1],[1,2],[1,3],[1,4],[1,5],
-     [0,2],[0,3],[0,4]].each do |r,c|
-      assert ms_union.include?(r,c)
-    end
-  end
+  #   [[1,1],[1,2],[1,3],[1,4],[1,5],
+  #    [0,2],[0,3],[0,4]].each do |r,c|
+  #     assert ms_union.include?(r,c)
+  #   end
+  # end
 
-  def test_words
-    @move.add(0, 0, 'c')
-    @move.add(0, 1, 'a')
-    @move.add(0, 2, 't')
+  # def test_words
+  #   @move.add(0, 0, 'c')
+  #   @move.add(0, 1, 'a')
+  #   @move.add(0, 2, 't')
     
-    @move.add(2, 0, 't')
-    @move.add(1, 0, 'o')
+  #   @move.add(2, 0, 't')
+  #   @move.add(1, 0, 'o')
 
-    @move.add(9, 0, 'o') # Should skip since it's only one letter
+  #   @move.add(9, 0, 'o') # Should skip since it's only one letter
 
-    @move.add(9, 2, 'a')
-    @move.add(9, 4, 't')
-    @move.add(9, 3, 'r')
+  #   @move.add(9, 2, 'a')
+  #   @move.add(9, 4, 't')
+  #   @move.add(9, 3, 'r')
 
-    # Check positions
-    assert_equal(Set.new([[[0,0], [0,1], [0,2]].to_set,
-                          [[0,0], [1,0], [2,0]].to_set,
-                          [[9,2], [9,3], [9,4]].to_set]), 
-                 @move.word_positions {|w| w.size > 2}.map do |w| 
-                   w.map {|mu| mu.posn}.to_set
-                 end.to_set)
+  #   # Check positions
+  #   assert_equal(Set.new([[[0,0], [0,1], [0,2]].to_set,
+  #                         [[0,0], [1,0], [2,0]].to_set,
+  #                         [[9,2], [9,3], [9,4]].to_set]), 
+  #                @move.word_positions {|w| w.size > 2}.map do |w| 
+  #                  w.map {|mu| mu.posn}.to_set
+  #                end.to_set)
     
-    # Check actual words
-    assert_equal(Set.new(['cat', 'cot', 'art']), 
-                 @move.words {|w| w.size > 2}.to_set)
-  end
+  #   # Check actual words
+  #   assert_equal(Set.new(['cat', 'cot', 'art']), 
+  #                @move.words {|w| w.size > 2}.to_set)
+  # end
 
-  def test_words_after_multiple_moves
-    moves = [Move.build([[0, 0, 'c'],
-                         [0, 1, 'a'],
-                         [0, 2, 't']]),
-             Move.build([[0, 2, 't'],
-                         [0, 1, 'o']]),
-             Move.build([[1, 0, 'a'],
-                         [2, 0, 'r'],
-                         [3, 0, 't']])]
+  # def test_words_after_multiple_moves
+  #   moves = [Move.build([[0, 0, 'c'],
+  #                        [0, 1, 'a'],
+  #                        [0, 2, 't']]),
+  #            Move.build([[0, 2, 't'],
+  #                        [0, 1, 'o']]),
+  #            Move.build([[1, 0, 'a'],
+  #                        [2, 0, 'r'],
+  #                        [3, 0, 't']])]
 
-    # Unify moves
-    ms_union = moves.reduce(Move.new) do |ums, ms|
-      ms.union(ums)
-    end
+  #   # Unify moves
+  #   ms_union = moves.reduce(Move.new) do |ums, ms|
+  #     ms.union(ums)
+  #   end
     
-    # Check positions
-    assert_equal(Set.new([[[0,0], [0,1], [0,2]].to_set,
-                          [[0,0], [1,0], [2,0], [3,0]].to_set]), 
-                 ms_union.word_positions {|w| w.size > 2}.map do |w| 
-                   w.map {|mu| mu.posn}.to_set
-                 end.to_set)
+  #   # Check positions
+  #   assert_equal(Set.new([[[0,0], [0,1], [0,2]].to_set,
+  #                         [[0,0], [1,0], [2,0], [3,0]].to_set]), 
+  #                ms_union.word_positions {|w| w.size > 2}.map do |w| 
+  #                  w.map {|mu| mu.posn}.to_set
+  #                end.to_set)
     
-    # Check actual words
-    assert_equal(Set.new(['cot', 'cart']), 
-                 ms_union.words {|w| w.size > 2}.to_set)
-  end
+  #   # Check actual words
+  #   assert_equal(Set.new(['cot', 'cart']), 
+  #                ms_union.words {|w| w.size > 2}.to_set)
+  # end
   
   def test_covered_word_positions
     board = [[2,4],[3,4],[4,4],

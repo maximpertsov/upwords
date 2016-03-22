@@ -10,30 +10,35 @@ module Upwords
         posns >= word_posns
       end
     end
+    
+    # =======================
+    # TODO: Remove methods
+    # =======================
+    # def union(other_move)
+    #   union_set = @move_units.union(other_move.move_units)
+    #   Move.build(union_set.map {|mu| [mu.row, mu.col, mu.letter]})
+    # end
 
-    def union(other_move)
-      union_set = @move_units.union(other_move.move_units)
-      Move.build(union_set.map {|mu| [mu.row, mu.col, mu.letter]})
-    end
+    # def words(&filter_func)    #(min_size = 2)
+    #   word_positions(&filter_func).map do |posns|
+    #     posns.sort_by {|mu| mu.posn}.map {|mu| mu.letter}.join
+    #   end
+    # end
 
-    def words(&filter_func)    #(min_size = 2)
-      word_positions(&filter_func).map do |posns|
-        posns.sort_by {|mu| mu.posn}.map {|mu| mu.letter}.join
-      end
-    end
-
-    def word_positions(&filter_func)    #(min_size = 2)
-      row_words = @move_units.divide do |mu1, mu2| 
-        (mu1.col - mu2.col).abs == 1 && mu1.row == mu2.row
-      end
+    # def word_positions(&filter_func)    #(min_size = 2)
+    #   row_words = @move_units.divide do |mu1, mu2| 
+    #     (mu1.col - mu2.col).abs == 1 && mu1.row == mu2.row
+    #   end
       
-      col_words = @move_units.divide do |mu1, mu2| 
-        (mu1.row - mu2.row).abs == 1 && mu1.col == mu2.col
-      end
+    #   col_words = @move_units.divide do |mu1, mu2| 
+    #     (mu1.row - mu2.row).abs == 1 && mu1.col == mu2.col
+    #   end
 
-      (row_words + col_words).select(&filter_func).to_set # {|set| set.size > min_size}.to_set
-    end
-        
+    #   (row_words + col_words).select(&filter_func).to_set # {|set| set.size > min_size}.to_set
+    # end
+    
+    # =======================
+    
     def gaps_covered_by?(board) 
       square_range = (row_range.to_a).product(col_range.to_a)
       gaps_in_square = square_range.reject {|posn| (self.posns).include?(posn)}.to_set

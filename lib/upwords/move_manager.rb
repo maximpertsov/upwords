@@ -41,9 +41,8 @@ module Upwords
       if @pending_move.empty?
         raise IllegalMove, "You haven't played any letters!"
       elsif legal?
-        # TODO: pending score should factor in the 20 point bonus for using all letters
         player.score += pending_score(player)
-        @move_history << Move.build(@pending_move)
+        @move_history << Move.build(@pending_move.map { |row, col| [row, col, @board.top_letter(row, col)] })
         @pending_move.clear
       end
     end
@@ -64,23 +63,16 @@ module Upwords
       pending_words.map{|word| word.score}.inject(:+).to_i + (player.rack_capacity == @pending_move.size ? 20 : 0)
     end
 
-    def past_moves_union
-      @move_history.reduce(Move.new) {|ms, m| m.union(ms)}
-    end
-
     def legal?
-      new_move = Move.build(
-        @pending_move.map do |row, col| 
-          [row, col, @board.top_letter(row, col)] 
-        end)
-      past_moves = past_moves_union
+      new_move = Move.build(@pending_move.map { |row, col| [row, col, @board.top_letter(row, col)] })
+      prev_board = Move.make_board(@board.num_rows, @board.max_height, @move_history)
 
       # Only perform these checks if first move of game
-      if @move_history.empty?
+      if prev_board.empty?
         if !letter_in_middle_square?
           raise IllegalMove, "You must play at least one letter in the middle 2x2 square!"
-        elsif (@move_history.empty? && new_move.size < @min_word_size)
-          raise IllegalMove, "Valid words must be at least two letters long!"
+        elsif new_move.size < @board.min_word_length
+          raise IllegalMove, "Valid words must be at least #{@board.min_word_length} letter(s) long!"
         end
       end
       
@@ -88,17 +80,13 @@ module Upwords
       if !(new_move.straight_line?)
         raise IllegalMove, "The letters in your move must be along a single row or column!"
 
-      # TODO: Can the next two checks be dependent on the board?
-      # TODO: Move make_board call to top of method  
-      elsif !(new_move.gaps_covered_by?(Move.make_board(@move_history))) #past_moves))
+      elsif !(new_move.gaps_covered_by?(prev_board))
         raise IllegalMove, "The letters in your move must be internally connected!"
 
-      # TODO: Move make_board call to top of method  
-      elsif !(past_moves.empty? || new_move.touching?(Move.make_board(@move_history))) #past_moves))
+      elsif !(prev_board.empty? || new_move.touching?(prev_board))
         raise IllegalMove, "At least one letter in your move must be touching a previously played word!"
 
-      # TODO: Move make_board call to top of method  
-      elsif new_move.covering_moves?(Move.make_board(@move_history))  #past_moves) {|w| w.size >= @min_word_size}
+      elsif new_move.covering_moves?(prev_board)  
         raise IllegalMove, "Cannot completely cover up any previously-played words!"
         
       elsif !pending_illegal_words.empty?

@@ -8,10 +8,19 @@ class BoardTest < Minitest::Test
       @board = Board.new(10)
     end
     
-    def test_create_empty_board
-      assert (0..9).all? do |r|
-        (0..9).all? {|c| @board.top_letter(r, c).nil?} 
-      end
+    def test_initially_empty_board
+      assert @board.empty?
+    end
+
+    def test_empty_after_play_and_remove
+      @board.play_letter('x', 0, 0)
+      @board.remove_top_letter(0, 0)
+      assert @board.empty?
+    end
+
+    def test_not_empty
+      @board.play_letter('x', 0, 0)
+      refute @board.empty?
     end
 
     def test_can_play_letters
