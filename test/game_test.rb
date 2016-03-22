@@ -13,13 +13,12 @@ class GameTest < Minitest::Test
     @game.exit_game(false) if @game.running?
   end
   
-  # # TODO: make a faster test
-  # def test_all_possible_moves
-  #   @player = Player.new("P1", 7)
-  #   ('A'..'G').each {|l| @player.take_letter(l)}
+  def test_all_possible_moves
+    @player = Player.new("P1", 7)
+    ('A'..'C').each {|l| @player.take_letter(l)}
     
-  #   assert @game.ai_move(@player).size >= 0
-  # end
+    assert @game.ai_move(@player, 5).size >= 0
+  end
 
   def test_has_game_objects
     assert_kind_of(Board, @game.board)

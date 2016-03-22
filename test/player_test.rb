@@ -118,19 +118,24 @@ class PlayerTest < Minitest::Test
     end
 
     def test_no_illegal_move_shapes
+      legal_shapes = @p1.legal_move_shapes(@board, &@p1.standard_legal_shape_filter(@board)) 
+
       illegal_shapes = [[[0,1],[0,2],[0,3]],
                         [[2,0]],
                         [[2,1]],
                         [[2,2]],
                         [[0,1],[0,3]]]
+
       illegal_shapes.each do |sh|
-        refute_includes(sh, @p1.legal_move_shapes(@board))
+        refute_includes(legal_shapes, sh)
       end
+
+      assert_includes(legal_shapes, [[0,0],[1,0],[2,0]])
     end
 
     # TODO: add some better tests...
     def test_legal_shape_letter_permutations
-      assert_equal 84, @p1.legal_shape_letter_permutations(@board).size
+      assert_equal 84, @p1.legal_shape_letter_permutations(@board, &@p1.standard_legal_shape_filter(@board)).size
     end
 
   end

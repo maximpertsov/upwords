@@ -84,23 +84,27 @@ module Upwords
       # Get board positions grouped by rows
       (0...rows).map do |row| 
         (0...cols).map {|col| [row, col]}
-      
-      # Get horizontal multi-position moves
+        
+        # Get horizontal multi-position moves
       end.flat_map do |posns|
         (2..(letters.size)).flat_map {|sz| posns.combination(sz).to_a}
-    
-      # Collect all possible straight moves 
+        
+        # Collect all possible straight moves 
       end.reduce(one_space_moves) do |all_moves, move|
         all_moves << move << move.map {|posn| posn.rotate}
       end
     end
     
-    def legal_move_shapes(board)
-      past_moves = Move.build(board.nonempty_spaces)	
-      
-      straight_moves(board).select do |move_arr|
+    # TODO: Strip out move filters and have the client provide them in a block
+    def legal_move_shapes(board, &filter) 
+      straight_moves(board).select(&filter)
+    end
+    
+    def standard_legal_shape_filter(board)
+      proc do |move_arr|
         move = Move.build(move_arr)
-      
+        past_moves = Move.build(board.nonempty_spaces)
+        
         [board.middle_square.any? { |posn| move_arr.include?(posn) },
          move.gaps_covered_by?(past_moves),
          (past_moves.empty? || move.touching?(past_moves)),
@@ -108,11 +112,11 @@ module Upwords
       end
     end
     
-    def legal_shape_letter_permutations(board)
+    def legal_shape_letter_permutations(board, &filter)
       # Cache result of letter permutation computation for each move size
-      letter_perms = Hash.new {|ps, sz| ps[sz] = letters.permutation(sz).to_a }
-
-      legal_move_shapes(board).reduce([]) do |all_moves, move|
+      letter_perms = Hash.new {|ps, sz| ps[sz] = letters.permutation(sz).to_a}
+      
+      legal_move_shapes(board, &filter).reduce([]) do |all_moves, move|
         letter_perms[move.size].reduce(all_moves) do |move_perms, perm|
           move_perms << move.zip(perm)
         end

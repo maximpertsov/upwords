@@ -57,15 +57,12 @@ module Upwords
     # AI Methods
     # =========================================
     
-    def ai_move(player)
+    def ai_move(player, sample_size = 5000)
       moves_and_scores = []
     
-      all_possible_moves = player.legal_shape_letter_permutations(@board)
-    
-      # TODO: DELETE ME
-      print "Total Moves: #{all_possible_moves.size}\n"
-    
-      (all_possible_moves).sample(5000).each do |move|
+      all_possible_moves = player.legal_shape_letter_permutations(@board, &player.standard_legal_shape_filter(@board))
+          
+      (all_possible_moves).sample(sample_size).each do |move|
         begin
           move.each do |posn, letter|
             @moves.add(player, letter, *posn)
