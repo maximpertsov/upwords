@@ -30,7 +30,7 @@ module Upwords
     end
 
     def player_count
-      player_count = @players.size
+      @players.size
     end
 
     def add_player(name = nil)

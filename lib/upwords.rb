@@ -15,6 +15,8 @@ require 'upwords/cursor'
 
 require 'upwords/word'
 require 'upwords/player'
+require 'upwords/player_manager'
+
 require 'upwords/graphics'
 require 'upwords/game'
 
