@@ -119,15 +119,20 @@ class MoveTest < Minitest::Test
     not_covering_move = Move.build([[2,4], 
                                          [3,4]])
 
-    assert covering_move.covering_moves?(old_moves) {|w| w.size > 2}
-    refute not_covering_move.covering_moves?(old_moves) {|w| w.size > 2}
+    assert covering_move.covering_moves?(old_moves) {|w| w.size >= 2}
+    refute not_covering_move.covering_moves?(old_moves) {|w| w.size >= 2}
   end
 
   def test_gaps_covered_by_other_move?
     broken_move = Move.build([[3, 3], [3, 5]])
     other_move = Move.build([[2, 4], [3, 4], [4, 4]])
-
     assert broken_move.gaps_covered_by?(other_move)
+  end
+
+  def test_covering_breaks?
+    broken_move = Move.build([[3, 3], [3, 5]])
+    other_move = Move.build([[2, 4], [3, 4], [4, 4]])
+    assert other_move.covering_breaks?(broken_move)
   end
   
   def test_not_touching_previously_played_moves

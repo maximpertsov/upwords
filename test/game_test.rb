@@ -13,12 +13,12 @@ class GameTest < Minitest::Test
     @game.exit_game(false) if @game.running?
   end
   
+  # TODO: make a better test
   def test_all_possible_moves
     @player = Player.new("P1", 7)
     ('A'..'G').each {|l| @player.take_letter(l)}
     
-    p " "
-    p @game.ai_move(@player).size
+    assert @game.ai_move(@player).size >= 0
   end
 
   def test_has_game_objects

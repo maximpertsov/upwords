@@ -79,25 +79,36 @@ class PlayerTest < Minitest::Test
   class CPUMovePlayerTest < PlayerTest
     
     def setup
-      @board = Board.new(2, 5)
+      @board = Board.new(3, 5)
       @board.play_letter('C', 0, 0)
+      @board.play_letter('A', 0, 1)
+      @board.play_letter('T', 0, 2)
 
       @p1 = Player.new("P1")
-
-      @p1.take_letter('A')
-      @p1.take_letter('B')
+      
+      @p1.take_letter('D')
+      @p1.take_letter('O')
+      @p1.take_letter('G')
     end
 
     def test_straight_moves
-      assert_equal 8, @p1.straight_moves(@board).size
+      assert_equal 33, @p1.straight_moves(@board).size
     end
 
-    def test_legal_move_shapes
-      assert_equal 7, @p1.legal_move_shapes(@board).size
+    def test_no_illegal_move_shapes
+      illegal_shapes = [[[0,1],[0,2],[0,3]],
+                        [[2,0]],
+                        [[2,1]],
+                        [[2,2]],
+                        [[0,1],[0,3]]]
+      illegal_shapes.each do |sh|
+        refute_includes(sh, @p1.legal_move_shapes(@board))
+      end
     end
 
+    # TODO: add some better tests...
     def test_legal_shape_letter_permutations
-      assert_equal 14, @p1.legal_shape_letter_permutations(@board).size
+      assert_equal 84, @p1.legal_shape_letter_permutations(@board).size
     end
 
   end

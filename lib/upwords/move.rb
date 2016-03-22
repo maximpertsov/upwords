@@ -1,6 +1,6 @@
 module Upwords
   class Move
-
+    
     def initialize
       @move_units = Set.new
     end
@@ -46,7 +46,9 @@ module Upwords
     end
     
     def breaks
-      (row_range.to_a).product(col_range.to_a).reject {|posn| (self.posns).include?(posn)}.to_set
+      (row_range.to_a).product(col_range.to_a).reject do |posn| 
+        (self.posns).include?(posn)
+      end.to_set
     end
         
     def row_range

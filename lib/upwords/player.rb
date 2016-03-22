@@ -92,10 +92,11 @@ module Upwords
       
       straight_moves(board).select do |move_arr|
         move = Move.build(move_arr)
-        
+      
         [board.middle_square.any? { |posn| move_arr.include?(posn) },
          move.gaps_covered_by?(past_moves),
-         past_moves.empty? || move.touching?(past_moves)].all?
+         (past_moves.empty? || move.touching?(past_moves)),
+         !(move.covering_moves?(past_moves) {|w| w.size >= 2})].all?
       end
     end
     
