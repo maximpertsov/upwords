@@ -89,7 +89,8 @@ module Upwords
         raise IllegalMove, "The letters in your move must be along a single row or column!"
 
       # TODO: Can the next two checks be dependent on the board?
-      elsif !(new_move.gaps_covered_by?(past_moves))
+      # TODO: Move make_board call to top of method  
+      elsif !(new_move.gaps_covered_by?(Move.make_board(@move_history))) #past_moves))
         raise IllegalMove, "The letters in your move must be internally connected!"
 
       elsif !(past_moves.empty? || new_move.touching?(past_moves))

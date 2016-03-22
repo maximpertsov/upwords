@@ -34,22 +34,22 @@ module Upwords
       (row_words + col_words).select(&filter_func).to_set # {|set| set.size > min_size}.to_set
     end
         
-    def gaps_covered_by?(other_move)
+    def gaps_covered_by?(board) 
       square_range = (row_range.to_a).product(col_range.to_a)
       gaps_in_square = square_range.reject {|posn| (self.posns).include?(posn)}.to_set
 
-      (gaps_in_square - other_move.posns).empty?
+      (gaps_in_square - board.nonempty_spaces).empty?
     end
     
-    def covering_breaks?(broken_move)
-      (broken_move.breaks - self.posns).empty?
-    end
+    # def covering_breaks?(broken_move)
+    #   (broken_move.breaks - self.posns).empty?
+    # end
     
-    def breaks
-      (row_range.to_a).product(col_range.to_a).reject do |posn| 
-        (self.posns).include?(posn)
-      end.to_set
-    end
+    # def breaks
+    #   (row_range.to_a).product(col_range.to_a).reject do |posn| 
+    #     (self.posns).include?(posn)
+    #   end.to_set
+    # end
         
     def row_range
       Range.new(*@move_units.map {|mu| mu.row}.minmax)

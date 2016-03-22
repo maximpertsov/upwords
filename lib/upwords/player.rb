@@ -106,7 +106,7 @@ module Upwords
         past_moves = Move.build(board.nonempty_spaces)
         
         [board.middle_square.any? { |posn| move_arr.include?(posn) },
-         move.gaps_covered_by?(past_moves),
+         move.gaps_covered_by?(board),
          (past_moves.empty? || move.touching?(past_moves)),
          !(move.covering_moves?(past_moves) {|w| w.size >= 2})].all?
       end
