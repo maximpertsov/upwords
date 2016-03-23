@@ -8,7 +8,7 @@ class MoveManagerTest < Minitest::Test
     ('A'..'G').each {|l| @player.take_letter(l)}
   end
   
-  class SubmitMoveTest < MoveManagerTest
+  class SubmitShapeTest < MoveManagerTest
 
     def setup
       super
@@ -36,7 +36,7 @@ class MoveManagerTest < Minitest::Test
     end
   end
 
-  class BasicMoveTest < MoveManagerTest
+  class BasicShapeTest < MoveManagerTest
     def setup
       @player = Player.new("P1", 7)
       ('A'..'G').each {|l| @player.take_letter(l)}

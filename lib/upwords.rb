@@ -8,7 +8,7 @@ require 'upwords/letter_bank'
 require 'upwords/letter_rack'
 require 'upwords/dictionary'
 
-require 'upwords/move'
+require 'upwords/shape'
 require 'upwords/move_manager'
 
 require 'upwords/cursor'

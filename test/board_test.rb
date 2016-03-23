@@ -116,7 +116,7 @@ class BoardTest < Minitest::Test
     end
   end
 
-  # class BoardMoveTest < BoardTest
+  # class BoardShapeTest < BoardTest
   #   def setup
   #     @board = Board.new
   #     @moves1 = [["m", 0, 1], ["a", 0, 2], ["x", 0, 3]]

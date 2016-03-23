@@ -1,5 +1,5 @@
 module Upwords
-  class Move
+  class Shape
 
     attr_reader :positions
     
@@ -61,7 +61,7 @@ module Upwords
     # end
 
     def self.build(posns)
-      posns.reduce(Move.new) do |move, (row, col)|
+      posns.reduce(Shape.new) do |move, (row, col)|
         move.add(row, col)
         move
       end 
