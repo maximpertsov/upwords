@@ -8,7 +8,7 @@ class ShapeTest < Minitest::Test
   end
 
   def test_build
-    ms = Shape.build([[1,1],[1,2, 'a'],[1,3]])
+    ms = Shape.new([[1,1],[1,2, 'a'],[1,3]])
     assert_kind_of(Shape, ms)
     assert_equal 3, ms.size
   end
@@ -20,15 +20,15 @@ class ShapeTest < Minitest::Test
       b
     end
 
-    covering_move = Shape.build([[2,4],[3,4],[4,4]])
-    not_covering_move = Shape.build([[2,4],[3,4]])
+    covering_move = Shape.new([[2,4],[3,4],[4,4]])
+    not_covering_move = Shape.new([[2,4],[3,4]])
 
     assert covering_move.covering_moves?(board)
     refute not_covering_move.covering_moves?(board) 
   end
 
   def test_gaps_covered_by_other_move?
-    broken_move = Shape.build([[3, 3], [3, 5]])
+    broken_move = Shape.new([[3, 3], [3, 5]])
     board = [[2, 4], [3, 4], [4, 4]].reduce(Board.new(10, 5)) do |b, (row, col)|
       b.play_letter('x', row, col)
       b

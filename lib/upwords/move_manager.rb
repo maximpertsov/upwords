@@ -9,7 +9,7 @@ module Upwords
 
       # Add filled board spaces as first move if board is not empty
       bs = @board.nonempty_spaces
-      @move_history = bs.empty? ? [] : [Shape.build(bs)]
+      @move_history = bs.empty? ? [] : [Shape.new(bs)]
     end
 
     # --------------------------------
@@ -42,7 +42,7 @@ module Upwords
         raise IllegalMove, "You haven't played any letters!"
       elsif legal?
         player.score += pending_score(player)
-        @move_history << Shape.build(@pending_move.map { |row, col| [row, col, @board.top_letter(row, col)] })
+        @move_history << Shape.new(@pending_move.map { |row, col| [row, col, @board.top_letter(row, col)] })
         @pending_move.clear
       end
     end
@@ -64,7 +64,7 @@ module Upwords
     end
 
     def legal?
-      new_move = Shape.build(@pending_move)
+      new_move = Shape.new(@pending_move)
       
       # HACK: lift pending move letters
       pending_move = @pending_move.map {|row, col| [[row, col], @board.remove_top_letter(row, col)]}.to_h

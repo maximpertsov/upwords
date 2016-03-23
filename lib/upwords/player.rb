@@ -101,8 +101,8 @@ module Upwords
     
     def standard_legal_shape_filter(board)
       proc do |move_arr|
-        move = Shape.build(move_arr)
-        past_moves = Shape.build(board.nonempty_spaces)
+        move = Shape.new(move_arr)
+        past_moves = Shape.new(board.nonempty_spaces)
         
         [board.middle_square.any? { |posn| move_arr.include?(posn) },
          move.gaps_covered_by?(board),
