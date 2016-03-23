@@ -9,6 +9,7 @@ require 'upwords/letter_rack'
 require 'upwords/dictionary'
 
 require 'upwords/shape'
+require 'upwords/move'
 require 'upwords/move_manager'
 
 require 'upwords/cursor'

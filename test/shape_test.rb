@@ -4,7 +4,7 @@ class ShapeTest < Minitest::Test
   include Upwords
 
   def setup
-    @move = Shape.new
+    @move_shape = Shape.new
   end
 
   def test_build
@@ -41,65 +41,65 @@ class ShapeTest < Minitest::Test
       b.play_letter('x', r, c)
       b
     end
-    @move.add(2, 0)
-    @move.add(3, 0)
-    refute @move.touching?(board)
+    @move_shape.add(2, 0)
+    @move_shape.add(3, 0)
+    refute @move_shape.touching?(board)
   end
 
   def test_is_move_in_a_straight_line?
-    @move.add(0, 0)
-    @move.add(2, 0)
-    @move.add(4, 0)
-    assert @move.straight_line?
+    @move_shape.add(0, 0)
+    @move_shape.add(2, 0)
+    @move_shape.add(4, 0)
+    assert @move_shape.straight_line?
   end
 
   def test_is_move_not_in_a_straight_line?
-    @move.add(0, 0)
-    @move.add(2, 0)
-    @move.add(0, 2)
-    refute @move.straight_line?
+    @move_shape.add(0, 0)
+    @move_shape.add(2, 0)
+    @move_shape.add(0, 2)
+    refute @move_shape.straight_line?
   end
 
   def test_row_range
-    @move.add(1, 3)
-    @move.add(8, 8)
-    @move.add(1, 2)
+    @move_shape.add(1, 3)
+    @move_shape.add(8, 8)
+    @move_shape.add(1, 2)
     (1..8).each do |r|
-      assert_includes @move.row_range, r
+      assert_includes @move_shape.row_range, r
     end
   end
 
   def test_col_range
-    @move.add(1, 3)
-    @move.add(8, 8)
-    @move.add(1, 2)
+    @move_shape.add(1, 3)
+    @move_shape.add(8, 8)
+    @move_shape.add(1, 2)
     (2..8).each do |c|
-      assert_includes @move.col_range, c
+      assert_includes @move_shape.col_range, c
     end
   end
 
   def test_touching?
-    @move.add(1, 2)
-    @move.add(1, 3)
+    @move_shape.add(1, 2)
+    @move_shape.add(1, 3)
     board = Board.new(10, 5)
     board.play_letter('x', 0, 2)
-    assert @move.touching?(board)
+    assert @move_shape.touching?(board)
   end
 
   def test_not_touching
-    @move.add(1, 3)
+    @move_shape.add(1, 3)
     board = Board.new(10, 5)
     board.play_letter('x', 0, 2)
     board.play_letter('x', 8, 8)
-    refute @move.touching?(board)
+    refute @move_shape.touching?(board)
   end
 
   def test_empty?
-    assert @move.empty?
+    assert @move_shape.empty?
   end
 
   def test_can_add_move
-    @move.add(1, 2)
-    assert (@move.positions).include? [1, 2]
+    @move_shape.add(1, 2)
+    assert (@move_shape.positions).include? [1, 2]
   end
 end
