@@ -64,32 +64,47 @@ module Upwords
     end
 
     def legal?
-      new_move = Move.build(@pending_move.map { |row, col| [row, col, @board.top_letter(row, col)] })
-      prev_board = Move.make_board(@board.num_rows, @board.max_height, @move_history)
-
-      # Only perform these checks if first move of game
-      if prev_board.empty?
-        if !letter_in_middle_square?
-          raise IllegalMove, "You must play at least one letter in the middle 2x2 square!"
-        elsif new_move.size < @board.min_word_length
-          raise IllegalMove, "Valid words must be at least #{@board.min_word_length} letter(s) long!"
-        end
-      end
+      new_move = Move.build(@pending_move)
       
-      # The follow checks should always be performed
-      if !(new_move.straight_line?)
-        raise IllegalMove, "The letters in your move must be along a single row or column!"
+      # HACK: lift pending move letters
+      pending_move = @pending_move.map {|row, col| [[row, col], @board.remove_top_letter(row, col)]}.to_h
 
-      elsif !(new_move.gaps_covered_by?(prev_board))
-        raise IllegalMove, "The letters in your move must be internally connected!"
-
-      elsif !(prev_board.empty? || new_move.touching?(prev_board))
-        raise IllegalMove, "At least one letter in your move must be touching a previously played word!"
-
-      elsif new_move.covering_moves?(prev_board)  
-        raise IllegalMove, "Cannot completely cover up any previously-played words!"
+      begin
+        # Only perform these checks if first move of game
+        if @board.empty?
+          if !letter_in_middle_square?
+            raise IllegalMove, "You must play at least one letter in the middle 2x2 square!"
+          elsif new_move.size < @board.min_word_length
+            raise IllegalMove, "Valid words must be at least #{@board.min_word_length} letter(s) long!"
+          end
+        end
         
-      elsif !pending_illegal_words.empty?
+        # The follow checks should always be performed
+        if !(new_move.straight_line?)
+          raise IllegalMove, "The letters in your move must be along a single row or column!"
+
+        elsif !(new_move.gaps_covered_by?(@board))
+          raise IllegalMove, "The letters in your move must be internally connected!"
+
+        elsif !(@board.empty? || new_move.touching?(@board))
+          raise IllegalMove, "At least one letter in your move must be touching a previously played word!"
+
+        elsif new_move.covering_moves?(@board)  
+          raise IllegalMove, "Cannot completely cover up any previously-played words!"
+        end
+
+      rescue IllegalMove => exn
+        # HACK: DRY, jk...
+        pending_move.each {|(row, col), letter| @board.play_letter(letter, row, col)}
+        raise IllegalMove, exn.message
+      end          
+      
+      # HACK: DRY, jk...
+      pending_move.each {|(row, col), letter| @board.play_letter(letter, row, col)}
+      
+      # Word checks start here
+      
+      if !pending_illegal_words.empty?
         error_msg = pending_illegal_words.join(", ")
         case pending_illegal_words.size
         when 1
@@ -102,9 +117,9 @@ module Upwords
       
       # TODO: Add the following legal move checks:
       # - Move is not a simple pluralization? (e.g. Cat -> Cats is NOT a legal move)
-      true
+      return true
     end
-    
+
     # =========================================
     # Individual legal move conditions
     # =========================================

@@ -8,7 +8,7 @@ module Upwords
       else
         @size = size
         @max_height = max_height
-        @grid = Hash.new do |h, (row,col)|
+        @grid = Hash.new do |h, (row, col)|
           if row < 0 || col < 0 || num_rows <= row || num_columns <= col
             raise IllegalMove, "#{row}, #{col} is out of bounds!"
           else
