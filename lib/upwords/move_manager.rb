@@ -1,10 +1,9 @@
 module Upwords
   class MoveManager
     
-    def initialize(board, dictionary, min_word_size = 2)
+    def initialize(board, dictionary) 
       @board = board
       @dict = dictionary
-      @min_word_size = min_word_size
       @pending_move = []
 
       # Add filled board spaces as first move if board is not empty
@@ -42,7 +41,7 @@ module Upwords
         raise IllegalMove, "You haven't played any letters!"
       elsif legal?
         player.score += pending_score(player)
-        @move_history << Shape.new(@pending_move.map { |row, col| [row, col, @board.top_letter(row, col)] })
+        @move_history << Shape.new(@pending_move)
         @pending_move.clear
       end
     end

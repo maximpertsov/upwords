@@ -22,6 +22,10 @@ module Upwords
       @grid.empty? || @grid.each_key.all? {|k| @grid[k].empty?}
     end
 
+    def nonempty_space?(row, col)
+      @grid.key?([row, col]) && stack_height(row, col) > 0
+    end
+
     # maximum letters than can be stacked in one space
     def min_word_length
       2
@@ -81,7 +85,7 @@ module Upwords
     end
 
     def nonempty_spaces
-      coordinates.select {|row, col| stack_height(row, col) > 0}.to_set
+      coordinates.select {|row, col| nonempty_space?(row, col)}.to_set
     end
 
     def coordinates

@@ -13,21 +13,19 @@ module Upwords
       end
     end
     
-    def gaps_covered_by?(board) 
-      nonempty_spaces = board.nonempty_spaces
-
+    def gaps_covered_by?(board)
       row_range.all? do |row|
         col_range.all? do |col|
-          (@positions.include? [row, col]) || (nonempty_spaces.include? [row, col]) 
+          @positions.include?([row, col]) || board.nonempty_space?(row, col)
         end
       end
     end
        
     def touching?(board) 
-      (board.nonempty_spaces).any? do |b_row, b_col|
-        @positions.any? do |row, col|
-          [(b_row - row).abs <= 1 && b_col == col,
-           (b_col - col).abs <= 1 && b_row == row].any?
+      @positions.any? do |row, col|
+        # Are any positions overlapping or adjacent to a non-empty board space 
+        [[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1]].any? do |dr, dc|
+          board.nonempty_space?(row + dr, col + dc)
         end
       end
     end
