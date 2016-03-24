@@ -57,28 +57,35 @@ module Upwords
     # AI Methods
     # =========================================
     
-    def ai_move(player, sample_size = 5000)
+    def ai_move(player, sample_size = 1000)
       moves_and_scores = []
       
       all_possible_moves = player.legal_shape_letter_permutations(@board, &player.standard_legal_shape_filter(@board))
-      
-      (all_possible_moves).sample(sample_size).each do |move|
-        begin
-          move.each do |posn, letter|
-            @moves.add(player, letter, *posn)
-          end
+      all_possible_moves.shuffle!
+
+      # TODO: write test for this method
+      while moves_and_scores.empty? do
+        ([sample_size, all_possible_moves.size].min).times do
           
-          # Show Move Attempts
-          refresh_graphics
+          move = all_possible_moves.pop
+
+          begin
+            move.each do |posn, letter|
+              @moves.add(player, letter, *posn)
+            end
           
-          if @moves.legal?
-            moves_and_scores << [@moves.pending_score(player), move]
+            # Show Move Attempts
+            refresh_graphics
+            
+            if @moves.legal?
+              moves_and_scores << [@moves.pending_score(player), move]
+            end
+          rescue IllegalMove => exn
           end
-        rescue IllegalMove => exn
+          @moves.undo_all(player)
         end
-        @moves.undo_all(player)
       end
-      moves_and_scores
+      moves_and_scores 
     end
 
     # =========================================
