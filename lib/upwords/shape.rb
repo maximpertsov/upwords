@@ -4,7 +4,8 @@ module Upwords
     attr_reader :positions
     
     def initialize(positions = [])
-      @positions = positions.reduce(Set.new) {|set, (row, col)| set << [row, col]}
+      @positions = Set.new
+      positions.reduce(self) {|shape, (row, col)| shape.add(row, col)}
     end
 
     def covering_moves?(board)
@@ -43,7 +44,12 @@ module Upwords
     end
 
     def add(row, col)
-      @positions.add [row, col]
+      if row.is_a?(Integer) && col.is_a?(Integer)
+        @positions.add [row, col]
+        self
+      else
+        raise ArgumentError, "[#{row}, #{col}] is not a valid position]"
+      end
     end
 
     alias_method :<<, :add

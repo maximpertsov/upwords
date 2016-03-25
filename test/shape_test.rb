@@ -7,10 +7,20 @@ class ShapeTest < Minitest::Test
     @move_shape = Shape.new
   end
 
-  def test_build
+  def test_can_initiate_shape_from_position_list
     ms = Shape.new([[1,1],[1,2, 'a'],[1,3]])
     assert_kind_of(Shape, ms)
     assert_equal 3, ms.size
+  end
+
+  def test_cannot_add_bad_positions
+    assert_raises(ArgumentError) {@move_shape.add(1, 'a')}
+    assert_raises(ArgumentError) {@move_shape.add(1.0, 2)}
+    assert_raises(ArgumentError) {@move_shape.add(1)}
+
+    assert_raises(ArgumentError) do 
+      Shape.new([[1, 'a'], [1.0, 2], [1]])
+    end
   end
 
   def test_covered_word_positions
