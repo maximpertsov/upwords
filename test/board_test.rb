@@ -109,7 +109,8 @@ class BoardTest < Minitest::Test
         [[1,0],[2,0],[3,0]], # "six"
         [[0,1],[0,2],[0,3]], # "max"
         [[5,0],[5,1]]        # "mu"
-      ].map {|posns| SortedSet.new(posns)}       
+      ].map {|posns| SortedSet.new(posns)}
+       
       actual = @board.word_positions
       
       assert_equal Set.new(expected), Set.new(actual)
