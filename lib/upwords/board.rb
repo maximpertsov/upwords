@@ -56,6 +56,14 @@ module Upwords
       @grid[[row, col]].size
     end
 
+    def play_move(move)
+      move.play(self)
+    end
+
+    def undo_move(move)
+      move.remove_from(self)
+    end
+
     def play_letter(letter, row, col)
       if stack_height(row, col) == max_height
         raise IllegalMove, "You cannot stack any more letters on this space"

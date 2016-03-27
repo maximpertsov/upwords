@@ -89,6 +89,38 @@ class BoardTest < Minitest::Test
     end
   end
 
+  class BoardMoveTest <BoardTest
+    def setup
+      @board = Board.new(10, 5)
+      @move = Move.new([[[0,0], 'c'], [[0,1], 'a'], [[0,2], 't']])
+    end
+
+    def test_play_move
+      @board.play_move(@move)
+    
+      assert_equal 'c', @board.top_letter(0, 0)
+      assert_equal 'a', @board.top_letter(0, 1)
+      assert_equal 't', @board.top_letter(0, 2)
+    end
+
+    def test_undo_move
+      @board.play_move(@move)
+      @board.undo_move(@move)
+      
+      refute @board.nonempty_space?(0, 0)
+      refute @board.nonempty_space?(0, 1)
+      refute @board.nonempty_space?(0, 2)
+    end
+
+
+    def test_cannot_undo_move_if_not_played
+      diff_move = Move.new([[[0,0], 'd'], [[0,1], 'o'], [[0,2], 'g']])
+      @board.play_move(diff_move)
+      assert_raises(IllegalMove) {@board.undo_move(@move)}
+    end
+
+  end
+
   class BoardWordTest < BoardTest
     def setup
       @board = Board.new
