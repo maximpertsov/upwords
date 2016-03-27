@@ -176,15 +176,14 @@ module Upwords
           # TODO: add subroutine to end game if all players skip turn consecutively (check rules to see exactly how this works)
 
           # Game over check
-          if current_player.skip_count == 3
-            update_message "#{current_player.name} has skipped 3 times in a row and loses!"
+          # TODO: remove magic string from last move message
+          if @players.all? {|p| p.last_turn == "skipped turn"}
+            update_message "All plays have skipped their last turn so the game is over!"
             @running = false
             
           elsif @letter_bank.empty? && current_player.rack_empty?
 
-            # TODO: 
-            # multiply remaining letter x 5 and add to current player score
-            # player with the higher score wins
+            # TODO: multiply remaining letter x 5 and add to current player score -> player with the higher score wins
             @running = false
             
           elsif @submitted
@@ -248,8 +247,9 @@ module Upwords
         end
         @moves.submit(current_player)
         current_player.refill_rack(@letter_bank)
+        current_player.last_turn = "played word"
       else
-        update_message "#{current_player.name} skipped a turn!"
+        current_player.last_turn = "skipped turn"
       end
       @players.rotate!
       # -----------------------
@@ -297,9 +297,9 @@ module Upwords
         current_player.refill_rack(@letter_bank)
         @submitted = true
         clear_message
-        
-        # HACK: think of a better way to decrement skip count...
-        current_player.skip_count = 0
+
+        # TODO: remove magic string from last move message
+        current_player.last_turn = "played word"
       end
     end
 
@@ -315,8 +315,8 @@ module Upwords
           current_player.swap_letter(letter, @letter_bank)
           @submitted = true
 
-          # HACK: think of a better way to decrement skip count...
-          current_player.skip_count = 0
+          # TODO: remove magic string from last move message
+          current_player.last_turn = "swapped letter"
         end
       end
     end
@@ -324,8 +324,10 @@ module Upwords
     def skip_turn
       if confirm_action? "Are you sure you want to skip your turn?"
         @moves.undo_all(current_player)
-        current_player.skip_count += 1
         @submitted = true
+
+        # TODO: remove magic string from last move message
+        current_player.last_turn = "skipped turn"
       end
     end
 

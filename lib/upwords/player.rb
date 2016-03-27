@@ -2,13 +2,13 @@ module Upwords
   class Player
 
     attr_reader :name
-    attr_accessor :score, :skip_count
+    attr_accessor :score, :last_turn
 
     def initialize(name, rack_capacity=7)
       @name = name
       @rack = LetterRack.new(rack_capacity)
       @score = 0
-      @skip_count = 0
+      @last_turn = nil
     end
 
     def letters

@@ -64,15 +64,19 @@ module Upwords
     end
 
     def draw_player_name
-      "   #{@game.current_player.name}'s turn"
+      "#{@game.current_player.name}'s turn"
     end
 
     def draw_score(player)
-      "   #{player.name} score: #{player.score} skips: #{player.skip_count}"
+      "#{player.name}'s score: #{player.score}" 
     end
-    
+
+    def draw_last_turn(player)
+      "Last move: #{player.last_turn}"
+    end
+
     def draw_letter_rack
-      "   #{@game.current_player.show_rack(!@rack_visibility)} "
+      "#{@game.current_player.show_rack(!@rack_visibility)} "
     end
 
     def draw_space(row, col, cursor_posn)
@@ -124,11 +128,23 @@ module Upwords
     end
 
     def draw_stats
-      [" ",
+      ["--------------------",
+       "CURRENT PLAYER",
+       "--------------------",
+       " ",
        draw_player_name,
-       draw_letter_rack,
+       " ",
+       draw_letter_rack,       \
+       " ",
        draw_score(@game.players[0]),
-       draw_score(@game.players[1])].zip([" "] * 3).flatten
+       draw_last_turn(@game.players[0]),
+       " ",
+       "--------------------",
+       "OTHER PLAYERS",
+       "--------------------",
+       " ",
+       draw_score(@game.players[1]),
+       draw_last_turn(@game.players[1])].map{|s| "   " + s} # Left padding
     end
 
   end
