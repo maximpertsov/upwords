@@ -35,7 +35,7 @@ class PlayerTest < Minitest::Test
 
     def test_can_play_letter
       @p1.take_letter('A')
-      assert_equal [0, 1], @p1.play_letter(@board, 'A', 0, 1)
+      assert_equal [[0, 1], 'A'], @p1.play_letter(@board, 'A', 0, 1)
       assert_equal 'A', @board.top_letter(0, 1)
     end
 

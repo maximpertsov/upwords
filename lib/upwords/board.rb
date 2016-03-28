@@ -66,24 +66,19 @@ module Upwords
 
     def can_play_letter?(letter, row, col, raise_exception = false)
       if stack_height(row, col) == max_height
-        if raise_exception
-          raise IllegalMove, "You cannot stack any more letters on this space"
-        end
+        raise IllegalMove, "You cannot stack any more letters on this space" if raise_exception
       elsif top_letter(row, col) == letter
-        if raise_exception
-          raise IllegalMove, "You cannot stack a letter on the same letter!"
-        end       
+        raise IllegalMove, "You cannot stack a letter on the same letter!" if raise_exception
       else 
         return true
       end
-
       return false
     end
 
     def play_letter(letter, row, col)
       if can_play_letter?(letter, row, col, raise_exception = true)
         @grid[[row, col]] << letter
-        return [row, col] # Return position after successfully playing a move
+        return [[row, col], letter] # Return position after successfully playing a move
       end  
     end
 

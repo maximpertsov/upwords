@@ -26,7 +26,7 @@ module Upwords
       if @pending_move.empty?
         raise IllegalMove, "No moves to undo!"
       else
-        player.take_from(@board, *@pending_move.pop)
+        player.take_from(@board, *@pending_move.pop[0]) # TODO: make Tile class
       end
     end
 
@@ -41,14 +41,14 @@ module Upwords
         raise IllegalMove, "You haven't played any letters!"
       elsif legal?
         player.score += pending_score(player)
-        @move_history << Shape.new(@pending_move)
+        @move_history << Shape.new(@pending_move.map {|m| m[0]})
         @pending_move.clear
       end
     end
 
     def pending_words
       (@board.word_positions).select do |posns|
-        posns.any? {|posn| @pending_move.include?(posn)}
+        posns.any? {|posn| @pending_move.map {|m| m[0]}.include?(posn)}
       end.map do |posns|
         Word.new(posns, @board, @dict)
       end
@@ -63,22 +63,23 @@ module Upwords
     end
 
     def legal?
-      new_move = Shape.new(@pending_move)
-      
+      new_move = Shape.new(@pending_move.map {|m| m[0]})
+      pending_move = Move.new(@pending_move.map)
+
       # HACK: lift pending move letters
-      pending_move = @pending_move.map {|row, col| [[row, col], @board.remove_top_letter(row, col)]}.to_h
+      @board.undo_move(pending_move)
 
       begin
-        new_move.legal?(@board, true)
+        new_move.legal?(@board, raise_exception = true)
       rescue IllegalMove => exn
         # HACK: DRY, jk...
-        pending_move.each {|(row, col), letter| @board.play_letter(letter, row, col)}
+        @board.play_move(pending_move)
         raise IllegalMove, exn.message
       end          
       
       # HACK: DRY, jk...
-      pending_move.each {|(row, col), letter| @board.play_letter(letter, row, col)}
-      
+      @board.play_move(pending_move)
+
       # Word checks start here
       
       if !pending_illegal_words.empty?
@@ -97,17 +98,5 @@ module Upwords
       return true
     end
 
-    # =========================================
-    # Individual legal move conditions
-    # =========================================
-
-    private
-    
-    def letter_in_middle_square?
-      @board.middle_square.any? do |posn|
-        @pending_move.include?(posn)
-      end
-    end
-    
   end
 end
