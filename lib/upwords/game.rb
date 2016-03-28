@@ -10,8 +10,8 @@ module Upwords
       @cursor = Cursor.new(@board.num_rows,
                            @board.num_columns,
                            *@board.middle_square[0])
-      @moves = MoveManager.new(@board,
-                               Dictionary.import(OSPD_FILE))
+      @dict = Dictionary.import(OSPD_FILE)
+      @moves = MoveManager.new(@board, @dict)
       @players = []
       @running = false
       @submitted = false
@@ -60,7 +60,10 @@ module Upwords
     def ai_move(player, sample_size = 1000)
       moves_and_scores = []
       
-      all_possible_moves = player.legal_shape_letter_permutations(@board, &player.standard_legal_shape_filter(@board))
+      all_possible_moves = (player.legal_shape_letter_permutations(@board, &player.standard_legal_shape_filter(@board)))
+# .select do |perm|
+#         Move.new(perm).legal_words?(@board, @dict)
+#       end
       all_possible_moves.shuffle!
 
       # TODO: write test for this method
@@ -81,6 +84,7 @@ module Upwords
               moves_and_scores << [@moves.pending_score(player), move]
             end
           rescue IllegalMove => exn
+            @moves.undo_all(player)
           end
           @moves.undo_all(player)
         end

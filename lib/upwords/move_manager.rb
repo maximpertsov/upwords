@@ -7,17 +7,18 @@ module Upwords
       @pending_move = []
 
       # Add filled board spaces as first move if board is not empty
-      bs = @board.nonempty_spaces
-      @move_history = bs.empty? ? [] : [Shape.new(bs)]
+      #bs = @board.nonempty_spaces
+      @move_history = [] #bs.empty? ? [] : [Shape.new(bs)]
     end
 
     # --------------------------------
     # Player-Board Interaction Methods
     # --------------------------------
     def add(player, letter, row, col)
-      if @pending_move.include?([row, col])
+      # TODO: remove the need for @pending_move.map
+      if (@pending_move.map {|m| m[0]}).include?([row, col])
         raise IllegalMove, "You can't stack on a space more than once in a single turn!"
-      else
+      elsif
         @pending_move << player.play_letter(@board, letter, row, col)
       end
     end
@@ -41,7 +42,7 @@ module Upwords
         raise IllegalMove, "You haven't played any letters!"
       elsif legal?
         player.score += pending_score(player)
-        @move_history << Shape.new(@pending_move.map {|m| m[0]})
+        @move_history << Move.new(@pending_move)
         @pending_move.clear
       end
     end

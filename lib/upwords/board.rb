@@ -1,5 +1,7 @@
 module Upwords
   class Board
+    
+    attr_accessor :max_height, :size
 
     # creates a 10 x 10 board
     def initialize(size=10, max_height=5)
@@ -29,10 +31,6 @@ module Upwords
     # maximum letters than can be stacked in one space
     def min_word_length
       2
-    end
-
-    def max_height
-      @max_height
     end
 
     def num_rows

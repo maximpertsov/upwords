@@ -24,18 +24,26 @@ module Upwords
     end
 
     def legal_shape?(board, raise_exception = false)
-      @shape.legal?(board, raise_exception)
+       @shape.legal?(board, raise_exception)
+    end
+
+    def can_play_letters?(board, raise_exception = false)
+      @move.all? do |(row, col), letter|
+        board.can_play_letter?(letter, row, col, raise_exception)
+      end
     end
 
     # TODO: Add the following legal move checks:
     # - Move is not a simple pluralization? (e.g. Cat -> Cats is NOT a legal move)
     def legal_words?(board, dict, raise_exception = false)
-      bad_words = self.new_illegal_words(board, dict)
 
-      if bad_words.empty?
-        return true
-      else
-        raise IllegalMove, "#{bad_words.join(', ')} #{bad_words.size==1 ? 'is not a legal word' : 'are not legal words'}!" if raise_exception
+      if can_play_letters?(board, raise_exception)    
+        bad_words = self.new_illegal_words(board, dict)
+        if bad_words.empty?
+          return true
+        else
+          raise IllegalMove, "#{bad_words.join(', ')} #{bad_words.size==1 ? 'is not a legal word' : 'are not legal words'}!" if raise_exception
+        end
       end
 
       return false
