@@ -69,29 +69,7 @@ module Upwords
       pending_move = @pending_move.map {|row, col| [[row, col], @board.remove_top_letter(row, col)]}.to_h
 
       begin
-        # Only perform these checks if first move of game
-        if @board.empty?
-          if !letter_in_middle_square?
-            raise IllegalMove, "You must play at least one letter in the middle 2x2 square!"
-          elsif new_move.size < @board.min_word_length
-            raise IllegalMove, "Valid words must be at least #{@board.min_word_length} letter(s) long!"
-          end
-        end
-        
-        # The follow checks should always be performed
-        if !(new_move.straight_line?)
-          raise IllegalMove, "The letters in your move must be along a single row or column!"
-
-        elsif !(new_move.gaps_covered_by?(@board))
-          raise IllegalMove, "The letters in your move must be internally connected!"
-
-        elsif !(@board.empty? || new_move.touching?(@board))
-          raise IllegalMove, "At least one letter in your move must be touching a previously played word!"
-
-        elsif new_move.covering_moves?(@board)  
-          raise IllegalMove, "Cannot completely cover up any previously-played words!"
-        end
-
+        new_move.legal?(@board, true)
       rescue IllegalMove => exn
         # HACK: DRY, jk...
         pending_move.each {|(row, col), letter| @board.play_letter(letter, row, col)}
