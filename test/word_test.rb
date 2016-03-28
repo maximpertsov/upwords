@@ -14,13 +14,12 @@ class WordTest < Minitest::Test
 
     # the word 'max'
     @word1 = Word.new(@moves.map {|l, r, c| [r,c]}.select {|r,c| r == 0},
-                      @board,
-                      @dict)
+                      @board)
+
 
     # the word 'slx'
     @word2 = Word.new(@moves.map {|l, r, c| [r,c]}.select {|r,c| c == 0},
-                      @board,
-                      @dict)
+                      @board)
   end
 
   def test_score_with_bonus
@@ -32,11 +31,11 @@ class WordTest < Minitest::Test
   end
 
   def test_legal_word
-    assert @word1.legal?
+    assert @word1.legal?(@dict)
   end
 
   def test_illegal_word
-    refute @word2.legal?
+    refute @word2.legal?(@dict)
   end
 
 end

@@ -46,16 +46,17 @@ module Upwords
       end
     end
 
+    # TODO: move this logic somewhere else
     def pending_words
       (@board.word_positions).select do |posns|
         posns.any? {|posn| @pending_move.map {|m| m[0]}.include?(posn)}
       end.map do |posns|
-        Word.new(posns, @board, @dict)
+        Word.new(posns, @board)
       end
     end
     
     def pending_score(player)
-      pending_words.map{|word| word.score}.inject(:+).to_i + (player.rack_capacity == @pending_move.size ? 20 : 0)
+      Move.new(@pending_move).score(@board, player)
     end
 
     def legal?

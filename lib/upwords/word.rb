@@ -5,20 +5,19 @@ module Upwords
 
     attr_reader :score, :length
 
-    def initialize(posns, board, dictionary)
+    def initialize(posns, board) 
       posns = posns.uniq if posns.is_a?(Array)
       @text = Word.make_string(board, posns)
       @score = Word.calc_score(board, posns)
       @length = @text.length
-      @dict = dictionary
     end
 
     def to_s
       @text.to_s
     end
 
-    def legal?
-      @dict.legal_word?(self.to_s)
+    def legal?(dict)
+      dict.legal_word?(self.to_s)
     end
     
     # A word's score is the sum of the tile heights of its letters
