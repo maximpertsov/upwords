@@ -36,7 +36,7 @@ module Upwords
     # TODO: handle exceptions when board cannot be updated with new move
     def new_words(board)
       # HACK: update board with new move
-      words = (play(board).word_positions).select do |word_posns|
+      words = (board.play_move(self).word_positions).select do |word_posns|
         word_posns.any? {|row, col| position?(row, col)}
         
       end.map do |word_posns|

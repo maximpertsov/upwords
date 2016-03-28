@@ -87,6 +87,35 @@ class BoardTest < Minitest::Test
       
       assert_equal Set.new(expected), actual 
     end
+
+    def test_can_play_letter
+      assert @board.can_play_letter?('a', 0, 0)
+    end
+
+    def test_cannot_play_letter_if_stack_full
+      ('a'..'e').map {|l| [[0,0], l]}.reduce(@board) do |b, (posn, letter)|
+        b.play_letter(letter, *posn)
+        b
+      end
+      
+      refute @board.can_play_letter?('a', 0, 0)
+      
+      assert_raises(IllegalMove) do 
+        @board.can_play_letter?('a', 0, 0, raise_exception=true)
+      end
+    end
+
+    def test_cannot_play_on_top_of_same_letter
+      @board.play_letter('a', 0, 0)
+      
+      assert @board.can_play_letter?('b', 0, 0)
+      refute @board.can_play_letter?('a', 0, 0)
+      
+      assert_raises(IllegalMove) do 
+        @board.can_play_letter?('a', 0, 0, raise_exception=true)
+      end
+    end
+
   end
 
   class BoardMoveTest <BoardTest
@@ -149,31 +178,4 @@ class BoardTest < Minitest::Test
     end
   end
 
-  # class BoardShapeTest < BoardTest
-  #   def setup
-  #     @board = Board.new
-  #     @moves1 = [["m", 0, 1], ["a", 0, 2], ["x", 0, 3]]
-  #     @moves2 = [["j", 0, 1], ["i", 1, 1], ["m", 2, 1]] 
-  #   end
-
-  #   def test_pending_moves
-  #     @moves1.each {|l,r,c| @board.play_letter(l,r,c)}
-  #     assert_equal Set.new([[0,1],[0,2],[0,3]]), Set.new(@board.pending_moves)
-  #   end
-
-  #   def test_final_moves
-  #     @moves1.each {|l,r,c| @board.play_letter(l,r,c)}
-
-  #     @board.finalize!
-  #     assert_equal Set.new([[0,1],[0,2],[0,3]]), Set.new(@board.final_moves)
-
-  #     @moves2.each {|l,r,c| @board.play_letter(l,r,c)}
-  #     assert_equal Set.new([[0,1],[0,2],[0,3]]), Set.new(@board.final_moves)
-  #     assert_equal Set.new([[0,1],[1,1],[2,1]]), Set.new(@board.pending_moves)
-
-  #     @board.finalize!
-  #     assert_equal Set.new([[0,1],[0,2],[0,3],[1,1],[2,1]]), Set.new(@board.final_moves)
-  #     assert_empty @board.pending_moves
-  #   end
-  # end
 end

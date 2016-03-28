@@ -8,6 +8,40 @@ module Upwords
       positions.reduce(self) {|shape, (row, col)| shape.add(row, col)}
     end
 
+    # Check if a move has a legal shape on a given board. Note that all 
+    # checks assume that the move in question has not been played yet.
+    def legal?(board, raise_exception = false)        
+      if (board.empty? && !in_middle_square?)
+        if raise_exception
+          raise IllegalMove, "You must play at least one letter in the middle 2x2 square!"
+        end
+      elsif (board.empty? && (@positions.size < board.min_word_length))
+        if raise_exception
+          raise IllegalMove, "Valid words must be at least #{@board.min_word_length} letter(s) long!"
+        end
+      elsif !(@positions.straight_line?)
+        if raise_exception
+          raise IllegalMove, "The letters in your move must be along a single row or column!"
+        end
+      elsif !(@positions.gaps_covered_by?(board))
+        if raise_exception
+          raise IllegalMove, "The letters in your move must be internally connected!"
+        end
+      elsif !(board.empty? || @positions.touching?(board))
+        if raise_exception
+          raise IllegalMove, "At least one letter in your move must be touching a previously played word!"
+        end
+      elsif @positions.covering_moves?(board)  
+        if raise_exception
+          raise IllegalMove, "Cannot completely cover up any previously-played words!"
+        end
+      else
+        return true
+      end
+
+      return false
+    end
+
     def covering_moves?(board)
       (board.word_positions).any? do |word_posns|
         positions >= word_posns
@@ -28,6 +62,12 @@ module Upwords
         [[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1]].any? do |dr, dc|
           board.nonempty_space?(row + dr, col + dc)
         end
+      end
+    end
+
+    def in_middle_square?(board)
+      board.middle_square.any? do |posn|
+        @positions.include?(posn)
       end
     end
 

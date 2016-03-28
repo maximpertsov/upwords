@@ -64,14 +64,26 @@ module Upwords
       move.remove_from(self)
     end
 
-    def play_letter(letter, row, col)
+    def can_play_letter?(letter, row, col, raise_exception = false)
       if stack_height(row, col) == max_height
-        raise IllegalMove, "You cannot stack any more letters on this space"
+        if raise_exception
+          raise IllegalMove, "You cannot stack any more letters on this space"
+        end
       elsif top_letter(row, col) == letter
-        raise IllegalMove, "You can't stack a letter on the same letter!"
-      else
+        if raise_exception
+          raise IllegalMove, "You cannot stack a letter on the same letter!"
+        end       
+      else 
+        return true
+      end
+
+      return false
+    end
+
+    def play_letter(letter, row, col)
+      if can_play_letter?(letter, row, col, raise_exception = true)
         @grid[[row, col]] << letter
-        return [row, col]     # Return position after successfully playing a move
+        return [row, col] # Return position after successfully playing a move
       end  
     end
 
