@@ -108,9 +108,9 @@ class PlayerTest < Minitest::Test
 
       @p1 = Player.new("P1")
       
-      @p1.take_letter('D')
-      @p1.take_letter('O')
-      @p1.take_letter('G')
+      %w(D O G).each do |letter|
+        @p1.take_letter(letter)
+      end
     end
 
     def test_straight_moves
@@ -133,9 +133,62 @@ class PlayerTest < Minitest::Test
       assert_includes(legal_shapes, [[0,0],[1,0],[2,0]])
     end
 
-    # TODO: add some better tests...
     def test_legal_shape_letter_permutations
-      assert_equal 84, @p1.legal_shape_letter_permutations(@board, &@p1.standard_legal_shape_filter(@board)).size
+      legal_perms = Set.new(
+        [[[[0, 2], "O"]],
+         [[[0, 2], "G"]],
+         [[[1, 2], "D"]],
+         [[[1, 2], "O"]],
+         [[[1, 2], "G"]],
+         [[[0, 2], "D"], [[1, 2], "O"]],
+         [[[0, 2], "D"], [[1, 2], "G"]],
+         [[[0, 2], "O"], [[1, 2], "D"]],
+         [[[0, 2], "O"], [[1, 2], "G"]],
+         [[[0, 2], "G"], [[1, 2], "D"]],
+         [[[0, 2], "G"], [[1, 2], "O"]],
+         [[[1, 2], "D"], [[2, 2], "O"]],
+         [[[1, 2], "D"], [[2, 2], "G"]],
+         [[[1, 2], "O"], [[2, 2], "D"]],
+         [[[1, 2], "O"], [[2, 2], "G"]],
+         [[[1, 2], "G"], [[2, 2], "D"]],
+         [[[1, 2], "G"], [[2, 2], "O"]],
+         [[[0, 2], "D"], [[1, 2], "O"], [[2, 2], "G"]],
+         [[[0, 2], "D"], [[1, 2], "G"], [[2, 2], "O"]],
+         [[[0, 2], "O"], [[1, 2], "D"], [[2, 2], "G"]],
+         [[[0, 2], "O"], [[1, 2], "G"], [[2, 2], "D"]],
+         [[[0, 2], "G"], [[1, 2], "D"], [[2, 2], "O"]],
+         [[[0, 2], "G"], [[1, 2], "O"], [[2, 2], "D"]]])
+
+      legal_permutations = @p1.legal_shape_letter_permutations(@board, &@p1.standard_legal_shape_filter(@board))
+      
+      legal_perms.each do |legal_perm|
+        assert_includes(legal_permutations, legal_perm)
+      end
+    end
+
+    def test_illegal_shape_letter_permutations
+      illegal_perms = Set.new(
+        [[[[2, 0], "O"]],
+         [[[2, 1], "G"]],
+         [[[2, 2], "D"]],
+         [[[2, 1], "D"], [[2, 2], "O"]],
+         [[[2, 1], "D"], [[2, 2], "G"]],
+         [[[2, 1], "O"], [[2, 2], "D"]],
+         [[[2, 1], "O"], [[2, 2], "G"]],
+         [[[2, 1], "G"], [[2, 2], "D"]],
+         [[[2, 1], "G"], [[2, 2], "O"]],
+         [[[2, 0], "D"], [[2, 1], "O"], [[2, 2], "G"]],
+         [[[2, 0], "D"], [[2, 1], "G"], [[2, 2], "O"]],
+         [[[2, 0], "O"], [[2, 1], "D"], [[2, 2], "G"]],
+         [[[2, 0], "O"], [[2, 1], "G"], [[2, 2], "D"]],
+         [[[2, 0], "G"], [[2, 1], "D"], [[2, 2], "O"]],
+         [[[2, 0], "G"], [[2, 1], "O"], [[2, 2], "D"]]])
+
+      legal_permutations = @p1.legal_shape_letter_permutations(@board, &@p1.standard_legal_shape_filter(@board))
+      
+      illegal_perms.each do |illegal_perm|
+        refute_includes(legal_permutations, illegal_perm)
+      end
     end
 
   end

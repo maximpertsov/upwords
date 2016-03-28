@@ -11,11 +11,11 @@ module Upwords
     # Check if a move has a legal shape on a given board. Note that all 
     # checks assume that the move in question has not been played yet.
     def legal?(board, raise_exception = false)        
-      if (board.empty? && !in_middle_square?(board))
+      if board.empty? && !in_middle_square?(board)
         if raise_exception
           raise IllegalMove, "You must play at least one letter in the middle 2x2 square!"
         end
-      elsif (board.empty? && (@positions.size < board.min_word_length))
+      elsif board.empty? && (self.size < board.min_word_length)
         if raise_exception
           raise IllegalMove, "Valid words must be at least #{board.min_word_length} letter(s) long!"
         end
@@ -56,7 +56,7 @@ module Upwords
       end
     end
        
-    def touching?(board) 
+    def touching?(board)
       @positions.any? do |row, col|
         # Are any positions overlapping or adjacent to a non-empty board space 
         [[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1]].any? do |dr, dc|
