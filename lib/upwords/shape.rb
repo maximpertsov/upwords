@@ -8,33 +8,21 @@ module Upwords
       positions.reduce(self) {|shape, (row, col)| shape.add(row, col)}
     end
 
-    # Check if a move has a legal shape on a given board. Note that all 
-    # checks assume that the move in question has not been played yet.
+    # Check if move creates a legal shape when added to a given board.
+    # All checks assume that the move in question has not been played yet.
     def legal?(board, raise_exception = false)        
       if board.empty? && !in_middle_square?(board)
-        if raise_exception
-          raise IllegalMove, "You must play at least one letter in the middle 2x2 square!"
-        end
+        raise IllegalMove, "You must play at least one letter in the middle 2x2 square!" if raise_exception
       elsif board.empty? && (self.size < board.min_word_length)
-        if raise_exception
-          raise IllegalMove, "Valid words must be at least #{board.min_word_length} letter(s) long!"
-        end
+        raise IllegalMove, "Valid words must be at least #{board.min_word_length} letter(s) long!" if raise_exception
       elsif !straight_line?
-        if raise_exception
-          raise IllegalMove, "The letters in your move must be along a single row or column!"
-        end
+        raise IllegalMove, "The letters in your move must be along a single row or column!" if raise_exception
       elsif !gaps_covered_by?(board)
-        if raise_exception
-          raise IllegalMove, "The letters in your move must be internally connected!"
-        end
+        raise IllegalMove, "The letters in your move must be internally connected!" if raise_exception
       elsif !(board.empty? || touching?(board))
-        if raise_exception
-          raise IllegalMove, "At least one letter in your move must be touching a previously played word!"
-        end
+        raise IllegalMove, "At least one letter in your move must be touching a previously played word!" if raise_exception
       elsif covering_moves?(board)  
-        if raise_exception
-          raise IllegalMove, "Cannot completely cover up any previously-played words!"
-        end
+        raise IllegalMove, "Cannot completely cover up any previously-played words!" if raise_exception
       else
         return true
       end

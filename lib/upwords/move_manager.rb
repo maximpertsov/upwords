@@ -53,24 +53,19 @@ module Upwords
         Word.new(posns, @board, @dict)
       end
     end
-
-    def pending_illegal_words
-      pending_words.reject {|word| word.legal?}
-    end
     
     def pending_score(player)
       pending_words.map{|word| word.score}.inject(:+).to_i + (player.rack_capacity == @pending_move.size ? 20 : 0)
     end
 
     def legal?
-      new_move = Shape.new(@pending_move.map {|m| m[0]})
-      pending_move = Move.new(@pending_move.map)
+      pending_move = Move.new(@pending_move)
 
       # HACK: lift pending move letters
       @board.undo_move(pending_move)
 
       begin
-        new_move.legal?(@board, raise_exception = true)
+        pending_move.legal?(@board, @dict, raise_exception = true)
       rescue IllegalMove => exn
         # HACK: DRY, jk...
         @board.play_move(pending_move)
@@ -79,22 +74,7 @@ module Upwords
       
       # HACK: DRY, jk...
       @board.play_move(pending_move)
-
-      # Word checks start here
       
-      if !pending_illegal_words.empty?
-        error_msg = pending_illegal_words.join(", ")
-        case pending_illegal_words.size
-        when 1
-          error_msg += " is not a legal word!"
-        else
-          error_msg += " are not legal words!"
-        end
-        raise IllegalMove, error_msg
-      end
-      
-      # TODO: Add the following legal move checks:
-      # - Move is not a simple pluralization? (e.g. Cat -> Cats is NOT a legal move)
       return true
     end
 
