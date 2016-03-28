@@ -148,6 +148,20 @@ class BoardTest < Minitest::Test
       assert_raises(IllegalMove) {@board.undo_move(@move)}
     end
 
+    def test_build_from_moves
+      diff_move = Move.new([[[0,1], 'o'], [[0,2], 'g']])
+
+      new_board = Board.build([@move, diff_move], 10, 5)
+            
+      assert_equal 'c', new_board.top_letter(0, 0)
+      assert_equal 'o', new_board.top_letter(0, 1)
+      assert_equal 'g', new_board.top_letter(0, 2)
+
+      assert_equal 1, new_board.stack_height(0, 0)
+      assert_equal 2, new_board.stack_height(0, 1)
+      assert_equal 2, new_board.stack_height(0, 2)
+    end
+
   end
 
   class BoardWordTest < BoardTest

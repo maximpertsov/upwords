@@ -5,10 +5,7 @@ module Upwords
       @board = board
       @dict = dictionary
       @pending_move = []
-
-      # Add filled board spaces as first move if board is not empty
-      #bs = @board.nonempty_spaces
-      @move_history = [] #bs.empty? ? [] : [Shape.new(bs)]
+      @move_history = [] # TODO: Add filled board spaces as first move if board is not empty
     end
 
     # --------------------------------
@@ -61,23 +58,9 @@ module Upwords
     end
 
     def legal?
-      pending_move = Move.new(@pending_move)
+      prev_board = Board.build(@move_history, @board.size, @board.max_height)
 
-      # HACK: lift pending move letters
-      @board.undo_move(pending_move)
-
-      begin
-        pending_move.legal?(@board, @dict, raise_exception = true)
-      rescue IllegalMove => exn
-        # HACK: DRY, jk...
-        @board.play_move(pending_move)
-        raise IllegalMove, exn.message
-      end          
-      
-      # HACK: DRY, jk...
-      @board.play_move(pending_move)
-      
-      return true
+      Move.new(@pending_move).legal?(prev_board, @dict, raise_exception = true)
     end
 
   end

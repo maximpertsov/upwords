@@ -105,6 +105,12 @@ module Upwords
       (0...num_rows).to_a.product((0...num_columns).to_a)
     end    
 
+    def self.build(moves, size=10, max_height=5)
+      moves.reduce(Board.new(size, max_height)) do |board, move|
+        board.play_move(move)
+      end
+    end
+
     private
 
     def collect_word_posns(&block)
