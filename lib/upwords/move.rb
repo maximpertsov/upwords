@@ -9,17 +9,9 @@ module Upwords
     # TODO: remove dict from word class
     # TODO: move score and new word methods to board class?
     def score(board, player)
-      final_score = (board.play_move(self).word_positions).select do |word_posns|
-        word_posns.any? {|row, col| position?(row, col)}
-        
-      end.reduce(player.rack_capacity == @move.size ? 20 : 0) do |score, word_posns|
-        score += Word.new(word_posns, board).score
+      new_words(board).reduce(player.rack_capacity == @move.size ? 20 : 0) do |total, word|
+        total += word.score
       end
-
-      # HACK: Return letters
-      remove_from(board)
-
-      final_score
     end
 
     # TODO: Add the following legal move checks:
@@ -89,13 +81,7 @@ module Upwords
         word_posns.any? {|row, col| position?(row, col)}
         
       end.map do |word_posns|
-        word_posns.map do |row, col|
-          # if position?(row, col)
-          #   self[row, col]
-          # else
-            board.top_letter(row, col)
-          # end
-        end.join 
+        Word.new(word_posns, board)
       end
 
       # HACK: remove move from board
@@ -105,7 +91,7 @@ module Upwords
     end
 
     def new_illegal_words(board, dict)
-      new_words(board).reject {|word| dict.legal_word?(word)}
+      new_words(board).reject {|word| dict.legal_word?(word.to_s)}
     end
 
   end

@@ -52,7 +52,7 @@ class MoveTest < Minitest::Test
   def test_new_words
     b = make_board([['a', 1, 0], ['r', 2, 0], ['t', 3, 0]])
   
-    new_words = @move.new_words(b)
+    new_words = @move.new_words(b).map{|w| w.to_s}
     
     assert_equal 2, new_words.size
     assert_includes(new_words, "cat")
@@ -63,7 +63,7 @@ class MoveTest < Minitest::Test
     dict = Dictionary.new(['cart'])
     b = make_board([['a', 1, 0], ['r', 2, 0], ['t', 3, 0]])
   
-    illegal_words = @move.new_illegal_words(b, dict)
+    illegal_words = @move.new_illegal_words(b, dict).map {|w| w.to_s}
     
     assert_equal 1, illegal_words.size
     assert_includes(illegal_words, "cat")

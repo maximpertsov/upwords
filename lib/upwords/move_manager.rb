@@ -44,13 +44,10 @@ module Upwords
       end
     end
 
-    # TODO: move this logic somewhere else
+    # TODO: cache prev board in local variable...
     def pending_words
-      (@board.word_positions).select do |posns|
-        posns.any? {|posn| @pending_move.map {|m| m[0]}.include?(posn)}
-      end.map do |posns|
-        Word.new(posns, @board)
-      end
+      prev_board = Board.build(@move_history, @board.size, @board.max_height)
+      Move.new(@pending_move).new_words(prev_board)
     end
     
     def pending_score(player)
