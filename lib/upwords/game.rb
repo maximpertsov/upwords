@@ -90,17 +90,7 @@ module Upwords
 
     # TODO: move text parsing logic out of MoveManager's pending_result method
     def standard_message
-      ["#{current_player.name}'s pending words: #{pending_result}",
-       "",
-       "Controls",
-       "--------",
-       "Show Letters\t[SPACE]",
-       "Undo Moves\t[DEL]",
-       "Submit Move\t[ENTER]",
-       "Swap Letter\t[+]",
-       "Skip Turn\t[-]",
-       "Quit Game\t[ESC] or [SHIFT+Q]"
-      ].join("\n")
+      "#{current_player.name}'s pending words: #{pending_result}"
     end
 
     def pending_result

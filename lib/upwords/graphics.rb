@@ -19,16 +19,16 @@ module Upwords
     end
     
     def to_s
-      (draw_board.zip(draw_stats).map do |board, stats|
-         board + (stats.to_s)
-       end + draw_message).join("\n")
+      (draw_board + draw_message).zip(draw_stats).map do |board_row, stats_row|
+        (board_row.to_s) + (stats_row.to_s)
+      end.join("\n")
     end
 
     def message=(new_message)
       if new_message.nil?
         @message = ""
       else
-        @message = new_message #.white
+        @message = new_message 
       end
     end
 
@@ -55,12 +55,6 @@ module Upwords
         letter += " "
       end
       letter
-      # # draw pending letters in red
-      # if @moves.include? [row, col]
-      #   letter #.yellow
-      # else
-      #   letter
-      # end
     end
 
     def draw_player_name
@@ -68,15 +62,15 @@ module Upwords
     end
 
     def draw_score(player)
-      "#{player.name}'s score: #{player.score}" 
+      "#{player.name}'s Score: #{player.score}" 
     end
 
     def draw_last_turn(player)
-      "Last move: #{player.last_turn}"
+      "Last Move: #{player.last_turn}"
     end
 
     def draw_letter_rack
-      "#{@game.current_player.show_rack(!@rack_visibility)} "
+      "Letters: #{@game.current_player.show_rack(!@rack_visibility)} "
     end
 
     def draw_space(row, col, cursor_posn)
@@ -124,27 +118,31 @@ module Upwords
     end
     
     def draw_message
-      ["", @message.to_s]
+      ["", "", @message.to_s]
     end
 
     def draw_stats
       ["--------------------",
-       "CURRENT PLAYER",
-       "--------------------",
-       " ",
-       draw_player_name,
-       " ",
-       draw_letter_rack,       \
-       " ",
        draw_score(@game.players[0]),
-       draw_last_turn(@game.players[0]),
-       " ",
+       "",
+       draw_letter_rack,
        "--------------------",
-       "OTHER PLAYERS",
-       "--------------------",
-       " ",
-       draw_score(@game.players[1]),
-       draw_last_turn(@game.players[1])].map{|s| "   " + s} # Left padding
+       "",
+       @game.player_count > 1 ?draw_score(@game.players[1]) : "",
+       "",         
+       @game.player_count > 2 ? draw_score(@game.players[2]) : "",
+       "",
+       @game.player_count > 3 ? draw_score(@game.players[3]) : "",
+       "",
+       "---------------------",
+       "|      Controls     |",
+       "---------------------",
+       "Show Letters  [SPACE]",
+       "Undo Moves    [DEL]",
+       "Submit Move   [ENTER]",
+       "Swap Letter   [+]",
+       "Skip Turn     [-]",
+       "Quit Game     [SHIFT+Q]"].map{|s| "   #{s}"} # Left padding
     end
 
   end
