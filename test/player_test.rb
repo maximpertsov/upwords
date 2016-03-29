@@ -131,6 +131,7 @@ class PlayerTest < Minitest::Test
       end
 
       assert_includes(legal_shapes, [[0,0],[1,0],[2,0]])
+      assert_includes(legal_shapes, [[1,0],[2,0]])
     end
 
     def test_legal_shape_letter_permutations
@@ -189,6 +190,11 @@ class PlayerTest < Minitest::Test
       illegal_perms.each do |illegal_perm|
         refute_includes(legal_permutations, illegal_perm)
       end
+    end
+
+    def test_cpu_move
+      @dict = Dictionary.new(%w(CAT DOG COG))      
+      assert_equal [[[1, 0], 'O'], [[2, 0], 'G']], @p1.cpu_move(@board, @dict, 1000, 6)
     end
 
   end

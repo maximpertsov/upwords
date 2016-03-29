@@ -54,45 +54,6 @@ module Upwords
     end
 
     # =========================================
-    # AI Methods
-    # =========================================
-    
-    def ai_move(player, sample_size = 1000)
-      moves_and_scores = []
-      
-      all_possible_moves = (player.legal_shape_letter_permutations(@board, &player.standard_legal_shape_filter(@board)))
-# .select do |perm|
-#         Move.new(perm).legal_words?(@board, @dict)
-#       end
-      all_possible_moves.shuffle!
-
-      # TODO: write test for this method
-      while moves_and_scores.empty? do
-        ([sample_size, all_possible_moves.size].min).times do
-          
-          move = all_possible_moves.pop
-
-          begin
-            move.each do |posn, letter|
-              @moves.add(player, letter, *posn)
-            end
-          
-            # Show Move Attempts
-            refresh_graphics
-            
-            if @moves.legal?
-              moves_and_scores << [@moves.pending_score(player), move]
-            end
-          rescue IllegalMove => exn
-            @moves.undo_all(player)
-          end
-          @moves.undo_all(player)
-        end
-      end
-      moves_and_scores 
-    end
-
-    # =========================================
     # Graphics Methods
     # =========================================
 
@@ -242,11 +203,11 @@ module Upwords
       # TODO: Make sure AI refills
       # TODO: Hide letters
       update_message "#{current_player.name} is thinking..."
-      cpu_move = ai_move(current_player).max_by {|score, move| score}
+      cpu_move = current_player.cpu_move(@board, @dict, 50, 10)
       
       if !cpu_move.nil?
         
-        cpu_move[1].each do |posn, letter|
+        cpu_move.each do |posn, letter|
           @moves.add(current_player, letter, *posn)
         end
         @moves.submit(current_player)

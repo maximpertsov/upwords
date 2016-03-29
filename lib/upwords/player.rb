@@ -1,14 +1,15 @@
 module Upwords
   class Player
 
-    attr_reader :name
+    attr_reader :name, :cpu
     attr_accessor :score, :last_turn
 
-    def initialize(name, rack_capacity=7)
+    def initialize(name, rack_capacity=7, cpu=false)
       @name = name
       @rack = LetterRack.new(rack_capacity)
       @score = 0
       @last_turn = nil
+      @cpu = cpu
     end
 
     def letters
@@ -114,6 +115,40 @@ module Upwords
           move_perms << move.zip(perm)
         end
       end
+    end
+
+    def cpu_move(board, dict, sample_size = 1000, min_score = 0)
+      all_possible_moves = (self.legal_shape_letter_permutations(board, &self.standard_legal_shape_filter(board)))      
+      all_possible_moves.shuffle!
+
+      top_score = 0
+      top_score_move = nil
+
+      # TODO: write test for this method
+      while top_score_move.nil? || (top_score < min_score) do
+
+        ([sample_size, all_possible_moves.size].min).times do
+                    
+          move_arr = all_possible_moves.pop
+          move = Move.new(move_arr)
+
+          if move.legal_words?(board, dict)
+
+            move_score = move.score(board, self)
+
+            if move_score >= top_score
+              top_score = move_score
+              top_score_move = move_arr
+            end
+
+          end
+        end
+
+        # Decrement minimum required score after each cycle to help prevent long searches
+        min_score = [(min_score - 1), 0].max
+      end
+
+      top_score_move
     end
     
   end

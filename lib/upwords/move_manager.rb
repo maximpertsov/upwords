@@ -54,12 +54,12 @@ module Upwords
     end
     
     def pending_score(player)
-      Move.new(@pending_move).score(@board, player)
+      prev_board = Board.build(@move_history, @board.size, @board.max_height)
+      Move.new(@pending_move).score(prev_board, player)
     end
 
     def legal?
       prev_board = Board.build(@move_history, @board.size, @board.max_height)
-
       Move.new(@pending_move).legal?(prev_board, @dict, raise_exception = true)
     end
 

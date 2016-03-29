@@ -9,12 +9,17 @@ module Upwords
     # TODO: remove dict from word class
     # TODO: move score and new word methods to board class?
     def score(board, player)
-      (board.word_positions).select do |word_posns|
+      final_score = (board.play_move(self).word_positions).select do |word_posns|
         word_posns.any? {|row, col| position?(row, col)}
         
       end.reduce(player.rack_capacity == @move.size ? 20 : 0) do |score, word_posns|
         score += Word.new(word_posns, board).score
       end
+
+      # HACK: Return letters
+      remove_from(board)
+
+      final_score
     end
 
     # TODO: Add the following legal move checks:
@@ -24,7 +29,7 @@ module Upwords
     end
 
     def legal_shape?(board, raise_exception = false)
-       @shape.legal?(board, raise_exception)
+      @shape.legal?(board, raise_exception)
     end
 
     def can_play_letters?(board, raise_exception = false)
@@ -85,11 +90,11 @@ module Upwords
         
       end.map do |word_posns|
         word_posns.map do |row, col|
-          if position?(row, col)
-            self[row, col]
-          else
+          # if position?(row, col)
+          #   self[row, col]
+          # else
             board.top_letter(row, col)
-          end
+          # end
         end.join 
       end
 
