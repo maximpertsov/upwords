@@ -2,7 +2,7 @@ module Upwords
   class Game
     attr_reader :board, :cursor, :players
     
-    def initialize(display_on = true, max_players = 2)
+    def initialize(display_on = true, max_players = 4)
       @max_players = max_players
       @display_on = display_on
       @board = Board.new(10, 5)
@@ -33,22 +33,36 @@ module Upwords
       player_count = @players.size
     end
 
-    def add_player(name = nil)
+    def add_player(name = nil, cpu = false)
       if player_count >= max_players
         raise StandardError, "No more players can join"
       else
-        if name.nil? || name.size < 1
+        if name.nil? || name.size == 0
           name = "Player #{player_count + 1}" 
         end
-        @players << Player.new(name, rack_capacity=7)
+        @players << Player.new(name, rack_capacity=7, cpu)
       end
+      @players.each {|p| p.refill_rack(@letter_bank) }
     end
 
     def add_players(player_names = nil)
-      @players ||= Array.new
-      while player_count < max_players do
-        print "What is Player #{player_count + 1}'s name?\n"
-        add_player(gets.chomp)
+      print "\n"
+      num_players = 0
+      while num_players == 0 do
+        print "How many players will play? (1-#{@max_players})\n"
+        num_players = gets.chomp.to_i
+        print "\n"
+        if !(1..@max_players).include?(num_players)
+          print "Invalid selection: #{num_players}\n\n"
+        end
+      end
+
+      (1..num_players).each do |idx|
+        print "What is Player #{idx}'s name?\n"
+        name = gets.chomp        
+        print "Cool, is Player #{idx} a computer? (y/n)\n"
+        cpu = gets.chomp
+        add_player(name, cpu.upcase == "Y")
         print "\n"
       end
     end
@@ -88,7 +102,6 @@ module Upwords
       update_message standard_message
     end
 
-    # TODO: move text parsing logic out of MoveManager's pending_result method
     def standard_message
       "#{current_player.name}'s pending words: #{pending_result}"
     end
@@ -116,43 +129,50 @@ module Upwords
       
       # Add players
       add_players
-      @players.each {|p| p.refill_rack(@letter_bank) }
 
       # Start graphics
-      init_window #if @display_on
+      init_window if @display_on
       clear_message
 
       # Start main loop
       while running? do
         begin
-          read_input(@win.getch)
-
-          # TODO: add subroutine to end game if letter bank is empty and either player has exhausted all their letters
-          # TODO: add subroutine to end game if all players skip turn consecutively (check rules to see exactly how this works)
-
-          # Game over check
-          # TODO: remove magic string from last move message
-          if @players.all? {|p| p.last_turn == "skipped turn"}
-            update_message "All plays have skipped their last turn so the game is over!"
-            @running = false
+          # ------ CPU MOVE --------
+          if current_player.cpu?
+            update_message "#{current_player.name} is thinking..."
+            cpu_move = current_player.cpu_move(@board, @dict, 50, 10)
             
-          elsif @letter_bank.empty? && current_player.rack_empty?
+            if !cpu_move.nil?
+              cpu_move.each do |posn, letter|
+                @moves.add(current_player, letter, *posn)
+              end
+              submit_moves(need_confirm=false)
+            else
+              skip_turn(need_confirm=false)
+            end
+          else
+            read_input(@win.getch)
+          end
 
-            # TODO: multiply remaining letter x 5 and add to current player score -> player with the higher score wins
-            @running = false
-            
-          elsif @submitted
-            next_turn
+          if @submitted
+            # TODO: remove magic string from last move message
+            if @players.all? {|p| p.last_turn == "skipped turn"} || @letter_bank.empty? && current_player.rack_empty?
+              game_over
+              @running = false
+            else    
+              next_turn
+            end
           end
           
           refresh_graphics
           
         rescue IllegalMove => exception
           update_message "#{exception.message} (press any key to continue...)"
-          @win.getch
+          @win.getch if display_on?
           clear_message
         end
       end
+      
     end
 
     def read_input(key)
@@ -188,27 +208,6 @@ module Upwords
     def next_turn
       @players.rotate!
       @win.hide_rack if display_on?
-
-      # -- AI MOVE!!!! --------
-      # TODO: Make sure AI refills
-      # TODO: Hide letters
-      update_message "#{current_player.name} is thinking..."
-      cpu_move = current_player.cpu_move(@board, @dict, 50, 10)
-      
-      if !cpu_move.nil?
-        
-        cpu_move.each do |posn, letter|
-          @moves.add(current_player, letter, *posn)
-        end
-        @moves.submit(current_player)
-        current_player.refill_rack(@letter_bank)
-        current_player.last_turn = "played word"
-      else
-        current_player.last_turn = "skipped turn"
-      end
-      @players.rotate!
-      # -----------------------
-
       clear_message
       @submitted = false
     end
@@ -246,8 +245,8 @@ module Upwords
       clear_message
     end
 
-    def submit_moves
-      if confirm_action? "Are you sure you want to submit?"
+    def submit_moves(need_confirm=true)
+      if !need_confirm || (confirm_action? "Are you sure you want to submit?")
         @moves.submit(current_player)
         current_player.refill_rack(@letter_bank)
         @submitted = true
@@ -259,13 +258,13 @@ module Upwords
     end
 
     # TODO: Test this method...
-    def swap_letter
+    def swap_letter(need_confirm=true)
       update_message "Pick a letter to swap... "
       letter = @win.getch
 
       if letter =~ /[[:alpha:]]/
         letter = modify_letter_input(letter)
-        if confirm_action? "Swap '#{letter}' for another?"
+        if !need_confirm || (confirm_action? "Swap '#{letter}' for another?")
           @moves.undo_all(current_player)
           current_player.swap_letter(letter, @letter_bank)
           @submitted = true
@@ -276,8 +275,8 @@ module Upwords
       end
     end
 
-    def skip_turn
-      if confirm_action? "Are you sure you want to skip your turn?"
+    def skip_turn(need_confirm=true)
+      if !need_confirm || (confirm_action? "Are you sure you want to skip your turn?")
         @moves.undo_all(current_player)
         @submitted = true
 
@@ -287,14 +286,37 @@ module Upwords
     end
 
     def exit_game(need_confirm=true)
-      if confirm_action? "Are you sure you want to exit the game?"
+      if !need_confirm || (confirm_action? "Are you sure you want to exit the game?")
         @running = false
         @win.close if display_on?
       end
     end
 
-    def toggle_rack_visibility #(need_confirm=true)
+    def toggle_rack_visibility 
       @win.toggle_rack_visibility
     end
+
+    def game_over
+      update_message "The game is over. Press any key to continue to see who won..."
+      @win.getch if display_on?
+
+      # Subtract 5 points for each tile remaining
+      @players.each do |p|
+        p.score -= p.letters.size * 5
+      end
+
+      top_score = @players.map {|p| p.score}.max
+      winners = @players.select{|p| p.score == top_score}.map{|p| p.name}
+
+      if winners.size == 1 
+        update_message "And the winner is... #{winners[0]} with #{top_score} points!"
+      else
+        update_message "We have a tie! #{winners.join(', ')} all win with #{top_score} points!"
+      end
+
+      @win.getch if display_on?
+      exit_game(need_confirm=false)
+    end
+
   end
 end

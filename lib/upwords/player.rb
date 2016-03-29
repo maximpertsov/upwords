@@ -12,6 +12,10 @@ module Upwords
       @cpu = cpu
     end
 
+    def cpu?
+      @cpu
+    end
+
     def letters
       @rack.letters.dup
     end
