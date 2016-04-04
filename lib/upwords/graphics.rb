@@ -134,15 +134,15 @@ module Upwords
        "",
        @game.player_count > 3 ? draw_score(@game.players[3]) : "",
        "",
-       "---------------------",
-       "|      Controls     |",
-       "---------------------",
-       "Show Letters  [SPACE]",
-       "Undo Moves    [DEL]",
-       "Submit Move   [ENTER]",
-       "Swap Letter   [+]",
-       "Skip Turn     [-]",
-       "Quit Game     [SHIFT+Q]"].map{|s| "   #{s}"} # Left padding
+       "----------------------",
+       "|      Controls      |",
+       "----------------------",
+       "Show Letters   [SPACE]",
+       "Undo Last Move [DEL]",
+       "Submit Move    [ENTER]",
+       "Swap Letter    [+]",
+       "Skip Turn      [-]",
+       "Quit Game      [SHIFT+Q]"].map{|s| "   #{s}"} # Left padding
     end
 
   end
