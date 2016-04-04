@@ -9,18 +9,9 @@ Gem::Specification.new do |spec|
   spec.authors       = ["Maxim Pertsov"]
   spec.email         = ["maxim.pertsov@gmail.com"]
 
-  spec.summary       = "" # %q{TODO: Write a short summary, because Rubygems requires one.}
-  #spec.description   = "" # %q{TODO: Write a longer description or delete this line.}
+  spec.summary       = "Command-line version of the Upwords boardgame. Upwords is similar to Scrabble, except you can stack new letters on top of previously-played letters. Play with 1 to 4 human or computer players."
   spec.homepage      = "https://github.com/maximpertsov/upwords"
   spec.license       = "MIT"
-
-  # Prevent pushing this gem to RubyGems.org by setting 'allowed_push_host', or
-  # delete this section to allow pushing this gem to any host.
-  if spec.respond_to?(:metadata)
-    spec.metadata['allowed_push_host'] = "" #"TODO: Set to 'http://mygemserver.com'"
-  else
-    raise "RubyGems 2.0 or newer is required to protect against public gem pushes."
-  end
 
   spec.files         = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }
   spec.bindir        = "exe" 
@@ -28,8 +19,6 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib", "data"]
 
   spec.add_dependency "curses", "~> 1.0"
-  #spec.add_dependency "colored", "~> 1.2"
-  
   spec.add_development_dependency "bundler", "~> 1.11"
   spec.add_development_dependency "rake", "~> 10.0"
   spec.add_development_dependency "minitest", "~> 5.0"
