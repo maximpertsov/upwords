@@ -48,7 +48,10 @@ module Upwords
     def add_players(player_names = nil)
       print "\n"
       num_players = 0
-      while num_players == 0 do
+
+      # Select how many players will be in the game
+      # TODO: Add a command-line flag to allow players to skip this step
+      until (1..@max_players).include?(num_players) do
         print "How many players will play? (1-#{@max_players})\n"
         num_players = gets.chomp.to_i
         print "\n"
@@ -57,10 +60,12 @@ module Upwords
         end
       end
 
+      # Name each player and choose if they are humans or computers
+      # TODO: Add a command-line flag to set this
       (1..num_players).each do |idx|
         print "What is Player #{idx}'s name?\n"
-        name = gets.chomp        
-        print "Cool, is Player #{idx} a computer? (y/n)\n"
+        name = gets.chomp
+        print "Is Player #{idx} or a computer? (y/n)\n"
         cpu = gets.chomp
         add_player(name, cpu.upcase == "Y")
         print "\n"
@@ -177,8 +182,6 @@ module Upwords
 
     def read_input(key)
       case key
-      when ESCAPE
-        exit_game
       when 'Q'
         exit_game
       when SPACE
