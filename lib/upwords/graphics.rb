@@ -118,7 +118,7 @@ module Upwords
     end
     
     def draw_message
-      ["", "", @message.to_s]
+      ["", @message.to_s]
     end
 
     def draw_stats
