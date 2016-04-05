@@ -43,6 +43,6 @@ module Upwords
   ENTER = 10
 
   # Official Scrabble Player Dictionary file
-  OSPD_FILE = "data/ospd.txt"
+  OSPD_FILE = File.join(File.dirname(__FILE__), "../data/ospd.txt")
   
 end
