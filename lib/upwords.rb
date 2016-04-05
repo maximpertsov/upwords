@@ -18,6 +18,7 @@ require 'upwords/word'
 require 'upwords/player'
 require 'upwords/graphics'
 require 'upwords/game'
+require 'upwords/ui'
 
 module Upwords
   # Raised when player makes an illegal move
