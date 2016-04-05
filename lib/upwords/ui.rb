@@ -2,6 +2,7 @@ module Upwords
   class UI
 
     def self.loop(game)
+      Curses.noecho
       Curses.init_screen
       
       begin
@@ -10,8 +11,18 @@ module Upwords
         x = 0
         y = 0
         win.setpos(y, x)
-        win.addstr("Hello World")
+        
+        # Draw cells
+        cell = win.subwin(3, 5, 0, 0)
+        (0..3).each do |x|
+          (0..3).each do |y|
+            win.subwin(3, 5, y * 3, x * 5).box('-', '-')
+          end
+        end
+
         win.refresh
+        
+        # TODO: make this a while-loop
         self.read_key(win, game)
         win.getch
       ensure
@@ -33,6 +44,10 @@ module Upwords
 
       return key
     end
+
+    def self.draw_board(game)
+      # TODO: Implement...
+    end
   end
 
   class FakeGame
@@ -41,10 +56,6 @@ module Upwords
       @players = []
       @x = 0
       @y = 0
-    end
-
-    def up
-      @y = (@y - 1) % @board.size
     end
   end
 
