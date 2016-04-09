@@ -120,7 +120,6 @@ Build across using the letter "E" in DEAR to form the word NET as shown in Figur
 The word ON is also formed reading down.You score points for all of the words
 formed during your turn.
 
-
     +----+----+----+----+----+----+
     |    |    |    |    |    |    |
     +----+----+----+----+----+----+
@@ -135,10 +134,8 @@ formed during your turn.
     |    |    |    |    |    |    |
     +----+----+----+----+----+----+
 
-    Figure 2
-    New Words: "DEAR"
-    Score: 8 Points
-    
+*Figure 2 - Score: 8 Points*
+
     +----+----+----+----+----+----+
     |    |    |    |    |    |    |
     +----+----+----+----+----+----+
@@ -153,9 +150,8 @@ formed during your turn.
     |    |    |    |    |    |    |
     +----+----+----+----+----+----+
 
-    Figure 3
-    New Words: "ON", "NET"
-    Score: 10 Points 
+*Figure 3 - Score: 10 Points* 
+
 
 **NOTE:** Any letter in your word that is adjacent to another letter or letters on
 the board must form a word. For example, in Figure 3, the letter "N" in NET is adjacent to
