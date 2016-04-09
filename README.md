@@ -1,5 +1,39 @@
 # UPWORDS - THE QUICK STACKING WORD GAME
 
+## Getting Started
+
+1. Install Upwords at the command prompt if you haven't yet:
+
+        $ gem install upwords
+
+2. At the command prompt, start a new Upwords game:
+
+        $ upwords
+
+3. Select the number of players:
+
+        How many players will play? (1-4)
+        3 
+
+4. Name each player and select if they are humans or computers:
+        
+        What is Player 1's name?
+        Bob 
+        Is Player 1 or a computer? (y/n)
+        n   
+
+        What is Player 2's name?
+        Nina    
+        Is Player 2 or a computer? (y/n)
+        n
+
+        What is Player 3's name?
+        Jack
+        Is Player 3 or a computer? (y/n)
+        y
+
+## Rules
+
 Rules taken from: http://www.hasbro.com/common/instruct/04312.pdf
 
 For 2 to 4 Players 1 AGES 8+
