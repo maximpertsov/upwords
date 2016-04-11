@@ -42,7 +42,6 @@ module Upwords
         end
         @players << Player.new(name, rack_capacity=7, cpu)
       end
-      @players.each {|p| p.refill_rack(@letter_bank) }
     end
 
     def add_players(player_names = nil)
@@ -70,6 +69,10 @@ module Upwords
         add_player(name, cpu.upcase == "Y")
         print "\n"
       end
+    end
+
+    def all_refill_racks
+      @players.each {|p| p.refill_rack(@letter_bank) }
     end
 
     # =========================================
@@ -134,6 +137,7 @@ module Upwords
       
       # Add players
       add_players
+      all_refill_racks
 
       # Start graphics
       init_window if @display_on
