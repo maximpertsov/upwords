@@ -1,34 +1,36 @@
 module Upwords
   class UI
 
-    def initialize(game)
+    def initialize(game, row_height = 1, col_width = 4)
+      # Game and drawing variables
       @game = game
+      @row_height = row_height
+      @col_width = col_width
 
       # Configure Curses and initialize screen
       Curses.noecho
       Curses.curs_set(2)
       Curses.init_screen
-   
+
+      # Initialize main window and game loop
       begin
         @win = Curses.stdscr
         @win.keypad=(true)
-        @win.setpos(0, 0) # TODO: Change this to top-left of middle square
-        main_loop
+        @win.setpos(*win_pos(*@game.cursor.posn))
+        self.draw_update_loop
       ensure
         Curses.close_screen
-      end
+      end      
     end
 
-    def main_loop
-      # Draw board in sub-window
+    def draw_update_loop
       self.draw
-
-      # Input loop
       while (self.read_key) do; end
     end
 
     def draw
-      blines = self.board_lines(@game.board, 4) 
+      # Draw board in sub-window
+      blines = self.board_lines(@game.board, @col_width) 
       subwin = @win.subwin(blines.length, blines[0].length + 1, 0, 0)
       subwin.addstr(blines.join("\n"))
       @win.refresh
@@ -59,14 +61,16 @@ module Upwords
       end
       
       # Update Curses cursor to new game cursor
-      @win.setpos((@game.cursor.y * 2) + 1, (@game.cursor.x * 5) + 2)
+      @win.setpos(*win_pos(*@game.cursor.posn))
       return key
     end
 
     private
 
     def win_pos(y, x)
-      [(y * 2) + 1, (x * 5) + 2]
+      rh = @row_height
+      cw = @col_width
+      [(y * (rh + 1)) + 1, (x * (cw + 1)) + 2] # TODO: magic nums are offsets 
     end
   end
 
