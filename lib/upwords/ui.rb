@@ -17,15 +17,20 @@ module Upwords
         @win = Curses.stdscr
         @win.keypad=(true)
         @win.setpos(*win_pos(*@game.cursor.posn))
-        self.draw_update_loop
+        draw_update_loop
       ensure
         Curses.close_screen
       end      
     end
 
     def draw_update_loop
-      self.draw
-      while (self.read_key) do; end
+      draw
+
+      # Read key inputs then update cursor and window
+      while read_key do
+        @win.setpos(*win_pos(*@game.cursor.posn))
+        @win.refresh
+      end
     end
 
     def draw
@@ -60,17 +65,15 @@ module Upwords
         return false
       end
       
-      # Update Curses cursor to new game cursor
-      @win.setpos(*win_pos(*@game.cursor.posn))
       return key
     end
 
     private
 
     def win_pos(y, x)
-      rh = @row_height
-      cw = @col_width
-      [(y * (rh + 1)) + 1, (x * (cw + 1)) + 2] # TODO: magic nums are offsets 
+      dy = @row_height
+      dx = @col_width
+      [(y * (dy + 1)) + 1, (x * (dx + 1)) + 2] # TODO: magic nums are offsets 
     end
   end
 
