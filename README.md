@@ -1,4 +1,38 @@
-# UPWORDS - THE QUICK STACKING WORD GAME
+# Upwords - The Quick Stacking Word Game
+
+## Getting Started
+
+1. Install Upwords at the command prompt if you haven't yet:
+
+        $ gem install upwords
+
+2. At the command prompt, start a new Upwords game:
+
+        $ upwords
+
+3. Select the number of players:
+
+        How many players will play? (1-4)
+        3 
+
+4. Name each player and select if they are humans or computers:
+        
+        What is Player 1's name?
+        Bob 
+        Is Player 1 or a computer? (y/n)
+        n   
+
+        What is Player 2's name?
+        Nina    
+        Is Player 2 or a computer? (y/n)
+        n
+
+        What is Player 3's name?
+        Jack
+        Is Player 3 or a computer? (y/n)
+        y
+
+## Rules
 
 Rules taken from: http://www.hasbro.com/common/instruct/04312.pdf
 
@@ -14,17 +48,11 @@ You score points for each letter in your word and every letter tile under
 each letter of your word.Letters can be stacked five tiles high so your score
 can really add up fast. Build words, stack letters, score high and have fun! 
 
-## OBJECT
+## Objective
 
 Build words to score the most points.
 
-## CONTENTS
-
-Plastic gameboard 100 plastic letter tiles 4 plastic tile racks
-
-4 rubber feet label sheet
-
-## LETTER DISTRIBUTION
+## Letter Distribution
 
 | Letters       | Amount    |
 | ------------- | --------- |
@@ -37,7 +65,7 @@ Plastic gameboard 100 plastic letter tiles 4 plastic tile racks
 | A I O         | 7 of each |
 | E             | 8 of each |
 
-## SETUP
+## Setup
 
 - Turn all of the tiles letter-side down and mix them up to create a draw pile.
 - Each player takes a rack.
@@ -46,7 +74,7 @@ Plastic gameboard 100 plastic letter tiles 4 plastic tile racks
   word. See Rule 8 on page 5 for more information. Use the dictionary
   to settle challenges only. 
 
-## GAMEPLAY
+## Gameplay
 
 ### 1. Deciding Who Goes First
 
@@ -68,7 +96,7 @@ let your opponents see 1 your letters.
 Whoever plays first must form a word of two letters or more that covers at least
 one of the four game squares in the center of the gameboard.
 
-### 4. BASIC TURN
+### 4. Basic Turn
 
 On your turn, play one or more letter tiles, either to form a new word that connects to
 a word already on the board, or to change a word already on the board to a different word. 
@@ -79,7 +107,7 @@ the ones you played.
 **IMPORTANT:** A word is legal and can be used in the game if it is in the dictionary and 
 it does not fall into any of the categories of illegal words listed in Rule 7 on page 5. 
 
-### 5. HOW TO FORM WORDS
+### 5. How To Form Words
 
 Figures 2 through 7 show a sequence of plays. Arrows point out the word or words 
 formed on each play. Point scores are given for each example. See Rule 6 on page
@@ -92,15 +120,40 @@ Build across using the letter "E" in DEAR to form the word NET as shown in Figur
 The word ON is also formed reading down.You score points for all of the words
 formed during your turn.
 
-Figure 2 Score: 8 Points
+    +----+----+----+----+----+----+
+    |    |    |    |    |    |    |
+    +----+----+----+----+----+----+
+    |    | M  | O  | O  |{D} |    |
+    +----+---1+---1+---1+---1+----+
+    |    |    |    |    |{E} |    |
+    +----+----+----+----+---1+----+
+    |    |    |    |    |{A} |    |
+    +----+----+----+----+---1+----+
+    |    |    |    |    |{R} |    |
+    +----+----+----+----+---1+----+
+    |    |    |    |    |    |    |
+    +----+----+----+----+----+----+
 
-[FIGURE 2]
+*Figure 2 - Score: 8 Points*
 
-Figure 3 Score: 10 Points 
+    +----+----+----+----+----+----+
+    |    |    |    |    |    |    |
+    +----+----+----+----+----+----+
+    |    | M  | O  |{O} | D  |    |
+    +----+---1+---1+---1+---1+----+
+    |    |    |    |{N} |{E} |{T} |
+    +----+----+----+---1+---1+---1+
+    |    |    |    |    | A  |    |
+    +----+----+----+----+---1+----+
+    |    |    |    |    | R  |    |
+    +----+----+----+----+---1+----+
+    |    |    |    |    |    |    |
+    +----+----+----+----+----+----+
 
-[FIGURE 3]
+*Figure 3 - Score: 10 Points* 
 
-**N0TE:** Any letter in your word that is adjacent to another letter or letters on
+
+**NOTE:** Any letter in your word that is adjacent to another letter or letters on
 the board must form a word. For example, in Figure 3, the letter "N" in NET is adjacent to
 the letter "O" in MOOD, which forms the word ON.
 
@@ -147,7 +200,7 @@ makes it plural as shown in Figure 7. You score points for both words.
 
 [FIGURE 7 | Score: 16 Points]
 
-### 6. HOW TO SCORE WORDS
+### 6. How To Score Words
 
 - You score 2 points per letter tile for any word formed with all letters
   only one tile high (no letter in the word is stacked on top of another
@@ -178,7 +231,7 @@ makes it plural as shown in Figure 7. You score points for both words.
 - At the end of the game, 5 points are subtracted from your score for
   each letter tile you cannot play. 
 
-### 7. ILLEGAL WORDS
+### 7. Illegal Words
 
 Any word that falls into any category listed below, is an illegal
 word and cannot be used in the game:
@@ -190,7 +243,7 @@ word and cannot be used in the game:
 - Foreign words are illegal unless they appear in the dictionary.
 - Words that are only one letter long are illegal. *(Note: Not Standard)*
 
-### 8. CHALLENGING A WORD
+### 8. Challenging A Word
 
 You can challenge an opponent's word if you think it's misspelled or
 an illegal word. The word must be challenged before another word is
@@ -198,13 +251,13 @@ played. Use a dictionary to decide if the challenged word is legal or
 illegal. lf the challenged word is illegal, the player who played it removes
 the letter tiles from the board and either plays another word or passes.
 
-### 9. PASSING
+### 9. Passing
 
 You may pass your turn at any time during the game. Sometimes it is to
 your advantage to pass, especially toward the end of the game, to allow
 a better scoring opportunity to open up for you. 
 
-### 10. EXCHANGING YOUR LETTERS
+### 10. Exchanging Your Letters
 
 On your turn, you may exchange one of your letter tiles for a new one.
 Just turn the tile you want to exchange letter-side down and draw a
@@ -214,7 +267,7 @@ it is a good strategy to give up a turn in order to exchange a letter. For
 example, you may want to exchange a "J" or a "Z" if you draw them late
 in the game.
 
-### 11. HOW TO END THE GAME
+### 11. How To End The Game
 
 The game is over as soon as any of the following situations occur:
 - When one player uses all of his or her letter tiles, and no tiles remain in
@@ -227,11 +280,11 @@ The game is over as soon as any of the following situations occur:
 When the game is over, total each player's final score. Subtract 5 points
 from a player's score for each letter tile he/she has not played.
 
-### HOW TO WIN
+### How To Win
 
 The player who scores the most points wins. 
 
-### SOLO PLAY RULES
+### Solo Play Rules
 
 Follow setup and gameplay rules as explained above. Make words, one at
 a time, and score points for every word you make. **NOTE:** During the game,
