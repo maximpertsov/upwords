@@ -11,6 +11,10 @@ module Upwords
       Curses.noecho
       Curses.curs_set(2)
       Curses.init_screen
+      Curses.start_color
+
+      # Initialize colors
+      Curses.init_pair(1, Curses::COLOR_YELLOW, Curses::COLOR_BLACK)
 
       # Initialize main window and game loop
       begin
@@ -61,6 +65,11 @@ module Upwords
         @game.cursor.left
       when Curses::Key::RIGHT
         @game.cursor.right
+      when /[[:alpha:]]/
+        # Denote pending letters with some color/attribute...
+        Curses.attron(Curses.color_pair(1)|Curses::A_BLINK|Curses::A_BOLD) {
+          @win.addstr(key)
+        }
       else
         return false
       end
