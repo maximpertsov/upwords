@@ -20,7 +20,7 @@ module Upwords
       begin
         @win = Curses.stdscr
         @win.keypad=(true)
-        @win.setpos(*win_pos(*@game.cursor.posn))
+        @win.setpos(*letter_pos(*@game.cursor.posn))
         draw_update_loop
       ensure
         Curses.close_screen
@@ -32,14 +32,14 @@ module Upwords
 
       # Read key inputs then update cursor and window
       while read_key do
-        @win.setpos(*win_pos(*@game.cursor.posn))
+        @win.setpos(*letter_pos(*@game.cursor.posn))
         @win.refresh
       end
     end
 
     def draw
       # Draw board in sub-window
-      blines = self.board_lines(@game.board, @col_width) 
+      blines = board_lines(@game.board, @col_width) 
       subwin = @win.subwin(blines.length, blines[0].length + 1, 0, 0)
       subwin.addstr(blines.join("\n"))
       @win.refresh
@@ -70,6 +70,7 @@ module Upwords
         Curses.attron(Curses.color_pair(1)|Curses::A_BLINK|Curses::A_BOLD) {
           @win.addstr(key)
         }
+        # TODO: update stack height...
       else
         return false
       end
@@ -79,10 +80,16 @@ module Upwords
 
     private
 
-    def win_pos(y, x)
+    def letter_pos(y, x)
       dy = @row_height
       dx = @col_width
       [(y * (dy + 1)) + 1, (x * (dx + 1)) + 2] # TODO: magic nums are offsets 
+    end
+
+    def stack_height_pos(y, x)
+      dy = @row_height
+      dx = @col_width
+      [(y * (dy + 2)) + 1, (x * (dx + 3)) + 2] # TODO: magic nums are offsets
     end
   end
 
