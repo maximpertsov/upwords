@@ -14,7 +14,7 @@ module Upwords
         win.setpos(0, 0)
         
         # Draw board in sub-window
-        blines = self.board_lines(10, 10, 4)
+        blines = self.board_lines(game.board, 4) 
         subwin = win.subwin(blines.length, blines[0].length + 1, 0, 0)
         subwin.addstr(blines.join("\n"))
         win.refresh
@@ -27,36 +27,39 @@ module Upwords
       end
     end
 
-    def self.board_lines(rows, cols, col_width)
+    def self.board_lines(board, col_width) 
+      rows = board.num_rows
+      cols = board.num_columns
+
       divider = [nil, ["-" * col_width] * cols, nil].flatten.join("+")
       spaces = [nil, [" " * col_width] * cols, nil].flatten.join("|")
+
       return ([divider] * (rows + 1)).zip([spaces] * rows).flatten
     end
 
     def self.read_key(win, game)
       case (key = win.getch)
       when Curses::Key::UP
-        win.setpos(win.cury - 1, win.curx)
+        game.cursor.up
       when Curses::Key::DOWN
-        win.setpos(win.cury + 1, win.curx)
+        game.cursor.down
       when Curses::Key::LEFT
-        win.setpos(win.cury, win.curx - 1)
+        game.cursor.left
       when Curses::Key::RIGHT
-        win.setpos(win.cury, win.curx + 1)
+        game.cursor.right
       else
         return false
       end
-
+      
+      # Update Curses cursor to new game cursor
+      win.setpos((game.cursor.y * 2) + 1, (game.cursor.x * 5) + 2)
       return key
     end
   end
 
-  class FakeGame
+  class FakeGame < Game
     def initialize
-      @board = Array.new(3) {Array.new(3)} # 3 x 3 board
-      @players = []
-      @x = 0
-      @y = 0
+      super(false, 1)
     end
   end
 
