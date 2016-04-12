@@ -15,7 +15,18 @@ class GameTest < Minitest::Test
 
   def test_has_game_objects
     assert_kind_of(Board, @game.board)
-    #assert_kind_of(LetterBank, @game.letter_bank)
+  end
+
+  def test_can_play_letter_at_cursor_posn
+    @game.current_player.take_letter("C")
+    @game.play_letter("C")
+    assert_equal "C", @game.board.top_letter(*@game.cursor.posn)
+  end
+
+  def test_can_play_letter_at_given_posn
+    @game.current_player.take_letter("C")
+    @game.play_letter("C", 4, 5)
+    assert_equal "C", @game.board.top_letter(4, 5)
   end
 
 end

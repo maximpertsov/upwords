@@ -76,7 +76,15 @@ module Upwords
     end
 
     # =========================================
-    # Graphics Methods
+    # Move Manager Methods
+    # =========================================
+    
+    def play_letter(letter, y = @cursor.y, x = @cursor.x)
+      @moves.add(current_player, modify_letter_input(letter), y, x)
+    end
+
+    # =========================================
+    # Graphics Methods - to be retired...
     # =========================================
 
     def init_window
@@ -153,7 +161,7 @@ module Upwords
             
             if !cpu_move.nil?
               cpu_move.each do |posn, letter|
-                @moves.add(current_player, letter, *posn)
+                play_letter(letter, *posn)
               end
               submit_moves(need_confirm=false)
             else
@@ -207,7 +215,7 @@ module Upwords
       when '-'
         skip_turn
       when /[[:alpha:]]/
-        @moves.add(current_player, modify_letter_input(key), @cursor.y, @cursor.x)
+        play_letter(key)
         clear_message
       end
     end

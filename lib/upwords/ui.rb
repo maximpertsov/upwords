@@ -42,7 +42,7 @@ module Upwords
       cury, curx = @win.cury, @win.curx
 
       # TODO: change magic number to "message position"
-      @win.setpos(30, 0)
+      @win.setpos(*message_pos(@game.board))
       @win.addstr(text)
 
       # Reset cursor position and refresh
@@ -127,7 +127,7 @@ module Upwords
       when Curses::Key::RIGHT
         @game.cursor.right
       when /[[:alpha:]]/
-        @game.board.play_letter(key, *@game.cursor.posn)
+        @game.play_letter(key)
       else
         return false # TODO: should input not be controlling the game loop?
       end
@@ -154,11 +154,24 @@ module Upwords
       dx = @col_width
       [(y * (dy + 1)) + 2, (x * (dx + 1)) + dx] # TODO: magic nums are offsets
     end
+
+    def message_pos(board)
+      [board.num_rows * (@row_height + 1) + 2, 0] # TODO: magic nums are offsets
+    end
   end
 
   class FakeGame < Game
     def initialize
-      super(false, 1)
+      super(false, 2)
+      self.add_player("Max")
+      self.add_player("Jordan")
+
+      # Give each each player letters A through G 
+      self.players.each do |p|
+        ('A'..'G').each do |letter|
+          p.take_letter(letter)
+        end
+      end
     end
   end
 
