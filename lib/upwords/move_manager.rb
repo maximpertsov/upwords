@@ -13,11 +13,15 @@ module Upwords
     # --------------------------------
     def add(player, letter, row, col)
       # TODO: remove the need for @pending_move.map
-      if (@pending_move.map {|m| m[0]}).include?([row, col])
+      if self.include?(row, col) 
         raise IllegalMove, "You can't stack on a space more than once in a single turn!"
       elsif
         @pending_move << player.play_letter(@board, letter, row, col)
       end
+    end
+
+    def include?(row, col)
+      @pending_move.map {|m| m[0]}.include?([row, col])
     end
 
     def undo_last(player)

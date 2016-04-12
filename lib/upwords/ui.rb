@@ -98,7 +98,15 @@ module Upwords
           @win.setpos(*letter_pos(row, col))
 
           if board.nonempty_space?(row, col)
-            @win.addstr(board.top_letter(row, col))        
+            letter = board.top_letter(row, col)
+            # Color pending letters YELLOW
+            if @game.pending_position?(row, col)
+              Curses.attron(Curses.color_pair(2)) {
+                @win.addstr(letter)      
+              }  
+            else
+              @win.addstr(letter)      
+            end  
           else
             @win.addstr("  ")
           end

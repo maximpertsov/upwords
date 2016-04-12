@@ -87,6 +87,10 @@ module Upwords
       @moves.undo_last(current_player)
     end
 
+    def pending_position?(row, col)
+      @moves.include?(row, col)
+    end
+
     # =========================================
     # Graphics Methods - to be retired...
     # =========================================
