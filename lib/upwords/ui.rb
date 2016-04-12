@@ -51,6 +51,26 @@ module Upwords
       @win.refresh
     end
 
+    def clear_message
+      cury, curx = @win.cury, @win.curx
+
+      # TODO: change magic number to "message position"
+      @win.setpos(*message_pos(@game.board))
+      @win.deleteln
+
+      # Reset cursor position and refresh
+      @win.setpos(cury, curx)
+      @win.refresh
+    end
+
+    def draw_confirm(text) #, &block)
+      draw_message(text)
+      reply = (@win.getch.to_s).upcase == "Y"
+      clear_message
+
+      return reply
+    end
+
     def draw_grid
       # Draw board in sub-window
       blines = board_lines(@game.board, @col_width) 
@@ -123,7 +143,10 @@ module Upwords
     def read_key
       case (key = @win.getch)
       when DELETE
-        @game.undo_last
+        # TODO: remove the confirmation script - it was only meant to be a test
+        if draw_confirm("Are you sure you want to undo? (y/n)")
+          @game.undo_last
+        end
       when Curses::Key::UP
         @game.cursor.up
       when Curses::Key::DOWN
@@ -141,9 +164,7 @@ module Upwords
       return key
 
     rescue IllegalMove => exception
-      draw_message "#{exception.message} (press any key to continue...)"
-      @win.getch
-      draw_message ""
+      draw_confirm("#{exception.message} (press any key to continue...)")
       return true 
     end
 
