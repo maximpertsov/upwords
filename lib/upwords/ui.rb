@@ -14,7 +14,8 @@ module Upwords
       Curses.start_color
 
       # Initialize colors
-      Curses.init_pair(1, Curses::COLOR_RED, Curses::COLOR_BLACK)
+      Curses.init_pair(1, Curses::COLOR_RED, Curses::COLOR_BLACK) # Red on black background
+      Curses.init_pair(2, Curses::COLOR_YELLOW, Curses::COLOR_BLACK) # Yellow on black background
 
       # Initialize main window and game loop
       begin
@@ -74,9 +75,12 @@ module Upwords
       (0...board.num_rows).each do |row|
         (0...board.num_columns).each do |col|
 
+          @win.setpos(*letter_pos(row, col))
+
           if board.nonempty_space?(row, col)
-            @win.setpos(*letter_pos(row, col))
-            @win.addstr(board.top_letter(row, col)) 
+            @win.addstr(board.top_letter(row, col))        
+          else
+            @win.addstr("  ")
           end
 
         end
@@ -118,6 +122,8 @@ module Upwords
     # TODO: if read_key returns 'false', then the game ends. See if there is a better construct...
     def read_key
       case (key = @win.getch)
+      when DELETE
+        @game.undo_last
       when Curses::Key::UP
         @game.cursor.up
       when Curses::Key::DOWN

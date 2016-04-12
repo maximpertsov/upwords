@@ -83,6 +83,10 @@ module Upwords
       @moves.add(current_player, modify_letter_input(letter), y, x)
     end
 
+    def undo_last
+      @moves.undo_last(current_player)
+    end
+
     # =========================================
     # Graphics Methods - to be retired...
     # =========================================
@@ -199,7 +203,8 @@ module Upwords
       when SPACE
         toggle_rack_visibility
       when DELETE
-        undo_moves
+        undo_last
+        clear_message
       when ENTER
         submit_moves
       when Curses::KEY_UP
@@ -254,11 +259,6 @@ module Upwords
     # =========================================
     # Game Procedures Bound to some Key Input
     # =========================================
-
-    def undo_moves
-      @moves.undo_last(current_player)
-      clear_message
-    end
 
     def submit_moves(need_confirm=true)
       if !need_confirm || (confirm_action? "Are you sure you want to submit?")
