@@ -14,7 +14,7 @@ module Upwords
       Curses.start_color
 
       # Initialize colors
-      Curses.init_pair(1, Curses::COLOR_YELLOW, Curses::COLOR_BLACK)
+      Curses.init_pair(1, Curses::COLOR_RED, Curses::COLOR_BLACK)
 
       # Initialize main window and game loop
       begin
@@ -28,16 +28,29 @@ module Upwords
     end
 
     def draw_update_loop
-      draw
+      draw_grid
 
       # Read key inputs then update cursor and window
       while read_key do
         @win.setpos(*letter_pos(*@game.cursor.posn))
-        @win.refresh
+        draw_letters(@game.board)
+        draw_stack_heights(@game.board)
       end
     end
 
-    def draw
+    def draw_message(text)
+      cury, curx = @win.cury, @win.curx
+
+      # TODO: change magic number to "message position"
+      @win.setpos(30, 0)
+      @win.addstr(text)
+
+      # Reset cursor position and refresh
+      @win.setpos(cury, curx)
+      @win.refresh
+    end
+
+    def draw_grid
       # Draw board in sub-window
       blines = board_lines(@game.board, @col_width) 
       subwin = @win.subwin(blines.length, blines[0].length + 1, 0, 0)
@@ -55,6 +68,54 @@ module Upwords
       return ([divider] * (rows + 1)).zip([spaces] * rows).flatten
     end
 
+    def draw_letters(board)
+      cury, curx = @win.cury, @win.curx
+      
+      (0...board.num_rows).each do |row|
+        (0...board.num_columns).each do |col|
+
+          if board.nonempty_space?(row, col)
+            @win.setpos(*letter_pos(row, col))
+            @win.addstr(board.top_letter(row, col)) 
+          end
+
+        end
+      end
+
+      # Reset cursor position and refresh
+      @win.setpos(cury, curx)
+      @win.refresh
+    end
+
+    def draw_stack_heights(board)
+      cury, curx = @win.cury, @win.curx
+      
+      (0...board.num_rows).each do |row|
+        (0...board.num_columns).each do |col|
+
+          @win.setpos(*stack_height_pos(row, col))
+
+          case (height = board.stack_height(row, col))
+          when 0
+            @win.addstr("-")
+          when board.max_height
+            # Show height value in RED when max height is reached
+            Curses.attron(Curses.color_pair(1)) {
+              @win.addstr(height.to_s)
+            }
+          else
+            @win.addstr(height.to_s)
+          end
+
+        end
+      end
+
+      # Reset cursor position and refresh
+      @win.setpos(cury, curx)
+      @win.refresh
+    end
+
+    # TODO: if read_key returns 'false', then the game ends. See if there is a better construct...
     def read_key
       case (key = @win.getch)
       when Curses::Key::UP
@@ -66,16 +127,18 @@ module Upwords
       when Curses::Key::RIGHT
         @game.cursor.right
       when /[[:alpha:]]/
-        # Denote pending letters with some color/attribute...
-        Curses.attron(Curses.color_pair(1)|Curses::A_BLINK|Curses::A_BOLD) {
-          @win.addstr(key)
-        }
-        # TODO: update stack height...
+        @game.board.play_letter(key, *@game.cursor.posn)
       else
-        return false
+        return false # TODO: should input not be controlling the game loop?
       end
       
       return key
+
+    rescue IllegalMove => exception
+      draw_message "#{exception.message} (press any key to continue...)"
+      @win.getch
+      draw_message ""
+      return true 
     end
 
     private
@@ -89,7 +152,7 @@ module Upwords
     def stack_height_pos(y, x)
       dy = @row_height
       dx = @col_width
-      [(y * (dy + 2)) + 1, (x * (dx + 3)) + 2] # TODO: magic nums are offsets
+      [(y * (dy + 1)) + 2, (x * (dx + 1)) + dx] # TODO: magic nums are offsets
     end
   end
 
