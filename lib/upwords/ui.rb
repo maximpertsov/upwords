@@ -14,8 +14,8 @@ module Upwords
       Curses.start_color
 
       # Initialize colors
-      Curses.init_pair(1, Curses::COLOR_RED, Curses::COLOR_BLACK) # Red on black background
-      Curses.init_pair(2, Curses::COLOR_YELLOW, Curses::COLOR_BLACK) # Yellow on black background
+      Curses.init_pair(RED, Curses::COLOR_RED, Curses::COLOR_BLACK) # Red on black background
+      Curses.init_pair(YELLOW, Curses::COLOR_YELLOW, Curses::COLOR_BLACK) # Yellow on black background
 
       # Initialize main window and game loop
       begin
@@ -55,7 +55,7 @@ module Upwords
       end
     end
 
-    def draw_confirm(text) #, &block)
+    def draw_confirm(text) 
       draw_message(text)
       reply = (@win.getch.to_s).upcase == "Y"
       clear_message
@@ -64,11 +64,11 @@ module Upwords
     end
 
     def draw_grid
-      # Draw board in sub-window
-      blines = board_lines(@game.board, @col_width) 
-      subwin = @win.subwin(blines.length, blines[0].length + 1, 0, 0)
-      subwin.addstr(blines.join("\n"))
-      @win.refresh
+      draw_wrapper do
+        lines = board_lines(@game.board, @col_width) 
+        subwin = @win.subwin(lines.length, lines[0].length + 1, 0, 0)
+        subwin.addstr(lines.join("\n"))
+      end
     end
 
     def board_lines(board, col_width) 
@@ -81,55 +81,35 @@ module Upwords
       return ([divider] * (rows + 1)).zip([spaces] * rows).flatten
     end
 
-    def draw_for_each_cell(&block)
-    end
-
     def draw_letters(board)
-      draw_wrapper do
-        (0...board.num_rows).each do |row|
-          (0...board.num_columns).each do |col|
-
-            @win.setpos(*letter_pos(row, col))
-
-            if board.nonempty_space?(row, col)
-              letter = board.top_letter(row, col)
-              # Color pending letters YELLOW
-              if @game.pending_position?(row, col)
-                Curses.attron(Curses.color_pair(2)) {
-                  @win.addstr(letter)      
-                }  
-              else
-                @win.addstr(letter)      
-              end  
-            else
-              @win.addstr("  ")
-            end
-
-          end
+      draw_for_each_cell(board) do |row, col|
+        @win.setpos(*letter_pos(row, col))
+        
+        if board.nonempty_space?(row, col)
+          letter = board.top_letter(row, col)
+          if @game.pending_position?(row, col)
+            Curses.attron(Curses.color_pair(YELLOW)) { @win.addstr(letter) }  
+          else
+            @win.addstr(letter)      
+          end  
+        else
+          @win.addstr("  ")
         end
       end
     end
 
     def draw_stack_heights(board)
-      draw_wrapper do      
-        (0...board.num_rows).each do |row|
-          (0...board.num_columns).each do |col|
+      draw_for_each_cell(board) do |row, col|
+        
+        @win.setpos(*stack_height_pos(row, col))
 
-            @win.setpos(*stack_height_pos(row, col))
-
-            case (height = board.stack_height(row, col))
-            when 0
-              @win.addstr("-")
-            when board.max_height
-              # Show height value in RED when max height is reached
-              Curses.attron(Curses.color_pair(1)) {
-                @win.addstr(height.to_s)
-              }
-            else
-              @win.addstr(height.to_s)
-            end
-
-          end
+        case (height = board.stack_height(row, col))
+        when 0
+          @win.addstr("-")
+        when board.max_height
+          Curses.attron(Curses.color_pair(RED)) { @win.addstr(height.to_s) }
+        else
+          @win.addstr(height.to_s)
         end
       end
     end
@@ -153,7 +133,7 @@ module Upwords
       when /[[:alpha:]]/
         @game.play_letter(key)
       else
-        return false # TODO: should input not be controlling the game loop?
+        return false # TODO: should input be controlling the game loop?
       end
       
       return key
@@ -177,8 +157,7 @@ module Upwords
       [board.num_rows * (@row_height + 1) + 2, 0] # TODO: magic nums are offsets
     end
 
-    # TODO: make this a private method
-    # Execute block and reset cursors and refresh afterwards
+    # Execute draw operation in block and reset cursors and refresh afterwards
     def draw_wrapper(&block)
       cury, curx = @win.cury, @win.curx
       
@@ -186,6 +165,16 @@ module Upwords
       
       @win.setpos(cury, curx)
       @win.refresh
+    end
+
+    def draw_for_each_cell(board, &block)
+      draw_wrapper do
+        (0...board.num_rows).each do |row|
+          (0...board.num_columns).each do |col|
+            block.call(row, col)
+          end
+        end
+      end
     end
   end
 

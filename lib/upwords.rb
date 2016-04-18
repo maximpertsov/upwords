@@ -43,6 +43,10 @@ module Upwords
   DELETE = 127
   ENTER = 10
 
+  # Curses Color Constants
+  RED = 1
+  YELLOW = 2
+
   # Official Scrabble Player Dictionary file
   OSPD_FILE = File.join(File.dirname(__FILE__), "../data/ospd.txt")
   
