@@ -40,27 +40,19 @@ module Upwords
     end
 
     def draw_message(text)
-      cury, curx = @win.cury, @win.curx
-
-      # TODO: change magic number to "message position"
-      @win.setpos(*message_pos(@game.board))
-      @win.addstr(text)
-
-      # Reset cursor position and refresh
-      @win.setpos(cury, curx)
-      @win.refresh
+      draw_wrapper do
+        @win.setpos(*message_pos(@game.board))
+        @win.addstr(text)
+      end
     end
 
     def clear_message
-      cury, curx = @win.cury, @win.curx
-
-      # TODO: change magic number to "message position"
-      @win.setpos(*message_pos(@game.board))
-      @win.deleteln
-
-      # Reset cursor position and refresh
-      @win.setpos(cury, curx)
-      @win.refresh
+      draw_wrapper do
+        y, x = message_pos(@game.board)
+        @win.setpos(y, x)
+        # Delete ALL lines below cursor
+        (@win.maxy - y + 1).times { @win.deleteln }
+      end
     end
 
     def draw_confirm(text) #, &block)
@@ -89,62 +81,57 @@ module Upwords
       return ([divider] * (rows + 1)).zip([spaces] * rows).flatten
     end
 
+    def draw_for_each_cell(&block)
+    end
+
     def draw_letters(board)
-      cury, curx = @win.cury, @win.curx
-      
-      (0...board.num_rows).each do |row|
-        (0...board.num_columns).each do |col|
+      draw_wrapper do
+        (0...board.num_rows).each do |row|
+          (0...board.num_columns).each do |col|
 
-          @win.setpos(*letter_pos(row, col))
+            @win.setpos(*letter_pos(row, col))
 
-          if board.nonempty_space?(row, col)
-            letter = board.top_letter(row, col)
-            # Color pending letters YELLOW
-            if @game.pending_position?(row, col)
-              Curses.attron(Curses.color_pair(2)) {
+            if board.nonempty_space?(row, col)
+              letter = board.top_letter(row, col)
+              # Color pending letters YELLOW
+              if @game.pending_position?(row, col)
+                Curses.attron(Curses.color_pair(2)) {
+                  @win.addstr(letter)      
+                }  
+              else
                 @win.addstr(letter)      
-              }  
+              end  
             else
-              @win.addstr(letter)      
-            end  
-          else
-            @win.addstr("  ")
-          end
+              @win.addstr("  ")
+            end
 
+          end
         end
       end
-
-      # Reset cursor position and refresh
-      @win.setpos(cury, curx)
-      @win.refresh
     end
 
     def draw_stack_heights(board)
-      cury, curx = @win.cury, @win.curx
-      
-      (0...board.num_rows).each do |row|
-        (0...board.num_columns).each do |col|
+      draw_wrapper do      
+        (0...board.num_rows).each do |row|
+          (0...board.num_columns).each do |col|
 
-          @win.setpos(*stack_height_pos(row, col))
+            @win.setpos(*stack_height_pos(row, col))
 
-          case (height = board.stack_height(row, col))
-          when 0
-            @win.addstr("-")
-          when board.max_height
-            # Show height value in RED when max height is reached
-            Curses.attron(Curses.color_pair(1)) {
+            case (height = board.stack_height(row, col))
+            when 0
+              @win.addstr("-")
+            when board.max_height
+              # Show height value in RED when max height is reached
+              Curses.attron(Curses.color_pair(1)) {
+                @win.addstr(height.to_s)
+              }
+            else
               @win.addstr(height.to_s)
-            }
-          else
-            @win.addstr(height.to_s)
-          end
+            end
 
+          end
         end
       end
-
-      # Reset cursor position and refresh
-      @win.setpos(cury, curx)
-      @win.refresh
     end
 
     # TODO: if read_key returns 'false', then the game ends. See if there is a better construct...
@@ -177,21 +164,28 @@ module Upwords
     end
 
     private
-
-    def letter_pos(y, x)
-      dy = @row_height
-      dx = @col_width
-      [(y * (dy + 1)) + 1, (x * (dx + 1)) + 2] # TODO: magic nums are offsets 
+  
+    def letter_pos(row, col)
+      [(row * (@row_height + 1)) + 1, (col * (@col_width + 1)) + 2] # TODO: magic nums are offsets 
     end
 
-    def stack_height_pos(y, x)
-      dy = @row_height
-      dx = @col_width
-      [(y * (dy + 1)) + 2, (x * (dx + 1)) + dx] # TODO: magic nums are offsets
+    def stack_height_pos(row, col)
+      [(row * (@row_height + 1)) + 2, (col * (@col_width + 1)) + @col_width] # TODO: magic nums are offsets
     end
 
     def message_pos(board)
       [board.num_rows * (@row_height + 1) + 2, 0] # TODO: magic nums are offsets
+    end
+
+    # TODO: make this a private method
+    # Execute block and reset cursors and refresh afterwards
+    def draw_wrapper(&block)
+      cury, curx = @win.cury, @win.curx
+      
+      yield block if block_given? 
+      
+      @win.setpos(cury, curx)
+      @win.refresh
     end
   end
 
