@@ -8,6 +8,7 @@ module Upwords
       @cols = game.board.num_columns
       @row_height = row_height
       @col_width = col_width
+      @rack_visible = false
 
       # Configure Curses and initialize screen
       Curses.noecho
@@ -32,12 +33,14 @@ module Upwords
 
     def draw_update_loop
       draw_grid
-
+      draw_player_info
+  
       # Read key inputs then update cursor and window
       while read_key do
         @win.setpos(*letter_pos(*@game.cursor.posn))
         draw_letters
         draw_stack_heights
+        draw_player_info # TODO: remove duplicate method?
       end
     end
 
@@ -45,6 +48,23 @@ module Upwords
       draw_wrapper do
         @win.setpos(*message_pos)
         @win.addstr(text)
+      end
+    end
+
+    def draw_player_info
+      draw_wrapper do
+        @game.players.each_with_index do |p, i|
+          # Delete old player information
+          @win.setpos(*player_info_pos(i))
+          @win.addstr(" " * (@win.maxx - @win.curx - 1))  
+          # Draw new player information
+          @win.setpos(*player_info_pos(i))
+          @win.addstr(sprintf("%s %-8s %4d   %s", 
+                              i == 0 ? "->" : "  ", 
+                              "#{p.name}:", 
+                              p.score,
+                              i == 0 ? "#{p.show_rack(masked=!@rack_visible)}" : ""))
+        end
       end
     end
 
@@ -65,19 +85,15 @@ module Upwords
 
     def draw_grid
       draw_wrapper do
-        lines = board_lines
-        subwin = @win.subwin(lines.length, lines[0].length + 1, 0, 0)
-        subwin.addstr(lines.join("\n"))
+        # create a list containing each line of the board string
+        divider = [nil, ["-" * @col_width] * @cols, nil].flatten.join("+")
+        spaces = [nil, [" " * @col_width] * @cols, nil].flatten.join("|")
+        lines = ([divider] * (@rows + 1)).zip([spaces] * @rows).flatten
+
+        # concatenate board lines and draw in a sub-window on the terminal
+        @win.setpos(0, 0)
+        @win.addstr(lines.join("\n"))
       end
-    end
-
-    # TODO: make me private
-    # TODO: make variable names more clear...
-    def board_lines 
-      divider = [nil, ["-" * @col_width] * @cols, nil].flatten.join("+")
-      spaces = [nil, [" " * @col_width] * @cols, nil].flatten.join("|")
-
-      return ([divider] * (@rows + 1)).zip([spaces] * @rows).flatten
     end
 
     def draw_letters
@@ -130,6 +146,8 @@ module Upwords
         @game.cursor.left
       when Curses::Key::RIGHT
         @game.cursor.right
+      when SPACE
+        @rack_visible = !@rack_visible
       when /[[:alpha:]]/
         @game.play_letter(key)
       else
@@ -155,6 +173,10 @@ module Upwords
 
     def message_pos
       [@rows * (@row_height + 1) + 2, 0] # TODO: magic nums are offsets
+    end
+
+    def player_info_pos(player_number = 0)
+      [1 + player_number, @cols * (@col_width + 1) + 4] # TODO: magic_nums are offsets
     end
 
     # Execute draw operation in block and reset cursors and refresh afterwards
