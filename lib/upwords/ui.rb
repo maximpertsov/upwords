@@ -70,11 +70,11 @@ module Upwords
     end
 
     def draw_message(text)
-      draw_wrapper do
-        clear_message
-        @win.setpos(*message_pos)
-        @win.addstr(text)
-      end
+      write_str(*message_pos, text, clear_below=true)
+    end
+
+    def clear_message
+      draw_message("")
     end
 
     def draw_player_info
@@ -82,31 +82,12 @@ module Upwords
         py, px = player_info_pos
         
         # Draw rack for current player only          
-        @win.setpos(py, px)
-        @win.addstr(" " * (@win.maxx - @win.curx))  
-        @win.setpos(py, px)
-        @win.addstr("#{@game.current_player.name}'s letters:")
-        @win.setpos(py+1, px)
-        @win.addstr(" " * (@win.maxx - @win.curx))  
-        @win.setpos(py+1, px)
-        @win.addstr("[#{@game.current_player.show_rack(masked=!@rack_visible)}]")
+        write_str(py, px, "#{@game.current_player.name}'s letters:", clear_right=true)
+        write_str(py+1, px, "[#{@game.current_player.show_rack(masked=!@rack_visible)}]", clear_right=true)
 
-        y_offset = 3
         @game.players.each_with_index do |p, i|
-          # Delete old player information
-          @win.setpos(py+i+y_offset, px)
-          @win.addstr(" " * (@win.maxx - @win.curx))  
-          # Draw new player information
-          @win.setpos(py+i+y_offset, px)
-          @win.addstr(sprintf("%s %-8s %4d", p == @game.current_player ? "->" : "  ", "#{p.name}:", p.score))
+          write_str(py+i+3, px, sprintf("%s %-8s %4d", p == @game.current_player ? "->" : "  ", "#{p.name}:", p.score), clear_right=true)
         end
-      end
-    end
-
-    def clear_message
-      draw_wrapper do
-        @win.setpos(*message_pos)
-        (@win.maxy - @win.cury + 1).times { @win.deleteln } # Delete ALL lines below cursor
       end
     end
 
@@ -114,7 +95,6 @@ module Upwords
       draw_message(text)
       reply = (@win.getch.to_s).upcase == "Y"
       clear_message
-
       return reply
     end
 
@@ -246,6 +226,17 @@ module Upwords
         (0...@rows).each do |row|
           (0...@cols).each { |col| block.call(row, col)}
         end
+      end
+    end
+
+    # Write text to position (y, x) of the terminal
+    # Optionally, delete all text to the right or all lines below before writing text
+    def write_str(y, x, text, clear_right = false, clear_below = false)
+      draw_wrapper do
+        @win.setpos(y, x)
+        draw_wrapper { @win.addstr(" " * (@win.maxx - @win.curx)) } if clear_right
+        draw_wrapper { (@win.maxy - @win.cury + 1).times { @win.deleteln } } if clear_below
+        draw_wrapper { @win.addstr(text) }
       end
     end
   end
