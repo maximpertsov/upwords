@@ -135,7 +135,7 @@ module Upwords
 
       unless new_words.empty?
         new_words.map do |w|
-          "#{w} (#{w.score})"
+          "#{w} (#{w.score})".upcase
         end.join(", ") + " (Total = #{@moves.pending_score(current_player)})"
       end
     end

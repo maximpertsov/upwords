@@ -46,6 +46,7 @@ module Upwords
 
     def draw_message(text)
       draw_wrapper do
+        clear_message
         @win.setpos(*message_pos)
         @win.addstr(text)
       end
@@ -56,7 +57,7 @@ module Upwords
         @game.players.each_with_index do |p, i|
           # Delete old player information
           @win.setpos(*player_info_pos(i))
-          @win.addstr(" " * (@win.maxx - @win.curx - 1))  
+          @win.addstr(" " * (@win.maxx - @win.curx + 1))  
           # Draw new player information
           @win.setpos(*player_info_pos(i))
           @win.addstr(sprintf("%s %-8s %4d   %s", 
@@ -137,6 +138,7 @@ module Upwords
       case (key = @win.getch)
       when DELETE
         @game.undo_last
+        draw_message(@game.standard_message) # TODO: factor this method
       when Curses::Key::UP
         @game.cursor.up
       when Curses::Key::DOWN
@@ -149,12 +151,13 @@ module Upwords
         @rack_visible = !@rack_visible
       when ENTER
         if draw_confirm("Are you sure you wanted to submit? (y/n)")  
-          @game.submit_moves 
+          @game.submit_moves # TODO: update this method
           @game.next_turn
           @rack_visible = false
         end
       when /[[:alpha:]]/
         @game.play_letter(key)
+        draw_message(@game.standard_message) # TODO: factor this method
       else
         return false # TODO: should input be controlling the game loop?
       end
