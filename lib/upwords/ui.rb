@@ -60,10 +60,10 @@ module Upwords
           # Draw new player information
           @win.setpos(*player_info_pos(i))
           @win.addstr(sprintf("%s %-8s %4d   %s", 
-                              i == 0 ? "->" : "  ", 
+                              p == @game.current_player ? "->" : "  ", 
                               "#{p.name}:", 
                               p.score,
-                              i == 0 ? "#{p.show_rack(masked=!@rack_visible)}" : ""))
+                              p == @game.current_player ? "#{p.show_rack(masked=!@rack_visible)}" : ""))
         end
       end
     end
@@ -136,8 +136,7 @@ module Upwords
     def read_key
       case (key = @win.getch)
       when DELETE
-        # TODO: remove the confirmation script - it was only meant to be a test
-        @game.undo_last if draw_confirm("Are you sure you want to undo? (y/n)")
+        @game.undo_last
       when Curses::Key::UP
         @game.cursor.up
       when Curses::Key::DOWN
@@ -148,6 +147,12 @@ module Upwords
         @game.cursor.right
       when SPACE
         @rack_visible = !@rack_visible
+      when ENTER
+        if draw_confirm("Are you sure you wanted to submit? (y/n)")  
+          @game.submit_moves 
+          @game.next_turn
+          @rack_visible = false
+        end
       when /[[:alpha:]]/
         @game.play_letter(key)
       else
@@ -200,16 +205,11 @@ module Upwords
 
   class FakeGame < Game
     def initialize
-      super(false, 2)
+      super(display_on=false, 2)
       self.add_player("Max")
       self.add_player("Jordan")
 
-      # Give each each player letters A through G 
-      self.players.each do |p|
-        ('A'..'G').each do |letter|
-          p.take_letter(letter)
-        end
-      end
+      self.all_refill_racks
     end
   end
 
