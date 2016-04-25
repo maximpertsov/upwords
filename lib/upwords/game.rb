@@ -1,6 +1,6 @@
 module Upwords
   class Game
-    attr_reader :board, :cursor, :players
+    attr_reader :board, :cursor, :players, :dict
     
     def initialize(display_on = true, max_players = 4)
       @max_players = max_players

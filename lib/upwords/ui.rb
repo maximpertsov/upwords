@@ -37,16 +37,35 @@ module Upwords
       # TODO: make this the main game loop
       while true do
         draw_player_info
+        draw_message "#{@game.current_player.name}'s turn"
 
-        # Read key inputs then update cursor and window
-        while read_key do
-          @win.setpos(*letter_pos(*@game.cursor.posn))
-          draw_letters
-          draw_stack_heights
-          draw_player_info # TODO: remove duplicate method?
+        # TODO: make CPU move subroutine it's own method
+        if @game.current_player.cpu?
+          draw_message "#{@game.current_player.name} is thinking..."
+          cpu_move = @game.current_player.cpu_move(@game.board, @game.dict, sample_size=50, min_score=10)
+            
+          if !cpu_move.nil?
+            cpu_move.each { |pos, letter| @game.play_letter(letter, *pos) }
+            @game.submit_moves(need_confirm=false)
+          else
+            @game.skip_turn(need_confirm=false)
+          end
+        else
+          # TODO: make human player subroutine it's own method
+          # Read key inputs then update cursor and window
+          while read_key do
+            @win.setpos(*letter_pos(*@game.cursor.posn))
+            draw_letters
+            draw_stack_heights
+            draw_player_info # TODO: remove duplicate method?
+          end
         end
 
         draw_letters  # Draw letters again to remove any highlights          
+        draw_stack_heights
+
+        @game.next_turn
+        @rack_visible = false
       end
     end
 
@@ -60,17 +79,26 @@ module Upwords
 
     def draw_player_info
       draw_wrapper do
+        py, px = player_info_pos
+        
+        # Draw rack for current player only          
+        @win.setpos(py, px)
+        @win.addstr(" " * (@win.maxx - @win.curx))  
+        @win.setpos(py, px)
+        @win.addstr("#{@game.current_player.name}'s letters:")
+        @win.setpos(py+1, px)
+        @win.addstr(" " * (@win.maxx - @win.curx))  
+        @win.setpos(py+1, px)
+        @win.addstr("[#{@game.current_player.show_rack(masked=!@rack_visible)}]")
+
+        y_offset = 3
         @game.players.each_with_index do |p, i|
           # Delete old player information
-          @win.setpos(*player_info_pos(i))
-          @win.addstr(" " * (@win.maxx - @win.curx + 1))  
+          @win.setpos(py+i+y_offset, px)
+          @win.addstr(" " * (@win.maxx - @win.curx))  
           # Draw new player information
-          @win.setpos(*player_info_pos(i))
-          @win.addstr(sprintf("%s %-8s %4d   %s", 
-                              p == @game.current_player ? "->" : "  ", 
-                              "#{p.name}:", 
-                              p.score,
-                              p == @game.current_player ? "#{p.show_rack(masked=!@rack_visible)}" : ""))
+          @win.setpos(py+i+y_offset, px)
+          @win.addstr(sprintf("%s %-8s %4d", p == @game.current_player ? "->" : "  ", "#{p.name}:", p.score))
         end
       end
     end
@@ -160,23 +188,17 @@ module Upwords
       when ENTER
         if draw_confirm("Are you sure you wanted to submit? (y/n)")  
           @game.submit_moves(need_confirm=false) # TODO: update this method
-          @game.next_turn
-          @rack_visible = false
           return false
         end
       when '+'
         # TODO: add a second confirmation to pick a letter to swap
         if draw_confirm("Are you sure you wanted to swap a letter for a new letter? (y/n)")  
           @game.swap_letter(need_confirm=false) # TODO: update this method
-          @game.next_turn
-          @rack_visible = false
           return false
         end
       when '-'
         if draw_confirm("Are you sure you wanted to skip your turn? (y/n)")  
           @game.skip_turn(need_confirm=false) # TODO: update this method
-          @game.next_turn
-          @rack_visible = false
           return false
         end
       when /[[:alpha:]]/
@@ -205,8 +227,8 @@ module Upwords
       [@rows * (@row_height + 1) + 2, 0] # TODO: magic nums are offsets
     end
 
-    def player_info_pos(player_number = 0)
-      [1 + player_number, @cols * (@col_width + 1) + 4] # TODO: magic_nums are offsets
+    def player_info_pos
+      [1, @cols * (@col_width + 1) + 4] # TODO: magic_nums are offsets
     end
 
     # Execute draw operation in block and reset cursors and refresh afterwards
