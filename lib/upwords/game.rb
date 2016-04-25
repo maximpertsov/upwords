@@ -269,7 +269,7 @@ module Upwords
         @moves.submit(current_player)
         current_player.refill_rack(@letter_bank)
         @submitted = true
-        clear_message
+        clear_message if display_on?
 
         # TODO: remove magic string from last move message
         current_player.last_turn = "played word"

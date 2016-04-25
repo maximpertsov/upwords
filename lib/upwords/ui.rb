@@ -33,14 +33,20 @@ module Upwords
 
     def draw_update_loop
       draw_grid
-      draw_player_info
-  
-      # Read key inputs then update cursor and window
-      while read_key do
-        @win.setpos(*letter_pos(*@game.cursor.posn))
-        draw_letters
-        draw_stack_heights
-        draw_player_info # TODO: remove duplicate method?
+
+      # TODO: make this the main game loop
+      while true do
+        draw_player_info
+
+        # Read key inputs then update cursor and window
+        while read_key do
+          @win.setpos(*letter_pos(*@game.cursor.posn))
+          draw_letters
+          draw_stack_heights
+          draw_player_info # TODO: remove duplicate method?
+        end
+
+        draw_letters  # Draw letters again to remove any highlights          
       end
     end
 
@@ -133,9 +139,11 @@ module Upwords
       end
     end
 
-    # TODO: if read_key returns 'false', then the game ends. See if there is a better construct...
+    # TODO: See if there is a better construct...
+    # TODO: if read_key returns 'false', then current iteration of the input loop ends
     def read_key
       case (key = @win.getch)
+      # TODO: add button to quit game
       when DELETE
         @game.undo_last
         draw_message(@game.standard_message) # TODO: factor this method
@@ -151,18 +159,32 @@ module Upwords
         @rack_visible = !@rack_visible
       when ENTER
         if draw_confirm("Are you sure you wanted to submit? (y/n)")  
-          @game.submit_moves # TODO: update this method
+          @game.submit_moves(need_confirm=false) # TODO: update this method
           @game.next_turn
           @rack_visible = false
+          return false
+        end
+      when '+'
+        # TODO: add a second confirmation to pick a letter to swap
+        if draw_confirm("Are you sure you wanted to swap a letter for a new letter? (y/n)")  
+          @game.swap_letter(need_confirm=false) # TODO: update this method
+          @game.next_turn
+          @rack_visible = false
+          return false
+        end
+      when '-'
+        if draw_confirm("Are you sure you wanted to skip your turn? (y/n)")  
+          @game.skip_turn(need_confirm=false) # TODO: update this method
+          @game.next_turn
+          @rack_visible = false
+          return false
         end
       when /[[:alpha:]]/
         @game.play_letter(key)
         draw_message(@game.standard_message) # TODO: factor this method
-      else
-        return false # TODO: should input be controlling the game loop?
       end
       
-      return key
+      return true
 
     rescue IllegalMove => exception
       draw_confirm("#{exception.message} (press any key to continue...)")
@@ -203,16 +225,6 @@ module Upwords
           (0...@cols).each { |col| block.call(row, col)}
         end
       end
-    end
-  end
-
-  class FakeGame < Game
-    def initialize
-      super(display_on=false, 2)
-      self.add_player("Max")
-      self.add_player("Jordan")
-
-      self.all_refill_racks
     end
   end
 
