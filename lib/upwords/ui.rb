@@ -12,7 +12,7 @@ module Upwords
 
       # Configure Curses and initialize screen
       Curses.noecho
-      Curses.curs_set(2)
+      Curses.curs_set(2)  # Blinking cursor
       Curses.init_screen
       Curses.start_color
 
@@ -31,8 +31,13 @@ module Upwords
       end      
     end
 
+    # ==================================
+    # Main methods: draw and input loops
+    # ==================================
+
     def draw_update_loop
       draw_grid
+      draw_controls
 
       # TODO: make this the main game loop
       while true do
@@ -46,9 +51,9 @@ module Upwords
             
           if !cpu_move.nil?
             cpu_move.each { |pos, letter| @game.play_letter(letter, *pos) }
-            @game.submit_moves(need_confirm=false)
+            @game.submit_moves
           else
-            @game.skip_turn(need_confirm=false)
+            @game.skip_turn
           end
         else
           # TODO: make human player subroutine it's own method
@@ -68,6 +73,60 @@ module Upwords
         @rack_visible = false
       end
     end
+
+   # TODO: See if there is a better construct...
+    # TODO: if read_key returns 'false', then current iteration of the input loop ends
+    def read_key
+      case (key = @win.getch)      
+      when 'Q'
+        @game.exit_game if draw_confirm("Are you sure you want to exit the game? (y/n)")
+      when DELETE
+        @game.undo_last
+        draw_message(@game.standard_message) # TODO: factor this method
+      when Curses::Key::UP
+        @game.cursor.up
+      when Curses::Key::DOWN
+        @game.cursor.down
+      when Curses::Key::LEFT
+        @game.cursor.left
+      when Curses::Key::RIGHT
+        @game.cursor.right
+      when SPACE
+        @rack_visible = !@rack_visible
+      when ENTER
+        if draw_confirm("Are you sure you wanted to submit? (y/n)")  
+          @game.submit_moves # TODO: update this method
+          return false
+        end
+      when '+'
+        draw_message("Pick a letter to swap")
+        letter = @win.getch
+        if letter =~ /[[:alpha:]]/ && draw_confirm("Swap '#{letter}' for a new letter? (y/n)")
+          @game.swap_letter(letter)
+          return false
+        else
+          draw_message("'#{letter}' is not a valid letter")
+        end
+      when '-'
+        if draw_confirm("Are you sure you wanted to skip your turn? (y/n)")  
+          @game.skip_turn # TODO: update this method
+          return false
+        end
+      when /[[:alpha:]]/
+        @game.play_letter(key)
+        draw_message(@game.standard_message) # TODO: factor this method
+      end
+      
+      return true
+
+    rescue IllegalMove => exception
+      draw_confirm("#{exception.message} (press any key to continue...)")
+      return true 
+    end
+
+    # =============================
+    # Draw individual game elements
+    # =============================
 
     def draw_message(text)
       write_str(*message_pos, text, clear_below=true)
@@ -91,8 +150,9 @@ module Upwords
       end
     end
 
+    # TODO: make confirmation options more clear
     def draw_confirm(text) 
-      draw_message(text)
+      draw_message("#{text}")
       reply = (@win.getch.to_s).upcase == "Y"
       clear_message
       return reply
@@ -108,6 +168,24 @@ module Upwords
         # concatenate board lines and draw in a sub-window on the terminal
         @win.setpos(0, 0)
         @win.addstr(lines.join("\n"))
+      end
+    end
+
+    def draw_controls
+      draw_wrapper do
+        y, x = controls_info_pos
+        ["----------------------",
+         "|      Controls      |",
+         "----------------------",
+         "Show Letters   [SPACE]",
+         "Undo Last Move [DEL]",
+         "Submit Move    [ENTER]",
+         "Swap Letter    [+]",
+         "Skip Turn      [-]",
+         "Quit Game      [SHIFT+Q]"].each_with_index do |line, i|
+          @win.setpos(y+i, x)
+          @win.addstr(line)
+        end
       end
     end
 
@@ -147,54 +225,12 @@ module Upwords
       end
     end
 
-    # TODO: See if there is a better construct...
-    # TODO: if read_key returns 'false', then current iteration of the input loop ends
-    def read_key
-      case (key = @win.getch)
-      # TODO: add button to quit game
-      when DELETE
-        @game.undo_last
-        draw_message(@game.standard_message) # TODO: factor this method
-      when Curses::Key::UP
-        @game.cursor.up
-      when Curses::Key::DOWN
-        @game.cursor.down
-      when Curses::Key::LEFT
-        @game.cursor.left
-      when Curses::Key::RIGHT
-        @game.cursor.right
-      when SPACE
-        @rack_visible = !@rack_visible
-      when ENTER
-        if draw_confirm("Are you sure you wanted to submit? (y/n)")  
-          @game.submit_moves(need_confirm=false) # TODO: update this method
-          return false
-        end
-      when '+'
-        # TODO: add a second confirmation to pick a letter to swap
-        if draw_confirm("Are you sure you wanted to swap a letter for a new letter? (y/n)")  
-          @game.swap_letter(need_confirm=false) # TODO: update this method
-          return false
-        end
-      when '-'
-        if draw_confirm("Are you sure you wanted to skip your turn? (y/n)")  
-          @game.skip_turn(need_confirm=false) # TODO: update this method
-          return false
-        end
-      when /[[:alpha:]]/
-        @game.play_letter(key)
-        draw_message(@game.standard_message) # TODO: factor this method
-      end
-      
-      return true
-
-    rescue IllegalMove => exception
-      draw_confirm("#{exception.message} (press any key to continue...)")
-      return true 
-    end
-
     private
   
+    # ======================================
+    # Get positions of various game elements
+    # ======================================
+
     def letter_pos(row, col)
       [(row * (@row_height + 1)) + 1, (col * (@col_width + 1)) + 2] # TODO: magic nums are offsets 
     end
@@ -210,6 +246,15 @@ module Upwords
     def player_info_pos
       [1, @cols * (@col_width + 1) + 4] # TODO: magic_nums are offsets
     end
+
+    def controls_info_pos
+      y, x = player_info_pos
+      return [y + (@rows * (@row_height + 1)) / 2 + 1, x] # TODO: magic_nums are offsets
+    end
+
+    # ======================
+    # Drawing helper methods
+    # ======================
 
     # Execute draw operation in block and reset cursors and refresh afterwards
     def draw_wrapper(&block)

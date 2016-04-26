@@ -4,12 +4,9 @@ module Upwords
     
     def initialize(display_on = true, max_players = 4)
       @max_players = max_players
-      @display_on = display_on
       @board = Board.new(10, 5)
       @letter_bank = LetterBank.new(ALL_LETTERS.dup)
-      @cursor = Cursor.new(@board.num_rows,
-                           @board.num_columns,
-                           *@board.middle_square[0])
+      @cursor = Cursor.new(@board.num_rows, @board.num_columns, *@board.middle_square[0])
       @dict = Dictionary.import(OSPD_FILE)
       @moves = MoveManager.new(@board, @dict)
       @players = []
@@ -95,37 +92,6 @@ module Upwords
     # Graphics Methods - to be retired...
     # =========================================
 
-    def init_window
-      Curses.noecho
-      Curses.curs_set(0) 
-      Curses.init_screen
-      # Curses.start_color
-
-      @win = Graphics.new(self)
-      @win.keypad(true)
-    end
-    
-    def display_on?
-      @display_on
-    end
-    
-    def refresh_graphics
-      if display_on? && running?
-        @win.refresh
-      end
-    end
-
-    def update_message msg
-      if display_on?
-        @win.message = msg
-        refresh_graphics
-      end
-    end
-
-    def clear_message
-      update_message standard_message
-    end
-
     def standard_message
       "#{current_player.name}'s pending words: #{pending_result}"
     end
@@ -155,26 +121,22 @@ module Upwords
       add_players
       all_refill_racks
 
-      # Start graphics
-      init_window if @display_on
-      clear_message
-
       # Start main loop
       while running? do
         begin
           # ------ CPU MOVE --------
           if current_player.cpu?
-            update_message "#{current_player.name} is thinking..."
-            cpu_move = current_player.cpu_move(@board, @dict, 50, 10)
+            # update_message "#{current_player.name} is thinking..."
+            # cpu_move = current_player.cpu_move(@board, @dict, 50, 10)
             
-            if !cpu_move.nil?
-              cpu_move.each do |posn, letter|
-                play_letter(letter, *posn)
-              end
-              submit_moves(need_confirm=false)
-            else
-              skip_turn(need_confirm=false)
-            end
+            # if !cpu_move.nil?
+            #   cpu_move.each do |posn, letter|
+            #     play_letter(letter, *posn)
+            #   end
+            #   submit_moves(need_confirm=false)
+            # else
+            #   skip_turn(need_confirm=false)
+            # end
           else
             read_input(@win.getch)
           end
@@ -188,13 +150,8 @@ module Upwords
               next_turn
             end
           end
-          
-          refresh_graphics
-          
+                    
         rescue IllegalMove => exception
-          update_message "#{exception.message} (press any key to continue...)"
-          @win.getch if display_on?
-          clear_message
         end
       end
       
@@ -208,7 +165,6 @@ module Upwords
         toggle_rack_visibility
       when DELETE
         undo_last
-        clear_message
       when ENTER
         submit_moves
       when Curses::KEY_UP
@@ -225,14 +181,11 @@ module Upwords
         skip_turn
       when /[[:alpha:]]/
         play_letter(key)
-        clear_message
       end
     end
     
     def next_turn
       @players.rotate!
-      @win.hide_rack if display_on?
-      clear_message
       @submitted = false
     end
 
@@ -249,93 +202,65 @@ module Upwords
       end
     end
 
-    def confirm_action?(question_text)
-      if display_on?
-        update_message "#{question_text} (y/n)"
-        inp = @win.getch
-        clear_message
-        inp == 'y' || inp == 'Y'
-      else
-        true # Never ask for confirm if the display_on is off
-      end
-    end
-
     # =========================================
     # Game Procedures Bound to some Key Input
     # =========================================
 
-    def submit_moves(need_confirm=true)
-      if !need_confirm || (confirm_action? "Are you sure you want to submit?")
-        @moves.submit(current_player)
-        current_player.refill_rack(@letter_bank)
-        @submitted = true
-        clear_message if display_on?
-
-        # TODO: remove magic string from last move message
-        current_player.last_turn = "played word"
-      end
+    def submit_moves
+      @moves.submit(current_player)
+      current_player.refill_rack(@letter_bank)
+      @submitted = true
+      
+      # TODO: remove magic string from last move message
+      current_player.last_turn = "played word"
     end
 
     # TODO: Test this method...
-    def swap_letter(need_confirm=true)
-      update_message "Pick a letter to swap... "
-      letter = @win.getch
-
+    def swap_letter(letter)
       if letter =~ /[[:alpha:]]/
         letter = modify_letter_input(letter)
-        if !need_confirm || (confirm_action? "Swap '#{letter}' for another?")
-          @moves.undo_all(current_player)
-          current_player.swap_letter(letter, @letter_bank)
-          @submitted = true
-
-          # TODO: remove magic string from last move message
-          current_player.last_turn = "swapped letter"
-        end
-      end
-    end
-
-    def skip_turn(need_confirm=true)
-      if !need_confirm || (confirm_action? "Are you sure you want to skip your turn?")
         @moves.undo_all(current_player)
+        current_player.swap_letter(letter, @letter_bank)
         @submitted = true
 
         # TODO: remove magic string from last move message
-        current_player.last_turn = "skipped turn"
+        current_player.last_turn = "swapped letter"
       end
     end
 
-    def exit_game(need_confirm=true)
-      if !need_confirm || (confirm_action? "Are you sure you want to exit the game?")
-        @running = false
-        @win.close if display_on?
-      end
+    def skip_turn
+      @moves.undo_all(current_player)
+      @submitted = true
+      
+      # TODO: remove magic string from last move message
+      current_player.last_turn = "skipped turn"
     end
 
-    def toggle_rack_visibility 
-      @win.toggle_rack_visibility
+    def exit_game
+      @running = false
     end
 
-    def game_over
-      update_message "The game is over. Press any key to continue to see who won..."
-      @win.getch if display_on?
+    # def game_over
+    #   update_message "The game is over. Press any key to continue to see who won..."
+    #   @win.getch if display_on?
 
-      # Subtract 5 points for each tile remaining
-      @players.each do |p|
-        p.score -= p.letters.size * 5
-      end
+    #   # Subtract 5 points for each tile remaining
+    #   @players.each do |p|
+    #     p.score -= p.letters.size * 5
+    #   end
 
-      top_score = @players.map {|p| p.score}.max
-      winners = @players.select{|p| p.score == top_score}.map{|p| p.name}
+    #   top_score = @players.map {|p| p.score}.max
+    #   winners = @players.select{|p| p.score == top_score}.map{|p| p.name}
 
-      if winners.size == 1 
-        update_message "And the winner is... #{winners[0]} with #{top_score} points!"
-      else
-        update_message "We have a tie! #{winners.join(', ')} all win with #{top_score} points!"
-      end
+    #   if winners.size == 1 
+    #     update_message "And the winner is... #{winners[0]} with #{top_score} points!"
+    #   else
+    #     update_message "We have a tie! #{winners.join(', ')} all win with #{top_score} points!"
+    #   end
 
-      @win.getch if display_on?
-      exit_game(need_confirm=false)
-    end
+    #   @win.getch if display_on?
+    #   exit_game(need_confirm=false)
+    # end
 
   end
 end
