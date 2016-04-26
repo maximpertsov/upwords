@@ -94,7 +94,8 @@ module Upwords
         @rack_visible = !@rack_visible
       when ENTER
         if draw_confirm("Are you sure you wanted to submit? (y/n)")  
-          @game.submit_moves # TODO: update this method
+          @game.submit_moves
+          # TODO: update this method
           return false
         end
       when '+'
@@ -127,18 +128,23 @@ module Upwords
     # Subroutines in draw loop
     # =============================    
 
+    # Select the maximum number of players, then add players and select if they humans or computers
+    # TODO: refactor this method
     def add_players
       @win.setpos(0, 0)
+      Curses.echo
+      @win.keypad=(false) 
+      
       num_players = 0
-
+      
       # Select how many players will be in the game
       # TODO: Add a command-line flag to allow players to skip this step
       until (1..@game.max_players).include?(num_players.to_i) do
         @win.addstr("How many players will play? (1-#{@game.max_players})\n")
-        num_players = @win.getch
-  
-        @win.addstr("Invalid selection: ") if !(1..@game.max_players).include?(num_players.to_i)
-        @win.addstr("#{num_players}\n\n")
+        num_players = @win.getstr
+        
+        @win.addstr("Invalid selection\n") if !(1..@game.max_players).include?(num_players.to_i)
+        @win.addstr("\n")
 
         # Refresh screen if lines go beyond terminal window   
         clear_terminal if @win.cury >= @win.maxy - 1
@@ -149,28 +155,20 @@ module Upwords
       (1..num_players.to_i).each do |idx|
         @win.addstr("What is Player #{idx}'s name? (Press enter to submit...)\n")
 
-        name = []
-        until (key = @win.getch) == ENTER do
-          if key == DELETE
-            name.pop unless name.empty?
-            @win.setpos(@win.cury, @win.curx - 1)
-            @win.delch
-          else
-            name << key
-            @win.addch(key)
-          end
-        end
-        @win.addch("\n")
-        name = name.join
-
-        @win.addstr("Is #{name =~/[[:alpha:]]/ ? name : sprintf('Player %d', idx)} a computer? (y/n)\n")
-        cpu = @win.getch
+        name = @win.getstr
+        name = (name =~ /[[:alpha:]]/ ? name : sprintf('Player %d', idx))
+        @win.addstr("\nIs #{name} a computer? (y/n)\n")
+        
+        cpu = @win.getstr
         @game.add_player(name, rack_capacity=7, cpu.upcase == "Y")
-        @win.addstr("#{cpu}\n\n")        
+        @win.addstr("\n")        
 
         # Refresh screen if lines go beyond terminal window
         clear_terminal if @win.cury >= @win.maxy - 1
       end
+    ensure
+      Curses.noecho
+      @win.keypad=(true) 
     end
     
     def get_game_result
@@ -209,7 +207,7 @@ module Upwords
         write_str(py+1, px, "[#{@game.current_player.show_rack(masked=!@rack_visible)}]", clear_right=true)
 
         @game.players.each_with_index do |p, i|
-          write_str(py+i+3, px, sprintf("%s %-8s %4d", p == @game.current_player ? "->" : "  ", "#{p.name}:", p.score), clear_right=true)
+          write_str(py+i+3, px, sprintf("%s %-13s %4d", p == @game.current_player ? "->" : "  ", "#{p.name}:", p.score), clear_right=true)
         end
       end
     end
