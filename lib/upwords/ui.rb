@@ -52,7 +52,9 @@ module Upwords
         if @game.current_player.cpu?
           draw_message "#{@game.current_player.name} is thinking..."
           @game.cpu_move
-
+          draw_letters
+          draw_stack_heights
+          draw_player_info 
         # Read key inputs then update cursor and window
         else
           while read_key do
@@ -76,7 +78,10 @@ module Upwords
     def read_key
       case (key = @win.getch)      
       when 'Q'
-        @game.exit_game if draw_confirm("Are you sure you want to exit the game? (y/n)")
+        if draw_confirm("Are you sure you want to exit the game? (y/n)")
+          @game.exit_game 
+          return false
+        end
       when DELETE
         @game.undo_last
         draw_message(@game.standard_message) # TODO: factor this method
