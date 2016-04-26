@@ -4,10 +4,7 @@ require 'upwords'
 
 game = Upwords::Game.new(display_on=false)
  
-game.add_player("Max")
-game.add_player("Jordan", cpu=true)
+game.add_players
 game.all_refill_racks
 
 Upwords::UI::new(game, row_height=1, col_width=4)
-
-# Upwords::Game.new.run

@@ -10,7 +10,7 @@ class GameTest < Minitest::Test
   end
 
   def teardown
-    @game.exit_game(false) if @game.running?
+    @game.exit_game if @game.running?
   end
 
   def test_has_game_objects

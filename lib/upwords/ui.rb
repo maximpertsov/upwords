@@ -40,21 +40,15 @@ module Upwords
       draw_controls
 
       # TODO: make this the main game loop
-      while true do
+      while @game.running? do
+        @rack_visible = false
         draw_player_info
         draw_message "#{@game.current_player.name}'s turn"
 
         # TODO: make CPU move subroutine it's own method
         if @game.current_player.cpu?
           draw_message "#{@game.current_player.name} is thinking..."
-          cpu_move = @game.current_player.cpu_move(@game.board, @game.dict, sample_size=50, min_score=10)
-            
-          if !cpu_move.nil?
-            cpu_move.each { |pos, letter| @game.play_letter(letter, *pos) }
-            @game.submit_moves
-          else
-            @game.skip_turn
-          end
+          @game.cpu_move
         else
           # TODO: make human player subroutine it's own method
           # Read key inputs then update cursor and window
@@ -68,14 +62,28 @@ module Upwords
 
         draw_letters  # Draw letters again to remove any highlights          
         draw_stack_heights
+        draw_player_info
 
-        @game.next_turn
-        @rack_visible = false
+        # Game over subroutine
+        if @game.game_over?
+          draw_confirm("The game is over. Press any key to continue to see who won...")
+          
+          top_score = @game.get_top_score
+          winners = @game.get_winners
+          
+          if winners.size == 1 
+            draw_confirm "And the winner is... #{winners.first} with #{top_score} points!"
+          else
+            draw_confirm "We have a tie! #{winners.join(', ')} all win with #{top_score} points!"
+          end
+          
+          @game.exit_game
+        end
+        
       end
     end
 
-   # TODO: See if there is a better construct...
-    # TODO: if read_key returns 'false', then current iteration of the input loop ends
+    # If read_key returns 'false', then current iteration of the input loop ends
     def read_key
       case (key = @win.getch)      
       when 'Q'

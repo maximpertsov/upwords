@@ -19,17 +19,17 @@
         
         What is Player 1's name?
         Bob 
-        Is Player 1 or a computer? (y/n)
+        Is Bob a computer? (y/n)
         n   
 
         What is Player 2's name?
         Nina    
-        Is Player 2 or a computer? (y/n)
+        Is Nina a computer? (y/n)
         n
 
         What is Player 3's name?
         Jack
-        Is Player 3 or a computer? (y/n)
+        Is Jack a computer? (y/n)
         y
 
 ## Rules

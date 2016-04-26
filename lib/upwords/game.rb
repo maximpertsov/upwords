@@ -1,17 +1,16 @@
 module Upwords
   class Game
-    attr_reader :board, :cursor, :players, :dict
+    attr_reader :board, :cursor, :players
     
     def initialize(display_on = true, max_players = 4)
       @max_players = max_players
       @board = Board.new(10, 5)
-      @letter_bank = LetterBank.new(ALL_LETTERS.dup)
+      @letter_bank = LetterBank.new(%w(A S A S A S A S)) #ALL_LETTERS.dup)
       @cursor = Cursor.new(@board.num_rows, @board.num_columns, *@board.middle_square[0])
       @dict = Dictionary.import(OSPD_FILE)
       @moves = MoveManager.new(@board, @dict)
       @players = []
-      @running = false
-      @submitted = false
+      @running = true
     end
     
     # =========================================
@@ -61,7 +60,7 @@ module Upwords
       (1..num_players).each do |idx|
         print "What is Player #{idx}'s name?\n"
         name = gets.chomp
-        print "Is Player #{idx} or a computer? (y/n)\n"
+        print "Is #{name} a computer? (y/n)\n"
         cpu = gets.chomp
         add_player(name, cpu.upcase == "Y")
         print "\n"
@@ -114,84 +113,71 @@ module Upwords
       @running
     end
 
-    def run
-      @running = true
-      
-      # Add players
-      add_players
-      all_refill_racks
-
-      # Start main loop
-      while running? do
-        begin
-          # ------ CPU MOVE --------
-          if current_player.cpu?
-            # update_message "#{current_player.name} is thinking..."
-            # cpu_move = current_player.cpu_move(@board, @dict, 50, 10)
-            
-            # if !cpu_move.nil?
-            #   cpu_move.each do |posn, letter|
-            #     play_letter(letter, *posn)
-            #   end
-            #   submit_moves(need_confirm=false)
-            # else
-            #   skip_turn(need_confirm=false)
-            # end
-          else
-            read_input(@win.getch)
-          end
-
-          if @submitted
-            # TODO: remove magic string from last move message
-            if @players.all? {|p| p.last_turn == "skipped turn"} || @letter_bank.empty? && current_player.rack_empty?
-              game_over
-              @running = false
-            else    
-              next_turn
-            end
-          end
-                    
-        rescue IllegalMove => exception
-        end
-      end
-      
-    end
-
-    def read_input(key)
-      case key
-      when 'Q'
-        exit_game
-      when SPACE
-        toggle_rack_visibility
-      when DELETE
-        undo_last
-      when ENTER
+    def cpu_move
+      move = current_player.cpu_move(@board, @dict, sample_size=50, min_score=10)      
+      if !move.nil?
+        move.each { |pos, letter| play_letter(letter, *pos) }
         submit_moves
-      when Curses::KEY_UP
-        @cursor.up
-      when Curses::KEY_DOWN
-        @cursor.down
-      when Curses::KEY_LEFT
-        @cursor.left
-      when Curses::KEY_RIGHT
-        @cursor.right
-      when '+'
-        swap_letter
-      when '-'
+      else
         skip_turn
-      when /[[:alpha:]]/
-        play_letter(key)
       end
     end
     
-    def next_turn
-      @players.rotate!
-      @submitted = false
+    # =========================================
+    # Game Procedures Bound to some Key Input
+    # =========================================
+
+    def submit_moves
+      @moves.submit(current_player)
+      current_player.refill_rack(@letter_bank)     
+      current_player.last_turn = "played word"      # TODO: remove magic string from last move message
+      next_turn
     end
 
-    # =========================================
-    # Methods Related to Key Inputs
-    # =========================================
+    def swap_letter(letter)
+      letter = modify_letter_input(letter)
+      @moves.undo_all(current_player)
+      current_player.swap_letter(letter, @letter_bank) 
+      current_player.last_turn = "swapped letter"        # TODO: remove magic string from last move message
+      next_turn
+    end
+
+    def skip_turn
+      @moves.undo_all(current_player)
+      current_player.last_turn = "skipped turn"    # TODO: remove magic string from last move message
+      next_turn
+    end
+
+    def exit_game
+      @running = false
+    end
+
+    # =================
+    # Game over methods
+    # =================
+    
+    def game_over?
+      @players.all? {|p| p.last_turn == "skipped turn"} || (@letter_bank.empty? && current_player.rack_empty?)
+    end
+
+    def get_top_score
+      @players.map {|p| p.score}.max
+    end
+
+    def get_winners
+      @players.select{|p| p.score == get_top_score}.map{|p| p.name}
+    end
+
+    private 
+
+    def next_turn
+      if game_over?
+        # Subtract 5 points for each tile remaining
+        @players.each { |p| p.score -= p.letters.size * 5 }
+      else    
+        @players.rotate!
+      end
+    end
 
     # Capitalize letters, and convert 'Q' and 'q' to 'Qu'
     def modify_letter_input(letter)
@@ -201,66 +187,6 @@ module Upwords
         letter.capitalize
       end
     end
-
-    # =========================================
-    # Game Procedures Bound to some Key Input
-    # =========================================
-
-    def submit_moves
-      @moves.submit(current_player)
-      current_player.refill_rack(@letter_bank)
-      @submitted = true
-      
-      # TODO: remove magic string from last move message
-      current_player.last_turn = "played word"
-    end
-
-    # TODO: Test this method...
-    def swap_letter(letter)
-      if letter =~ /[[:alpha:]]/
-        letter = modify_letter_input(letter)
-        @moves.undo_all(current_player)
-        current_player.swap_letter(letter, @letter_bank)
-        @submitted = true
-
-        # TODO: remove magic string from last move message
-        current_player.last_turn = "swapped letter"
-      end
-    end
-
-    def skip_turn
-      @moves.undo_all(current_player)
-      @submitted = true
-      
-      # TODO: remove magic string from last move message
-      current_player.last_turn = "skipped turn"
-    end
-
-    def exit_game
-      @running = false
-    end
-
-    # def game_over
-    #   update_message "The game is over. Press any key to continue to see who won..."
-    #   @win.getch if display_on?
-
-    #   # Subtract 5 points for each tile remaining
-    #   @players.each do |p|
-    #     p.score -= p.letters.size * 5
-    #   end
-
-    #   top_score = @players.map {|p| p.score}.max
-    #   winners = @players.select{|p| p.score == top_score}.map{|p| p.name}
-
-    #   if winners.size == 1 
-    #     update_message "And the winner is... #{winners[0]} with #{top_score} points!"
-    #   else
-    #     update_message "We have a tie! #{winners.join(', ')} all win with #{top_score} points!"
-    #   end
-
-    #   @win.getch if display_on?
-    #   exit_game(need_confirm=false)
-    # end
 
   end
 end
