@@ -6,9 +6,9 @@ module Upwords
       @max_y = max_y
       @max_x = max_x
 
-      # TODO: Handle case where init_y, x are outside bounds
-      @y = init_y 
-      @x = init_x
+      # HACK: Force init_y, init_x to be in bounds
+      @y = init_y % @max_y
+      @x = init_x % @max_x 
     end
 
     def up
@@ -32,7 +32,7 @@ module Upwords
       @x = (x + dx) % @max_x 
     end 
 
-    def posn
+    def pos
       [y, x]
     end
   end
