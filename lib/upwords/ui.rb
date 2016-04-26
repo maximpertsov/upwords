@@ -24,7 +24,7 @@ module Upwords
       begin
         @win = Curses.stdscr
         @win.keypad=(true)
-        @win.setpos(*letter_pos(*@game.cursor.posn))
+        @win.setpos(*letter_pos(*@game.cursor.pos))
         draw_update_loop
       ensure
         Curses.close_screen
@@ -53,7 +53,7 @@ module Upwords
           # TODO: make human player subroutine it's own method
           # Read key inputs then update cursor and window
           while read_key do
-            @win.setpos(*letter_pos(*@game.cursor.posn))
+            @win.setpos(*letter_pos(*@game.cursor.pos))
             draw_letters
             draw_stack_heights
             draw_player_info # TODO: remove duplicate method?
