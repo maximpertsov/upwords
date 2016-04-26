@@ -2,8 +2,4 @@
 
 require 'upwords'
 
-game = Upwords::Game.new
- 
-game.all_refill_racks
-
-Upwords::UI::new(game, row_height=1, col_width=4)
+Upwords::UI::new(Upwords::Game.new, row_height=1, col_width=4)
