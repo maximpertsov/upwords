@@ -59,7 +59,7 @@ module Upwords
     end
 
     # =========================================
-    # Graphics Methods - to be retired...
+    # Output messages that rely on MoveManager
     # =========================================
 
     def standard_message
