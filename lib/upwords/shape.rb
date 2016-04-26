@@ -1,3 +1,6 @@
+# Encapsulates the shape of a possible move that a player could submit in a single turn
+# Component of the Move class
+
 module Upwords
   class Shape
 
@@ -9,7 +12,7 @@ module Upwords
     end
 
     # Check if move creates a legal shape when added to a given board.
-    # All checks assume that the move in question has not been played yet.
+    # NOTE: All checks assume that the move in question has not been played on the board yet.
     def legal?(board, raise_exception = false)        
       if board.empty? && !in_middle_square?(board)
         raise IllegalMove, "You must play at least one letter in the middle 2x2 square!" if raise_exception
@@ -30,12 +33,16 @@ module Upwords
       return false
     end
 
+    # Check if move shape completely covers any existing word on the board
     def covering_moves?(board)
       (board.word_positions).any? do |word_posns|
         positions >= word_posns
       end
     end
     
+    # Check if all empty spaces in the rows and columns spanned by the move shape are covered by a previously-played tile on board
+    # For example, if the move shape = [1,1] [1,2] [1,4], then this method returns 'true' if the board has a tile at position [1,3]
+    # and 'false' if it does not.
     def gaps_covered_by?(board)
       row_range.all? do |row|
         col_range.all? do |col|
@@ -44,15 +51,17 @@ module Upwords
       end
     end
        
+    # Check if at least one position within the move shape is adjacent to or overlapping any tile on the board
     def touching?(board)
       @positions.any? do |row, col|
-        # Are any positions overlapping or adjacent to a non-empty board space 
         [[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1]].any? do |dr, dc|
           board.nonempty_space?(row + dr, col + dc)
         end
       end
     end
 
+    # Check if at least one position within the move shape is within the middle 2x2 square on the board
+    # This check is only performed at the beginning of the game
     def in_middle_square?(board)
       board.middle_square.any? do |posn|
         @positions.include?(posn)
