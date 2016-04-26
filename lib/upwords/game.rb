@@ -2,7 +2,7 @@ module Upwords
   class Game
     attr_reader :board, :cursor, :players
     
-    def initialize(display_on = true, max_players = 4)
+    def initialize(max_players = 4)
       @max_players = max_players
       @board = Board.new(10, 5)
       @letter_bank = LetterBank.new(ALL_LETTERS.dup)
@@ -29,15 +29,13 @@ module Upwords
       player_count = @players.size
     end
 
-    def add_player(name = nil, cpu = false)
-      if player_count >= max_players
-        raise StandardError, "No more players can join"
-      else
-        if name.nil? || name.size == 0
-          name = "Player #{player_count + 1}" 
-        end
-        @players << Player.new(name, rack_capacity=7, cpu)
-      end
+    def add_player(name = nil, letter_capacity = 7, cpu = false)
+      raise ArgumentError, "No more players can join" if player_count >= max_players
+      
+      # Automatically name player if no name is provided
+      name = "Player #{player_count + 1}" if name.nil? || name.length == 0
+        
+      @players << Player.new(name, letter_capacity, cpu)
     end
 
     def add_players(player_names = nil)
@@ -60,7 +58,7 @@ module Upwords
       (1..num_players).each do |idx|
         print "What is Player #{idx}'s name?\n"
         name = gets.chomp
-        print "Is #{name} a computer? (y/n)\n"
+        print "Is #{name.length > 0 ? name : sprintf('Player %d', idx)} a computer? (y/n)\n"
         cpu = gets.chomp
         add_player(name, cpu.upcase == "Y")
         print "\n"
