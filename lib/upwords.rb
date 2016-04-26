@@ -7,16 +7,15 @@ require 'upwords/board'
 require 'upwords/letter_bank'
 require 'upwords/letter_rack'
 require 'upwords/dictionary'
+require 'upwords/word'
 
 require 'upwords/shape'
 require 'upwords/move'
-require 'upwords/move_manager'
 
 require 'upwords/cursor'
-
-require 'upwords/word'
 require 'upwords/player'
-require 'upwords/graphics'
+
+require 'upwords/move_manager'
 require 'upwords/game'
 require 'upwords/ui'
 
