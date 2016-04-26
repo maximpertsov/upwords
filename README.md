@@ -17,17 +17,17 @@
 
 4. Name each player and select if they are humans or computers:
         
-        What is Player 1's name?
+        What is Player 1's name? (Press enter to submit...)
         Bob 
         Is Bob a computer? (y/n)
         n   
 
-        What is Player 2's name?
+        What is Player 2's name? (Press enter to submit...)
         Nina    
         Is Nina a computer? (y/n)
         n
 
-        What is Player 3's name?
+        What is Player 3's name? (Press enter to submit...)
         Jack
         Is Jack a computer? (y/n)
         y

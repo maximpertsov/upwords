@@ -125,30 +125,51 @@ module Upwords
     
     # =============================
     # Subroutines in draw loop
-    # =============================
-    
+    # =============================    
+
     def add_players
       @win.setpos(0, 0)
       num_players = 0
 
       # Select how many players will be in the game
       # TODO: Add a command-line flag to allow players to skip this step
-      until (1..@game.max_players).include?(num_players) do
+      until (1..@game.max_players).include?(num_players.to_i) do
         @win.addstr("How many players will play? (1-#{@game.max_players})\n")
-        num_players = @win.getch.to_i
-        @win.addstr("Invalid selection: #{num_players}\n") if !(1..@game.max_players).include?(num_players)
-        @win.addstr("\n")
+        num_players = @win.getch
+  
+        @win.addstr("Invalid selection: ") if !(1..@game.max_players).include?(num_players.to_i)
+        @win.addstr("#{num_players}\n\n")
+
+        # Refresh screen if lines go beyond terminal window   
+        clear_terminal if @win.cury >= @win.maxy - 1
       end
 
       # Name each player and choose if they are humans or computers
       # TODO: Add a command-line flag to set this
-      (1..num_players).each do |idx|
-        @win.addstr("What is Player #{idx}'s name?\n")
-        name = @win.getch
-        @win.addstr("Is #{name.length > 0 ? name : sprintf('Player %d', idx)} a computer? (y/n)\n")
+      (1..num_players.to_i).each do |idx|
+        @win.addstr("What is Player #{idx}'s name? (Press enter to submit...)\n")
+
+        name = []
+        until (key = @win.getch) == ENTER do
+          if key == DELETE
+            name.pop unless name.empty?
+            @win.setpos(@win.cury, @win.curx - 1)
+            @win.delch
+          else
+            name << key
+            @win.addch(key)
+          end
+        end
+        @win.addch("\n")
+        name = name.join
+
+        @win.addstr("Is #{name =~/[[:alpha:]]/ ? name : sprintf('Player %d', idx)} a computer? (y/n)\n")
         cpu = @win.getch
         @game.add_player(name, rack_capacity=7, cpu.upcase == "Y")
-        @win.addstr("\n")
+        @win.addstr("#{cpu}\n\n")        
+
+        # Refresh screen if lines go beyond terminal window
+        clear_terminal if @win.cury >= @win.maxy - 1
       end
     end
     
@@ -225,7 +246,9 @@ module Upwords
          "Submit Move    [ENTER]",
          "Swap Letter    [+]",
          "Skip Turn      [-]",
-         "Quit Game      [SHIFT+Q]"].each_with_index do |line, i|
+         "Quit Game      [SHIFT+Q]",
+         "Force Quit     [CTRL+Z]"      # TODO: technically this only for unix shells...
+        ].each_with_index do |line, i|
           @win.setpos(y+i, x)
           @win.addstr(line)
         end
@@ -292,7 +315,7 @@ module Upwords
 
     def controls_info_pos
       y, x = player_info_pos
-      return [y + (@rows * (@row_height + 1)) / 2 + 1, x] # TODO: magic_nums are offsets
+      return [y + (@rows * (@row_height + 1)) / 2, x] # TODO: magic_nums are offsets
     end
 
     # ======================
@@ -327,7 +350,13 @@ module Upwords
         draw_wrapper { @win.addstr(text) }
       end
     end
-  end
 
+    def clear_terminal
+      @win.clear
+      @win.refresh
+      @win.setpos(0, 0)
+    end
+
+  end
 end
 
