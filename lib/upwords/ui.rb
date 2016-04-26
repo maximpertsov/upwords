@@ -36,6 +36,7 @@ module Upwords
     # ==================================
 
     def draw_update_loop
+      add_players
       draw_grid
       draw_controls
 
@@ -65,20 +66,7 @@ module Upwords
         draw_player_info
 
         # Game over subroutine
-        if @game.game_over?
-          draw_confirm("The game is over. Press any key to continue to see who won...")
-          
-          top_score = @game.get_top_score
-          winners = @game.get_winners
-          
-          if winners.size == 1 
-            draw_confirm "And the winner is... #{winners.first} with #{top_score} points!"
-          else
-            draw_confirm "We have a tie! #{winners.join(', ')} all win with #{top_score} points!"
-          end
-          
-          @game.exit_game
-        end
+        get_game_result if @game.game_over?
         
       end
     end
@@ -130,6 +118,50 @@ module Upwords
     rescue IllegalMove => exception
       draw_confirm("#{exception.message} (press any key to continue...)")
       return true 
+    end
+    
+    # =============================
+    # Subroutines in draw loop
+    # =============================
+    
+    def add_players
+      @win.setpos(0, 0)
+      num_players = 0
+
+      # Select how many players will be in the game
+      # TODO: Add a command-line flag to allow players to skip this step
+      until (1..@game.max_players).include?(num_players) do
+        @win.addstr("How many players will play? (1-#{@game.max_players})\n")
+        num_players = @win.getch.to_i
+        @win.addstr("Invalid selection: #{num_players}\n") if !(1..@game.max_players).include?(num_players)
+        @win.addstr("\n")
+      end
+
+      # Name each player and choose if they are humans or computers
+      # TODO: Add a command-line flag to set this
+      (1..num_players).each do |idx|
+        @win.addstr("What is Player #{idx}'s name?\n")
+        name = @win.getch
+        @win.addstr("Is #{name.length > 0 ? name : sprintf('Player %d', idx)} a computer? (y/n)\n")
+        cpu = @win.getch
+        @game.add_player(name, cpu.upcase == "Y")
+        @win.addstr("\n")
+      end
+    end
+    
+    def get_game_result
+      draw_confirm("The game is over. Press any key to continue to see who won...")
+      
+      top_score = @game.get_top_score
+      winners = @game.get_winners
+      
+      if winners.size == 1 
+        draw_confirm "And the winner is... #{winners.first} with #{top_score} points!"
+      else
+        draw_confirm "We have a tie! #{winners.join(', ')} all win with #{top_score} points!"
+      end
+      
+      @game.exit_game
     end
 
     # =============================
