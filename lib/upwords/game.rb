@@ -112,7 +112,7 @@ module Upwords
     end
 
     def cpu_move
-      move = current_player.cpu_move(@board, @dict, sample_size=50, min_score=10)      
+      move = current_player.cpu_move(@board, @dict, batch_size=50, min_score=10)      
       if !move.nil?
         move.each { |pos, letter| play_letter(letter, *pos) }
         submit_moves
