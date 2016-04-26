@@ -43,34 +43,32 @@ module Upwords
       draw_grid
       draw_controls
 
-      # TODO: make this the main game loop
       while @game.running? do
         @rack_visible = false
         draw_player_info
         draw_message "#{@game.current_player.name}'s turn"
 
-        # TODO: make CPU move subroutine it's own method
+        # CPU move subroutine
         if @game.current_player.cpu?
           draw_message "#{@game.current_player.name} is thinking..."
           @game.cpu_move
+
+        # Read key inputs then update cursor and window
         else
-          # TODO: make human player subroutine it's own method
-          # Read key inputs then update cursor and window
           while read_key do
             @win.setpos(*letter_pos(*@game.cursor.pos))
             draw_letters
             draw_stack_heights
-            draw_player_info # TODO: remove duplicate method?
+            draw_player_info 
           end
         end
-
-        draw_letters  # Draw letters again to remove any highlights          
-        draw_stack_heights
-        draw_player_info
-
-        # Game over subroutine
-        get_game_result if @game.game_over?
         
+        # Game over subroutine
+        if @game.game_over?
+          draw_player_info 
+          get_game_result
+        end
+
       end
     end
 
@@ -95,7 +93,6 @@ module Upwords
       when ENTER
         if draw_confirm("Are you sure you wanted to submit? (y/n)")  
           @game.submit_moves
-          # TODO: update this method
           return false
         end
       when '+'
@@ -109,12 +106,12 @@ module Upwords
         end
       when '-'
         if draw_confirm("Are you sure you wanted to skip your turn? (y/n)")  
-          @game.skip_turn # TODO: update this method
+          @game.skip_turn
           return false
         end
       when /[[:alpha:]]/
         @game.play_letter(key)
-        draw_message(@game.standard_message) # TODO: factor this method
+        draw_message(@game.standard_message)
       end
       
       return true
@@ -123,7 +120,7 @@ module Upwords
       draw_confirm("#{exception.message} (press any key to continue...)")
       return true 
     end
-    
+
     # =============================
     # Subroutines in draw loop
     # =============================    
@@ -245,7 +242,7 @@ module Upwords
          "Swap Letter    [+]",
          "Skip Turn      [-]",
          "Quit Game      [SHIFT+Q]",
-         "Force Quit     [CTRL+Z]"      # TODO: technically this only for unix shells...
+         "Force Quit     [CTRL+Z]"      # TODO: technically this only works for unix shells...
         ].each_with_index do |line, i|
           @win.setpos(y+i, x)
           @win.addstr(line)
@@ -259,16 +256,14 @@ module Upwords
       draw_for_each_cell do |row, col|
         @win.setpos(*letter_pos(row, col))
         
-        if board.nonempty_space?(row, col)
-          letter = board.top_letter(row, col)
-          if @game.pending_position?(row, col)
-            Curses.attron(Curses.color_pair(YELLOW)) { @win.addstr(letter) }  
-          else
-            @win.addstr(letter)      
-          end  
+        # HACK: removes yellow highlighting from 'Qu'
+        letter = "#{board.top_letter(row, col)}  "[0..1] 
+
+        if @game.pending_position?(row, col)
+          Curses.attron(Curses.color_pair(YELLOW)) { @win.addstr(letter) }
         else
-          @win.addstr("  ")
-        end
+          @win.addstr(letter)      
+        end  
       end
     end
 
