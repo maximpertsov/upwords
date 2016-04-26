@@ -93,17 +93,17 @@ module Upwords
       (0...board.num_rows).map do |row| 
         (0...board.num_columns).map {|col| [row, col]} 
         
-      # Collect all positions of all possible horizontal multi-position moves that player could make
+        # Collect all positions of all possible horizontal multi-position moves that player could make
       end.flat_map do |posns|
         (2..(letters.size)).flat_map {|sz| posns.combination(sz).to_a}
         
-      # Collect all positions of all possible vertical and horizontal moves that player could make
+        # Collect all positions of all possible vertical and horizontal moves that player could make
       end.reduce(one_space_moves) do |all_moves, move|
         all_moves << move                           # Horizontal moves
         all_moves << move.map {|posn| posn.rotate}  # Vertical moves
-      
-      # Filter out illegal move shapes  
-      end.select |move_posns|
+        
+        # Filter out illegal move shapes  
+      end.select do |move_posns|
         Shape.new(move_posns).legal?(board)
       end
     end
@@ -135,10 +135,10 @@ module Upwords
     def cpu_move(board, dict, batch_size = 1000, min_score = 0)
       possible_moves = self.legal_move_shapes_letter_permutations(board)      
       possible_moves.shuffle!
-
+      
       top_score = 0
       top_score_move = nil
-
+      
       while top_score_move.nil? || (top_score < min_score) do
         
         # Check if next batch contains any legal moves and save the top score
@@ -158,7 +158,7 @@ module Upwords
         # Decrement minimum required score after each cycle to help prevent long searches
         min_score = [(min_score - 1), 0].max
       end
-
+      
       top_score_move
     end
     

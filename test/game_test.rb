@@ -4,7 +4,7 @@ class GameTest < Minitest::Test
   include Upwords
   
   def setup
-    @game = Game.new(display=false)
+    @game = Game.new
     @game.add_player("Max")
     @game.add_player("Jordan")
   end
@@ -20,7 +20,7 @@ class GameTest < Minitest::Test
   def test_can_play_letter_at_cursor_posn
     @game.current_player.take_letter("C")
     @game.play_letter("C")
-    assert_equal "C", @game.board.top_letter(*@game.cursor.posn)
+    assert_equal "C", @game.board.top_letter(*@game.cursor.pos)
   end
 
   def test_can_play_letter_at_given_posn

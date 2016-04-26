@@ -113,12 +113,8 @@ class PlayerTest < Minitest::Test
       end
     end
 
-    def test_straight_moves
-      assert_equal 33, @p1.straight_moves(@board).size
-    end
-
     def test_no_illegal_move_shapes
-      legal_shapes = @p1.legal_move_shapes(@board, &@p1.standard_legal_shape_filter(@board)) 
+      legal_shapes = @p1.legal_move_shapes(@board) 
 
       illegal_shapes = [[[0,1],[0,2],[0,3]],
                         [[2,0]],
@@ -160,14 +156,14 @@ class PlayerTest < Minitest::Test
          [[[0, 2], "G"], [[1, 2], "D"], [[2, 2], "O"]],
          [[[0, 2], "G"], [[1, 2], "O"], [[2, 2], "D"]]])
 
-      legal_permutations = @p1.legal_shape_letter_permutations(@board, &@p1.standard_legal_shape_filter(@board))
+      legal_permutations = @p1.legal_move_shapes_letter_permutations(@board)
       
       legal_perms.each do |legal_perm|
         assert_includes(legal_permutations, legal_perm)
       end
     end
 
-    def test_illegal_shape_letter_permutations
+    def test_illegal_move_shapes_letter_permutations
       illegal_perms = Set.new(
         [[[[2, 0], "O"]],
          [[[2, 1], "G"]],
@@ -185,7 +181,7 @@ class PlayerTest < Minitest::Test
          [[[2, 0], "G"], [[2, 1], "D"], [[2, 2], "O"]],
          [[[2, 0], "G"], [[2, 1], "O"], [[2, 2], "D"]]])
 
-      legal_permutations = @p1.legal_shape_letter_permutations(@board, &@p1.standard_legal_shape_filter(@board))
+      legal_permutations = @p1.legal_move_shapes_letter_permutations(@board)
       
       illegal_perms.each do |illegal_perm|
         refute_includes(legal_permutations, illegal_perm)
