@@ -1,7 +1,10 @@
+# Encapsules a player
+# Contains basic AI logic
+
 module Upwords
   class Player
 
-    attr_reader :name, :cpu
+    attr_reader :name
     attr_accessor :score, :last_turn
 
     def initialize(name, rack_capacity=7, cpu=false)
@@ -10,10 +13,6 @@ module Upwords
       @score = 0
       @last_turn = nil
       @cpu = cpu
-    end
-
-    def cpu?
-      @cpu
     end
 
     def letters
@@ -39,6 +38,10 @@ module Upwords
     def take_letter(letter)
       @rack.add(letter)
     end
+    
+    # -------------------------------
+    # Game object interaction methods
+    # -------------------------------
 
     def take_from(board, row, col)
       if board.stack_height(row, col) == 0
@@ -74,79 +77,84 @@ module Upwords
       end
     end
     
-    # ----------------
-    # CPU Move Methods
-    # ----------------
+    # ---------------
+    # AI move methods
+    # ---------------
     
-    def straight_moves(board)
-      rows = board.num_rows
-      cols = board.num_columns
-      
-      # Get single-position moves
+    def cpu?
+      @cpu
+    end
+    
+    # Return a list of legal move shapes that player could make on board
+    def legal_move_shapes(board)
       one_space_moves = board.coordinates.map {|posn| [posn]}
       
-      # Get board positions grouped by rows
-      (0...rows).map do |row| 
-        (0...cols).map {|col| [row, col]}
+      # Collect board positions grouped by rows
+      (0...board.num_rows).map do |row| 
+        (0...board.num_columns).map {|col| [row, col]} 
         
-        # Get horizontal multi-position moves
+      # Collect all positions of all possible horizontal multi-position moves that player could make
       end.flat_map do |posns|
         (2..(letters.size)).flat_map {|sz| posns.combination(sz).to_a}
         
-        # Collect all possible straight moves 
+      # Collect all positions of all possible vertical and horizontal moves that player could make
       end.reduce(one_space_moves) do |all_moves, move|
-        all_moves << move << move.map {|posn| posn.rotate}
-      end
-    end
-    
-    # TODO: Strip out move filters and have the client provide them in a block
-    def legal_move_shapes(board, &filter) 
-      straight_moves(board).select(&filter)
-    end
-    
-    def standard_legal_shape_filter(board)
-      proc do |move_arr|
-        Shape.new(move_arr).legal?(board)
-      end
-    end
-    
-    def legal_shape_letter_permutations(board, &filter)
-      # Cache result of letter permutation computation for each move size
-      letter_perms = Hash.new {|ps, sz| ps[sz] = letters.permutation(sz).to_a}
+        all_moves << move                           # Horizontal moves
+        all_moves << move.map {|posn| posn.rotate}  # Vertical moves
       
-      legal_move_shapes(board, &filter).reduce([]) do |all_moves, move|
+      # Filter out illegal move shapes  
+      end.select |move_posns|
+        Shape.new(move_posns).legal?(board)
+      end
+    end
+    
+    # Return list of all possible letter permutations on legal move shapes that player could make on board
+    # Elements in the list will be in form of [(row, col), letter]
+    def legal_move_shapes_letter_permutations(board)
+      # Cache result of letter permutation computation for each move size
+      letter_perms = Hash.new {|perms, sz| perms[sz] = letters.permutation(sz).to_a}
+      
+      legal_move_shapes(board).reduce([]) do |all_moves, move|
         letter_perms[move.size].reduce(all_moves) do |move_perms, perm|
           move_perms << move.zip(perm)
         end
       end
     end
 
-    def cpu_move(board, dict, sample_size = 1000, min_score = 0)
-      all_possible_moves = (self.legal_shape_letter_permutations(board, &self.standard_legal_shape_filter(board)))      
-      all_possible_moves.shuffle!
+    # Execute a legal move based on a predefined strategy
+    #
+    # Basic strategy:
+    # - Find all legal move shapes and all possible letter permutations across those shapes (this computation is relatively quick)
+    # - Retun the highest score from permutation that do not produce in any illegal new words (this computation is slow...)
+    # - To speed up the above computation: 
+    #   + Only check a batch of permutations at a time (specified in 'batch_size' argument)
+    #   + After each batch, terminate the subroutine if it finds a score that is at least as high as the given 'min_score'
+    #   + Decrement the 'min_score' after each batch that does not terminate the subroutine to prevent endless searches
+    #
+    # TODO: refactor the the 'strategy' component out of this method, so different strategies can be swapped in and out
+    def cpu_move(board, dict, batch_size = 1000, min_score = 0)
+      possible_moves = self.legal_move_shapes_letter_permutations(board)      
+      possible_moves.shuffle!
 
       top_score = 0
       top_score_move = nil
 
       while top_score_move.nil? || (top_score < min_score) do
-
-        ([sample_size, all_possible_moves.size].min).times do
-                    
-          move_arr = all_possible_moves.pop
+        
+        # Check if next batch contains any legal moves and save the top score
+        ([batch_size, possible_moves.size].min).times do
+          move_arr = possible_moves.pop
           move = Move.new(move_arr)
 
           if move.legal_words?(board, dict)
-
             move_score = move.score(board, self)
-
             if move_score >= top_score
               top_score = move_score
               top_score_move = move_arr
             end
-
           end
         end
-
+        
         # Decrement minimum required score after each cycle to help prevent long searches
         min_score = [(min_score - 1), 0].max
       end
