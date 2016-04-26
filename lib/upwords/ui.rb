@@ -24,6 +24,10 @@ module Upwords
       begin
         @win = Curses.stdscr
         @win.keypad=(true)
+
+        add_players
+        @game.all_refill_racks
+
         @win.setpos(*letter_pos(*@game.cursor.pos))
         draw_update_loop
       ensure
@@ -36,7 +40,6 @@ module Upwords
     # ==================================
 
     def draw_update_loop
-      add_players
       draw_grid
       draw_controls
 
@@ -144,7 +147,7 @@ module Upwords
         name = @win.getch
         @win.addstr("Is #{name.length > 0 ? name : sprintf('Player %d', idx)} a computer? (y/n)\n")
         cpu = @win.getch
-        @game.add_player(name, cpu.upcase == "Y")
+        @game.add_player(name, rack_capacity=7, cpu.upcase == "Y")
         @win.addstr("\n")
       end
     end

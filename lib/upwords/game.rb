@@ -11,7 +11,6 @@ module Upwords
       @moves = MoveManager.new(@board, @dict)
       @players = []
       @running = true
-      all_refill_racks
     end
     
     # =========================================
