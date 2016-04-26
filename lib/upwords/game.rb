@@ -11,6 +11,7 @@ module Upwords
       @moves = MoveManager.new(@board, @dict)
       @players = []
       @running = true
+      all_refill_racks
     end
     
     # =========================================
@@ -36,33 +37,6 @@ module Upwords
       name = "Player #{player_count + 1}" if name.nil? || name.length == 0
         
       @players << Player.new(name, letter_capacity, cpu)
-    end
-
-    def add_players(player_names = nil)
-      print "\n"
-      num_players = 0
-
-      # Select how many players will be in the game
-      # TODO: Add a command-line flag to allow players to skip this step
-      until (1..@max_players).include?(num_players) do
-        print "How many players will play? (1-#{@max_players})\n"
-        num_players = gets.chomp.to_i
-        print "\n"
-        if !(1..@max_players).include?(num_players)
-          print "Invalid selection: #{num_players}\n\n"
-        end
-      end
-
-      # Name each player and choose if they are humans or computers
-      # TODO: Add a command-line flag to set this
-      (1..num_players).each do |idx|
-        print "What is Player #{idx}'s name?\n"
-        name = gets.chomp
-        print "Is #{name.length > 0 ? name : sprintf('Player %d', idx)} a computer? (y/n)\n"
-        cpu = gets.chomp
-        add_player(name, cpu.upcase == "Y")
-        print "\n"
-      end
     end
 
     def all_refill_racks
