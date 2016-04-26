@@ -11,8 +11,8 @@ module Upwords
     # --------------------------------
     # Player-Board Interaction Methods
     # --------------------------------
+
     def add(player, letter, row, col)
-      # TODO: remove the need for @pending_move.map
       if self.include?(row, col) 
         raise IllegalMove, "You can't stack on a space more than once in a single turn!"
       elsif
@@ -48,7 +48,11 @@ module Upwords
       end
     end
 
-    # TODO: cache prev board in local variable...
+    # -------------------------------------
+    # Methods that require the game history
+    # -------------------------------------
+
+    # TODO: cache previous board in local variable...
     def pending_words
       prev_board = Board.build(@move_history, @board.size, @board.max_height)
       Move.new(@pending_move).new_words(prev_board)

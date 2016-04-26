@@ -5,7 +5,7 @@ module Upwords
     def initialize(display_on = true, max_players = 4)
       @max_players = max_players
       @board = Board.new(10, 5)
-      @letter_bank = LetterBank.new(%w(A S A S A S A S)) #ALL_LETTERS.dup)
+      @letter_bank = LetterBank.new(ALL_LETTERS.dup)
       @cursor = Cursor.new(@board.num_rows, @board.num_columns, *@board.middle_square[0])
       @dict = Dictionary.import(OSPD_FILE)
       @moves = MoveManager.new(@board, @dict)

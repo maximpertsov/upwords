@@ -128,7 +128,6 @@ module Upwords
       top_score = 0
       top_score_move = nil
 
-      # TODO: write test for this method
       while top_score_move.nil? || (top_score < min_score) do
 
         ([sample_size, all_possible_moves.size].min).times do

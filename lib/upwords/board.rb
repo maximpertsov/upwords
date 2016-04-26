@@ -1,7 +1,7 @@
 module Upwords
   class Board
     
-    attr_accessor :max_height, :size
+    attr_accessor :max_height, :min_word_length, :size
 
     # creates a 10 x 10 board
     def initialize(size=10, max_height=5)
@@ -10,6 +10,7 @@ module Upwords
       else
         @size = size
         @max_height = max_height
+        @min_word_length = 2
         @grid = Hash.new do |h, (row, col)|
           if row < 0 || col < 0 || num_rows <= row || num_columns <= col
             raise IllegalMove, "#{row}, #{col} is out of bounds!"
@@ -26,11 +27,6 @@ module Upwords
 
     def nonempty_space?(row, col)
       @grid.key?([row, col]) && stack_height(row, col) > 0
-    end
-
-    # maximum letters than can be stacked in one space
-    def min_word_length
-      2
     end
 
     def num_rows
@@ -70,6 +66,7 @@ module Upwords
       else 
         return true
       end
+
       return false
     end
 
@@ -84,13 +81,8 @@ module Upwords
       @grid[[row, col]].pop
     end
     
-    # show top letter in board space
     def top_letter(row, col)
-      get_letter(row, col, 1)
-    end
-
-    def get_letter(row, col, depth=1)
-      @grid[[row, col]][-depth]
+      @grid[[row, col]].last
     end
 
     def word_positions

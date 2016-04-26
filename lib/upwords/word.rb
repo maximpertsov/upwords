@@ -1,8 +1,5 @@
 module Upwords
   class Word
-    
-    # MIN_WORD_LENGTH = 2
-
     attr_reader :score, :length
 
     def initialize(posns, board) 
