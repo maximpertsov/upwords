@@ -1,5 +1,6 @@
 require 'set'
 require 'curses'
+require 'inflections'
 
 require 'upwords/version'
 
