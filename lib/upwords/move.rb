@@ -84,16 +84,18 @@ module Upwords
       end
     end
 
+    def words_on(board)
+      posns = board.word_positions.select do |word_posns|
+        word_posns.any? { |row, col| position?(row, col) }
+      end
+      posns.map { |word_posns| Word.new(word_posns, board) }
+    end
+
     # Return a list of new words that would result from playing this move on the board
     def new_words(board, raise_exception = false)
       if can_play_letters?(board, raise_exception)
         # HACK: update board with new move
-        words = board.play_move(self).word_positions.select do |word_posns|
-          word_posns.any? { |row, col| position?(row, col) }
-        end.map do |word_posns|
-          Word.new(word_posns, board)
-        end
-
+        words = words_on(board.play_move(self))
         # HACK: remove move from board
         remove_from(board)
 
