@@ -20,9 +20,12 @@ Gem::Specification.new do |s|
   s.require_paths = ["lib", "data"]
 
   s.add_dependency "curses", "~> 1.0"
+
   s.add_development_dependency "bundler", "~> 1.11"
   s.add_development_dependency "rake", "~> 10.0"
   s.add_development_dependency "minitest", "~> 5.0"
   s.add_development_dependency "minitest-reporters", "~> 1.1"
   s.add_development_dependency "pry", "~> 0.10"
+  s.add_development_dependency "rubocop", "~> 0.52"
+  s.add_development_dependency "solargraph", "~> 0.25"
 end
