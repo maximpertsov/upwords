@@ -1,6 +1,7 @@
+# frozen_string_literal: true
+
 require 'set'
 require 'curses'
-require 'inflections'
 
 require 'upwords/version'
 
@@ -27,15 +28,15 @@ module Upwords
 
   # Letters available in 10 x 10 version of Upwords
   ALL_LETTERS = {
-    8 => ["E"],
-    7 => ["A", "I", "O"],
-    6 => ["S"],
-    5 => ["D", "L", "M", "N", "R", "T", "U"],
-    4 => ["C"],
-    3 => ["B", "F", "G", "H", "P"],
-    2 => ["K", "W", "Y"],
-    1 => ["J", "Qu", "V", "X", "Z"]
-  }.flat_map {|count, letters| letters * count}
+    8 => %w[E],
+    7 => %w[A I O],
+    6 => %w[S],
+    5 => %w[D L M N R T U],
+    4 => %w[C],
+    3 => %w[B F G H P],
+    2 => %w[K W Y],
+    1 => %w[J Qu V X Z]
+  }.flat_map { |count, letters| letters * count }
 
   # Curses Key Constants
   ESCAPE = 27
@@ -48,6 +49,5 @@ module Upwords
   YELLOW = 2
 
   # Official Scrabble Player Dictionary file
-  OSPD_FILE = File.join(File.dirname(__FILE__), "../data/ospd.txt")
-  
+  OSPD_FILE = File.join(File.dirname(__FILE__), '../data/ospd.txt')
 end

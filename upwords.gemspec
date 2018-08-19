@@ -21,7 +21,6 @@ Gem::Specification.new do |s|
   s.require_paths = %w[lib data]
 
   s.add_dependency 'curses', '~> 1.0'
-  s.add_dependency 'inflections', '~> 4.1'
 
   s.add_development_dependency 'bundler', '~> 1.11'
   s.add_development_dependency 'minitest', '~> 5.0'

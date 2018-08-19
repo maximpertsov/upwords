@@ -24,9 +24,7 @@ module Upwords
     # is the singular of this word
     def simple_plural?(dict)
       word = to_s
-      return false unless word[-1] == 's'
-      plural = word.chomp('s').pluralize
-      dict.legal_word?(plural) && plural == word
+      word[-1] == 's' && dict.legal_word?(word.chomp('s'))
     end
 
     # Calculate the score of word on board

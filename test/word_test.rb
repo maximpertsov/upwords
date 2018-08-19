@@ -5,22 +5,23 @@ class WordTest < Minitest::Test
 
   def setup
     @board = Board.new
-    @dict = Dictionary.new(['cat'], ['cats'])
-    @moves = [['c', 0, 1], ['a', 0, 2], ['t', 0, 3],
-              ['s', 1, 0],
-              ['a', 2, 0],
-              ['l', 2, 0], # stack 'l' on top of 'a'
-              ['x', 3, 0]]
+    @dict = Dictionary.new(%w[cat cats])
+    cat = [['c', 0, 1], ['a', 0, 2], ['t', 0, 3]]
+    slx = [
+      ['s', 1, 0],
+      ['a', 2, 0],
+      ['l', 2, 0], # stack 'l' on top of 'a'
+      ['x', 3, 0]
+    ]
 
+    @moves = cat + slx
     @moves.each { |l, r, c| @board.play_letter(l, r, c) }
 
+    @posns = @moves.map { |_l, r, c| [r, c] }
     # the word 'cat'
-    @word1 = Word.new(@moves.map { |_l, r, c| [r, c] }.select { |r, _c| r == 0 },
-                      @board)
-
+    @word1 = Word.new(@posns.select { |r, _c| r.zero? }, @board)
     # the word 'slx'
-    @word2 = Word.new(@moves.map { |_l, r, c| [r, c] }.select { |_r, c| c == 0 },
-                      @board)
+    @word2 = Word.new(@posns.select { |_r, c| c.zero? }, @board)
   end
 
   def test_score_with_bonus
@@ -40,9 +41,10 @@ class WordTest < Minitest::Test
   end
 
   def test_simple_plural
-    @board.play_letter('s', 0, 4)
-    posns = @moves.map { |_l, r, c| [r, c] }
-    plural = Word.new(posns.select { |r, _c| r.zero? }, @board)
+    # Try to make 'cats' by adding an 's'
+    posn, _l = @board.play_letter('s', 0, 4)
+    @posns << posn
+    plural = Word.new(@posns.select { |r, _c| r.zero? }, @board)
     assert plural.simple_plural?(@dict)
   end
 end
