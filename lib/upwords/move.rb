@@ -1,11 +1,12 @@
+# frozen_string_literal: true
+
 # Encapsulates a possible move that a player could submit in a single turn
 
 module Upwords
   class Move
-    
     # Initialized with a list of 2D arrays, each containing a position (row, col) and a letter
     def initialize(tiles = [])
-      @shape = Shape.new(tiles.map {|(row, col), letter| [row, col]})
+      @shape = Shape.new(tiles.map { |(row, col), _letter| [row, col] })
       @move = tiles.to_h
     end
 
@@ -14,7 +15,7 @@ module Upwords
     # will also add 20 points if the player uses all of their letters in the move
     def score(board, player)
       new_words(board).reduce(player.rack_capacity == @move.size ? 20 : 0) do |total, word|
-        total += word.score
+        total + word.score
       end
     end
 
@@ -26,23 +27,22 @@ module Upwords
     # Check if a move has a legal shape
     def legal_shape?(board, raise_exception = false)
       @shape.legal?(board, raise_exception)
-    end   
-    
+    end
+
     # Check if all words that result from move are legal
     # TODO: Add the following legal move checks:
     # TODO: - Move is not a simple pluralization? (e.g. Cat -> Cats is NOT a legal move)
     def legal_words?(board, dict, raise_exception = false)
-
-      if can_play_letters?(board, raise_exception)    
-        bad_words = self.new_illegal_words(board, dict)
+      if can_play_letters?(board, raise_exception)
+        bad_words = new_illegal_words(board, dict)
         if bad_words.empty?
           return true
         elsif raise_exception
-          raise IllegalMove, "#{bad_words.join(', ')} #{bad_words.size==1 ? 'is not a legal word' : 'are not legal words'}!" 
+          raise IllegalMove, "#{bad_words.join(', ')} #{bad_words.size == 1 ? 'is not a legal word' : 'are not legal words'}!"
         end
       end
 
-      return false
+      false
     end
 
     # Check if entire move can be played on a board violating any board constraints, such as
@@ -62,52 +62,48 @@ module Upwords
     def [](row, col)
       @move[[row, col]]
     end
-    
+
     # Play move on board and return the board
-    # NOTE: this method mutates the boards! 
+    # NOTE: this method mutates the boards!
     # TODO: consider adding the 'can_play_letters?' check?
     def play(board)
-      @move.reduce(board) do |b, (posn, letter)| 
+      @move.each_with_object(board) do |(posn, letter), b|
         b.play_letter(letter, *posn)
-        b
       end
     end
 
     # Remove a previous move from the board and return the board (throws an exception if the move does not exist on the board)
-    # NOTE: this method mutates the boards! 
+    # NOTE: this method mutates the boards!
     def remove_from(board)
-      if @move.any? {|(row, col), letter| board.top_letter(row, col) != letter}
-        raise IllegalMove, "Move does not exist on board and therefore cannot be removed!"
+      if @move.any? { |(row, col), letter| board.top_letter(row, col) != letter }
+        raise IllegalMove, 'Move does not exist on board and therefore cannot be removed!'
       else
-        (@move.each_key).reduce(board) do |b, posn| 
+        @move.each_key.each_with_object(board) do |posn, b|
           b.remove_top_letter(*posn)
-          b
         end
       end
     end
 
     # Return a list of new words that would result from playing this move on the board
     def new_words(board, raise_exception = false)
-      if can_play_letters?(board, raise_exception) 
+      if can_play_letters?(board, raise_exception)
         # HACK: update board with new move
-        words = (board.play_move(self).word_positions).select do |word_posns|
-          word_posns.any? {|row, col| position?(row, col)}
-          
+        words = board.play_move(self).word_positions.select do |word_posns|
+          word_posns.any? { |row, col| position?(row, col) }
         end.map do |word_posns|
           Word.new(word_posns, board)
         end
-  
+
         # HACK: remove move from board
         remove_from(board)
-  
-        return words
+
+        words
       end
     end
 
     # Return a list of new words that are not legal that would result from playing this move on the board
     def new_illegal_words(board, dict)
-      new_words(board).reject {|word| dict.legal_word?(word.to_s)}
+      new_words(board).reject { |word| dict.legal_word?(word.to_s) }
     end
-
   end
 end
