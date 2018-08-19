@@ -100,6 +100,8 @@ module Upwords
         remove_from(board)
 
         words
+      else
+        []
       end
     end
 

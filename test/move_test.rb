@@ -69,4 +69,16 @@ class MoveTest < Minitest::Test
     assert_equal 1, illegal_words.size
     assert_includes(illegal_words, 'cat')
   end
+
+  def test_cannot_play_simple_pluralization
+    dict = Dictionary.new(%w[cat cats])
+    b = @move.play(Board.new(10, 5))
+
+    # Just play 's' to make 'cats'
+    new_move = Move.new([[[0, 3], 's']])
+
+    illegal_words = new_move.new_illegal_words(b, dict).map(&:to_s)
+    assert_equal 1, illegal_words.size
+    assert_includes(illegal_words, 'cats')
+  end
 end
