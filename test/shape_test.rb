@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'test_helper'
 
 class ShapeTest < Minitest::Test
@@ -7,10 +9,10 @@ class ShapeTest < Minitest::Test
     @move_shape = Shape.new
     @board = Board.new(10, 5)
   end
-  
+
   class BasicShapeTest < ShapeTest
     def test_can_initiate_shape_from_position_list
-      @move_shape = Shape.new([[1,1],[1,2, 'a'],[1,3]])
+      @move_shape = Shape.new([[1, 1], [1, 2, 'a'], [1, 3]])
       assert_kind_of(Shape, @move_shape)
       assert_equal 3, @move_shape.size
     end
@@ -19,10 +21,10 @@ class ShapeTest < Minitest::Test
       bad_posns = [[1, 'a'], [1.0, 2], [1]]
 
       bad_posns.each do |posn|
-        assert_raises(ArgumentError) {@move_shape.add(*posn)}
+        assert_raises(ArgumentError) { @move_shape.add(*posn) }
       end
-      
-      assert_raises(ArgumentError) do 
+
+      assert_raises(ArgumentError) do
         Shape.new(bad_posns)
       end
     end
@@ -30,12 +32,12 @@ class ShapeTest < Minitest::Test
     def test_empty?
       assert @move_shape.empty?
     end
-    
+
     def test_can_add_move
       @move_shape.add(1, 2)
-      assert (@move_shape.positions).include? [1, 2]
+      assert @move_shape.positions.include? [1, 2]
     end
-    
+
     def test_row_range
       @move_shape.add(1, 3)
       @move_shape.add(8, 8)
@@ -58,25 +60,24 @@ class ShapeTest < Minitest::Test
 
   class CoveringMovesShapeTest < ShapeTest
     def test_covered_word_positions
-      board = [[2,4],[3,4],[4,4],
-               [2,7],[3,7],[4,7]].reduce(Board.new(10,5)) do |b,(r,c)|
+      posns = [[2, 4], [3, 4], [4, 4], [2, 7], [3, 7], [4, 7]]
+      board = posns.each_with_object(Board.new(10, 5)) do |(r, c), b|
         b.play_letter('x', r, c)
-        b
       end
 
-      covering_move = Shape.new([[2,4],[3,4],[4,4]])
-      not_covering_move = Shape.new([[2,4],[3,4]])
+      covering_move = Shape.new([[2, 4], [3, 4], [4, 4]])
+      not_covering_move = Shape.new([[2, 4], [3, 4]])
 
       assert covering_move.covering_moves?(board)
-      refute not_covering_move.covering_moves?(board) 
+      refute not_covering_move.covering_moves?(board)
     end
   end
-  
+
   class NoGapsShapeTest < ShapeTest
     def test_gaps_covered_by_other_move?
-      @move_shape.add(3,3)
-      @move_shape.add(3,5)
-      
+      @move_shape.add(3, 3)
+      @move_shape.add(3, 5)
+
       (2..4).each do |row|
         @board.play_letter('x', row, 4)
       end
@@ -133,5 +134,4 @@ class ShapeTest < Minitest::Test
       refute @move_shape.touching?(@board)
     end
   end
-
 end
